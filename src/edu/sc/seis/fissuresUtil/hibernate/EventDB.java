@@ -177,7 +177,7 @@ public class EventDB extends AbstractHibernateDB {
      * one would hope).
      */
     public CacheEvent[] getSimilarEvents(CacheEvent event, TimeInterval timeTolerance, QuantityImpl positionTolerance)
-            throws SQLException, NotFound {
+            throws NotFound {
         EventFinderQuery query = new EventFinderQuery();
         Origin origin = EventUtil.extractOrigin(event);
         // get query time range

@@ -87,7 +87,7 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
                             .get_id().begin_time;
                     netCode += start.date_time.substring(2, 4);
                 }
-                name = getDisplayString(((NetworkAccess)value).get_attributes().name,
+                name = getDisplayString(((NetworkAccess)value).get_attributes().getName(),
                                         netCode);
             } catch(Throwable e) {
                 GlobalExceptionHandler.handle("in renderer for network " + name,

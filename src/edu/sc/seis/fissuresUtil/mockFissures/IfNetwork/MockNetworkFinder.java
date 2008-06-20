@@ -36,7 +36,7 @@ public class MockNetworkFinder extends ProxyNetworkFinder {
 
     public NetworkAccess[] retrieve_by_name(String arg0) throws NetworkNotFound {
         for(int i = 0; i < nets.length; i++) {
-            String curName = nets[i].get_attributes().name;
+            String curName = nets[i].get_attributes().getName();
             if(curName.equals(arg0)) { return new NetworkAccess[] {nets[i]}; }
         }
         throw new NetworkNotFound(getExceptionString());
