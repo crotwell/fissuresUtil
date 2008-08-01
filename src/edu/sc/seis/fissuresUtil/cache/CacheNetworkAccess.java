@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,7 +10,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import edu.iris.Fissures.Time;
-import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -19,11 +17,9 @@ import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
-import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.Site;
-import edu.iris.Fissures.IfNetwork.SiteId;
 import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
@@ -31,7 +27,6 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
-import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
@@ -41,18 +36,31 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     public CacheNetworkAccess(NetworkAccess net) {
         super(net);
     }
-    
+
     public CacheNetworkAccess(NetworkAccess net, NetworkAttrImpl attr) {
         super(net);
         this.attr = attr;
     }
-    
-    public static CacheNetworkAccess create(NetworkAttrImpl attr, FissuresNamingService fisName) throws NetworkNotFound {
-        VestingNetworkDC netdc = new VestingNetworkDC(attr.getSourceServerDNS(),
-                                                      attr.getSourceServerName(),
-                                                      fisName);
-        VestingNetworkFinder vFinder = (VestingNetworkFinder)netdc.a_finder();
-        return vFinder.vest(attr);   
+
+    public static CacheNetworkAccess create(NetworkAttrImpl attr,
+                                            FissuresNamingService fisName)
+            throws NetworkNotFound {
+        return getVNFinder(attr, fisName).vest(attr);
+    }
+
+    public static VestingNetworkFinder getVNFinder(NetworkAttrImpl attr,
+                                            FissuresNamingService fisName)
+            throws NetworkNotFound {
+        String key = FissuresNamingService.piecesToNameString(attr.getSourceServerDNS(),
+                                                FissuresNamingService.NETWORKDC,
+                                                attr.getSourceServerName());
+        if(!vnFinderCache.containsKey(key)) {
+            VestingNetworkDC netdc = new VestingNetworkDC(attr.getSourceServerDNS(),
+                                                          attr.getSourceServerName(),
+                                                          fisName);
+            vnFinderCache.put(key, (VestingNetworkFinder)netdc.a_finder());
+        }
+        return vnFinderCache.get(key);
     }
 
     /**
@@ -66,6 +74,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         knownStations.clear();
         knownSites.clear();
         sensMap.clear();
+        vnFinderCache.clear();
         super.reset();
     }
 
@@ -89,6 +98,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             if(stations == null) {
                 stations = getNetworkAccess().retrieve_stations();
                 for(int i = 0; i < stations.length; i++) {
+                    if(stations[i].get_code().equals("CMB")) {
+                        logger.debug("Station From Server: "
+                                + StationIdUtil.toStringFormatDates(stations[i]));
+                    }
                     stations[i] = Station.intern(stations[i]);
                 }
             }
@@ -123,7 +136,8 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
-        Instrumentation inst = getNetworkAccess().retrieve_instrumentation(id, the_time);
+        Instrumentation inst = getNetworkAccess().retrieve_instrumentation(id,
+                                                                           the_time);
         updateHolder(id, the_time, inst);
         return inst;
     }
@@ -213,9 +227,11 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
         MicroSecondTimeRange range;
     }
-
-    private  Map<String, Site> knownSites = Collections.synchronizedMap(new HashMap<String, Site>());
     
+    protected static HashMap<String, VestingNetworkFinder> vnFinderCache = new HashMap<String, VestingNetworkFinder>();
+
+    private Map<String, Site> knownSites = Collections.synchronizedMap(new HashMap<String, Site>());
+
     private Map<String, Station> knownStations = Collections.synchronizedMap(new HashMap<String, Station>());
 
     protected NetworkAttrImpl attr;

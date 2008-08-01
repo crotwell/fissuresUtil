@@ -170,7 +170,7 @@ public class SacToFissures {
         return id;
     }
 
-    public static Channel getChannel(SacTimeSeries sac) {
+    public static ChannelImpl getChannel(SacTimeSeries sac) {
         ChannelId chanId = getChannelId(sac);
         float stel = sac.stel;
         if(stel == -12345.0f) {

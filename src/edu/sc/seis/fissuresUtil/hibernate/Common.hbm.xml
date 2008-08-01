@@ -6,7 +6,7 @@
 <hibernate-mapping>
 
 	<class name="edu.iris.Fissures.model.UnitImpl" table="unit"
-		mutable="false">
+		mutable="false"  lazy="false">
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>

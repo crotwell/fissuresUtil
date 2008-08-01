@@ -3,11 +3,15 @@ package edu.sc.seis.fissuresUtil.hibernate;
 
 import org.apache.log4j.Logger;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
+import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.SiteIdUtil;
@@ -29,7 +33,7 @@ public class ChannelGroup {
         dbid = i;
     }
     
-    protected int getDbid() {
+    public int getDbid() {
         return dbid;
     }
     
@@ -200,11 +204,19 @@ public class ChannelGroup {
         return getChannels()[2];
     }
     
+    public Station getStation() {
+        return getChannel1().getSite().getStation();
+    }
+    
+    public NetworkAttr getNetworkAttr() {
+        return getStation().getNetworkAttr();
+    }
+    
     private void setChannel(int index, ChannelImpl chan) {
         if (channels == null) {
          channels = new ChannelImpl[3];   
         }
-        channels[index-1] = chan;
+        channels[index] = chan;
     }
     
     protected void setChannel1(ChannelImpl chan) {
