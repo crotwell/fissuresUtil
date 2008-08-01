@@ -132,12 +132,11 @@ public class NetworkDB extends AbstractHibernateDB {
         return (ChannelGroup)query.uniqueResult();
     }
 
-    public StationImpl[] getStationByCodes(String netCode, String staCode) {
+    public List<StationImpl> getStationByCodes(String netCode, String staCode) {
         Query query = getSession().createQuery(getStationByCodes);
         query.setString("netCode", netCode);
         query.setString("staCode", staCode);
-        List result = query.list();
-        return (StationImpl[])result.toArray(new StationImpl[0]);
+        return query.list();
     }
 
     public List<StationImpl> getAllStationsByCode(String staCode) {
@@ -218,6 +217,13 @@ public class NetworkDB extends AbstractHibernateDB {
         query.setEntity("netAttr", attr);
         return query.list();
     }
+    
+    public List<StationImpl> getStationForNet(NetworkAttrImpl attr, String staCode) {
+        Query query = getSession().createQuery(getStationForNetwork+" and stationCode = :staCode");
+        query.setEntity("netAttr", attr);
+        query.setString("stacode", staCode);
+        return query.list();
+    }
 
     public List<ChannelImpl> getChannelsForNet(NetworkAttrImpl attr) {
         Query query = getSession().createQuery(getChannelForNetwork);
@@ -251,20 +257,24 @@ public class NetworkDB extends AbstractHibernateDB {
         return getSession().createQuery("from "+ChannelImpl.class.getName()).list();
     }
 
-    public ChannelImpl[] getChannelsForStation(StationImpl station) {
+    public List<ChannelImpl> getChannelsForStation(StationImpl station) {
         Query query = getSession().createQuery(getChannelForStation);
         query.setEntity("station", station);
-        List result = query.list();
-        return (ChannelImpl[])result.toArray(new ChannelImpl[0]);
+        return query.list();
     }
 
-    public ChannelImpl[] getChannelsForStation(StationImpl station,
+    public List<ChannelGroup> getChannelGroupsForStation(StationImpl station) {
+        Query query = getSession().createQuery(getChannelGroupForStation);
+        query.setEntity("station", station);
+        return query.list();
+    }
+
+    public List<ChannelImpl> getChannelsForStation(StationImpl station,
                                                MicroSecondDate when) {
         Query query = getSession().createQuery(getChannelForStationAtTime);
         query.setEntity("station", station);
         query.setTimestamp("when", when.getTimestamp());
-        List result = query.list();
-        return (ChannelImpl[])result.toArray(new ChannelImpl[0]);
+        return query.list();
     }
 
     public ChannelImpl getChannel(String net,
@@ -365,6 +375,9 @@ public class NetworkDB extends AbstractHibernateDB {
 
     static String getChannelForStation = "From " + ChannelImpl.class.getName()
             + " c WHERE c.site.station = :station";
+
+    static String getChannelGroupForStation = "From " + ChannelGroup.class.getName()
+            + " c WHERE c.channel1.site.station = :station";
 
     static String getChannelForStationAtTime = getChannelForStation
             + " and :when between chan_begin_time and chan_end_time";

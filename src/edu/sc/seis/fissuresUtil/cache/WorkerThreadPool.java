@@ -21,6 +21,7 @@ public class WorkerThreadPool {
         this.poolSize = numThreads;
         tg = new ThreadGroup(name);
         tg.setMaxPriority(priority);
+        tg.setDaemon(true);
         fillPool();
     }
     
@@ -89,9 +90,9 @@ public class WorkerThreadPool {
 
     private ThreadGroup tg;
 
-    private LinkedList queue = new LinkedList();
+    private LinkedList<Runnable> queue = new LinkedList<Runnable>();
 
-    private Set idle = Collections.synchronizedSet(new HashSet());
+    private Set<BackgroundWorker> idle = Collections.synchronizedSet(new HashSet<BackgroundWorker>());
 
     private static WorkerThreadPool defaultPool;
     

@@ -12,18 +12,26 @@ public class SynchronizedNetworkFinder extends ProxyNetworkFinder {
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
-        return nf.retrieve_by_id(id);
+        synchronized(SynchronizedNetworkAccess.class) {
+            return nf.retrieve_by_id(id);
+        }
     }
 
     public NetworkAccess[] retrieve_by_code(String code) throws NetworkNotFound {
-        return nf.retrieve_by_code(code);
+        synchronized(SynchronizedNetworkAccess.class) {
+            return nf.retrieve_by_code(code);
+        }
     }
 
     public NetworkAccess[] retrieve_by_name(String name) throws NetworkNotFound {
-        return nf.retrieve_by_name(name);
+        synchronized(SynchronizedNetworkAccess.class) {
+            return nf.retrieve_by_name(name);
+        }
     }
 
     public NetworkAccess[] retrieve_all() {
-        return nf.retrieve_all();
+        synchronized(SynchronizedNetworkAccess.class) {
+            return nf.retrieve_all();
+        }
     }
 }

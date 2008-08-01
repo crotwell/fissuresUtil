@@ -67,7 +67,7 @@ public class EventDB extends AbstractHibernateDB {
         return out;
 	}
 	
-	public CacheEvent[] query(EventFinderQuery q) {
+	public List<CacheEvent> query(EventFinderQuery q) {
 		BoxArea ba = AreaUtil.makeContainingBox(q.getArea());
 		String queryString = (ba.min_longitude <= ba.max_longitude ? finderQueryAvoidDateline
 				: finderQueryAroundDateline);
@@ -83,9 +83,7 @@ public class EventDB extends AbstractHibernateDB {
 		query.setDouble("maxDepth", q.getMaxDepth());
 		query.setFloat("minLon", ba.min_longitude);
 		query.setFloat("maxLon", ba.max_longitude);
-		List result = query.list();
-		CacheEvent[] out = (CacheEvent[]) result.toArray(new CacheEvent[0]);
-		return out;
+		return query.list();
 	}
 
 	public CacheEvent getEvent(int dbid) throws NotFound {
@@ -168,15 +166,13 @@ public class EventDB extends AbstractHibernateDB {
         List out = q.list();
         return (String[])out.toArray(new String[0]);
     }
-	
-	private static EventDB singleton;
 
     /*
      * gets events from the database that vary in position or time by small
      * amounts. results will include the original event, as well (or at least
      * one would hope).
      */
-    public CacheEvent[] getSimilarEvents(CacheEvent event, TimeInterval timeTolerance, QuantityImpl positionTolerance)
+    public List<CacheEvent> getSimilarEvents(CacheEvent event, TimeInterval timeTolerance, QuantityImpl positionTolerance)
             throws NotFound {
         EventFinderQuery query = new EventFinderQuery();
         Origin origin = EventUtil.extractOrigin(event);
@@ -197,8 +193,7 @@ public class EventDB extends AbstractHibernateDB {
         query.setMaxMag(INCONCEIVABLY_LARGE_MAGNITUDE);
         query.setMinDepth(INCONCEIVABLY_SMALL_DEPTH);
         query.setMaxDepth(INCONCEIVABLY_LARGE_DEPTH);
-        CacheEvent[] events = query(query);
-        return events;
+        return query(query);
     }
     
     public CacheEvent[] getEventsByTimeAndDepthRanges(MicroSecondDate minTime,
@@ -244,7 +239,9 @@ public class EventDB extends AbstractHibernateDB {
 	protected String eventByTimeAndDepth;
 	
 	protected String eventByName;
-	
+
+    private static EventDB singleton;
+    
 	public static final float INCONCEIVABLY_SMALL_MAGNITUDE = -99.0f;
 	         
 	public static final float INCONCEIVABLY_LARGE_MAGNITUDE = 12.0f;

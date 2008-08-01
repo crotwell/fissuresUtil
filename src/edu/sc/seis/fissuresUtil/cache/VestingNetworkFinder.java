@@ -1,10 +1,13 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.util.WeakHashMap;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.network.NetworkAttrImpl;
+import edu.iris.Fissures.network.NetworkIdUtil;
 
 public class VestingNetworkFinder extends ProxyNetworkFinder {
 
@@ -15,25 +18,25 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     public VestingNetworkFinder(ProxyNetworkDC netDC,
                                 int numRetry,
                                 RetryStrategy handler) {
-        super(new NSNetworkFinder(netDC, numRetry, handler));
+        super(new CacheByIdNetworkFinder(new NSNetworkFinder(netDC, numRetry, handler)));
         this.numRetry = numRetry;
         this.handler = handler;
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
-        return vest(nf.retrieve_by_id(id));
+        return vest(super.retrieve_by_id(id));
     }
 
     public NetworkAccess[] retrieve_by_code(String code) throws NetworkNotFound {
-        return vest(nf.retrieve_by_code(code));
+        return vest(super.retrieve_by_code(code));
     }
 
     public NetworkAccess[] retrieve_by_name(String name) throws NetworkNotFound {
-        return vest(nf.retrieve_by_name(name));
+        return vest(super.retrieve_by_name(name));
     }
 
     public NetworkAccess[] retrieve_all() {
-        return vest(nf.retrieve_all());
+        return vest(super.retrieve_all());
     }
 
     public NetworkAccess[] vest(NetworkAccess[] accesses) {
@@ -45,7 +48,9 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     }
 
     public CacheNetworkAccess vest(NetworkAccess na) {
-        return vest(na, this, numRetry, handler);
+        CacheNetworkAccess cache = vest(na, this, numRetry, handler);
+        allKnownNetworkAccess.put(cache, null);
+        return cache;
     }
 
     private static CacheNetworkAccess vest(NetworkAccess na,
@@ -53,40 +58,75 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
                                            int numRetry,
                                            RetryStrategy handler) {
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-        ProxyNetworkAccess justToHaveServerAndName = new JustToHaveServerAndName(synch, vnf);
+        ProxyNetworkAccess justToHaveServerAndName = new JustToHaveServerAndName(synch,
+                                                                                 vnf);
         RetryNetworkAccess retry = new RetryNetworkAccess(justToHaveServerAndName,
                                                           numRetry,
                                                           handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
-        
         NetworkId id = cache.get_attributes().get_id();
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, vnf);
         retry.setNetworkAccess(nsNetworkAccess);
         cache.setNetworkAccess(retry);
         return cache;
     }
-    
+
     public CacheNetworkAccess vest(NetworkAttrImpl attr) throws NetworkNotFound {
         NetworkId id = attr.get_id();
+        logger.debug("(CacheById test) vest "+NetworkIdUtil.toString(id));
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(id, this);
         RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess,
                                                           numRetry,
                                                           handler);
-        return new CacheNetworkAccess(retry, attr);
+        CacheNetworkAccess cache = new CacheNetworkAccess(retry, attr);
+        allKnownNetworkAccess.put(cache, null);
+        return cache;
     }
+
+    @Override
+    public void reset() {
+        synchronized(SynchronizedNetworkAccess.class) {
+            super.reset();
+            // do not tell all other network access to reset unless this is the
+            // first time through
+            // otherwise every network access tells the finder to reset, which
+            // tells every network access
+            // to rest...StackOverflow
+            if(!insideReset) {
+                insideReset = true;
+                for(CacheNetworkAccess net : allKnownNetworkAccess.keySet()) {
+                    net.reset();
+                }
+                try {
+                    // give a chance for outstanding requests to server to come
+                    // back
+                    // idea is to give jacorb a chance to garbage collect
+                    // connection/socket
+                    // so we get a clean fresh socket to server
+                    Thread.sleep(1000);
+                } catch(InterruptedException e) {}
+                insideReset = false;
+            }
+        }
+    }
+
+    private transient boolean insideReset = false;
 
     int numRetry;
 
     private RetryStrategy handler;
-    
+
+    /** map of all knows networkAccesses from this finder in case we need to reset. */
+    private WeakHashMap<CacheNetworkAccess, Object> allKnownNetworkAccess = new WeakHashMap<CacheNetworkAccess, Object>();
+
     static class JustToHaveServerAndName extends ProxyNetworkAccess {
 
-        public JustToHaveServerAndName(NetworkAccess net, VestingNetworkFinder vnf) {
+        public JustToHaveServerAndName(NetworkAccess net,
+                                       VestingNetworkFinder vnf) {
             super(net);
             this.vnf = vnf;
         }
 
-        
         protected NetworkAttrImpl setSource(NetworkAttr attr) {
             NetworkAttrImpl impl = (NetworkAttrImpl)attr;
             impl.setSourceServerDNS(getServerDNS());
@@ -112,4 +152,6 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
         private VestingNetworkFinder vnf;
     }
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(VestingNetworkFinder.class);
 }

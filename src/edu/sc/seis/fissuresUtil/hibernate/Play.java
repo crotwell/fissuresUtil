@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -90,11 +91,11 @@ public class Play {
     private void retrieveNet() {
         NetworkDB netDB = new NetworkDB();
         StationImpl[] out = netDB.getAllStations();
-        ChannelImpl[] chanout = netDB.getChannelsForStation(out[0]);
+        List<ChannelImpl> chanout = netDB.getChannelsForStation(out[0]);
         System.out.println("retrieved " + out.length + " stations");
-        for(int i = 0; i < chanout.length; i++) {
+        for(int i = 0; i < chanout.size(); i++) {
             System.out.println("Channel: "
-                    + ChannelIdUtil.toString(chanout[i].get_id()));
+                    + ChannelIdUtil.toString(chanout.get(i).get_id()));
         }
     }
 
@@ -169,14 +170,14 @@ public class Play {
                                                                         -1))));
         q.setMinMag(0);
         EventDB eventDB = new EventDB();
-        CacheEvent[] events = eventDB.query(q);
-        System.out.println("Got " + events.length + " origins");
-        for(int i = 0; i < events.length; i++) {
-            System.out.println("Event " + i + "  "
-                    + events[i].get_preferred_origin().getOriginTime() + "  "
-                    + events[i].get_preferred_origin().getLocation() + "  "
-                    + events[i].get_preferred_origin().getLocation().type + "  "
-                    + events[i].get_attributes());
+        List<CacheEvent> events = eventDB.query(q);
+        System.out.println("Got " + events.size() + " origins");
+        for(CacheEvent cacheEvent : events) {
+            System.out.println("Event "  + "  "
+                    + cacheEvent.get_preferred_origin().getOriginTime() + "  "
+                    + cacheEvent.get_preferred_origin().getLocation() + "  "
+                    + cacheEvent.get_preferred_origin().getLocation().type + "  "
+                    + cacheEvent.get_attributes());
         }
         HibernateUtil.getSessionFactory().close();
     }
