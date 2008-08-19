@@ -10,9 +10,10 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelImpl;
+import edu.sc.seis.fissuresUtil.hibernate.ChannelGroup;
 
 public class MockChannel {
-
+    
     public static ChannelImpl createChannel() {
         return createChannel(MockChannelId.createVerticalChanId(),
                              "Vertical Channel",
@@ -95,6 +96,10 @@ public class MockChannel {
         return channels;
     }
 
+    public static ChannelGroup createGroup() {
+        return new ChannelGroup( createMotionVector());
+    }
+    
     private static final Orientation VERTICAL = new Orientation(0, 90);
 
     private static final Orientation EAST = new Orientation(90, 0);
