@@ -202,13 +202,13 @@
 		</id>
 		<many-to-one name="channel1"
 			class="edu.iris.Fissures.network.ChannelImpl" column="channel1"
-			foreign-key="FK_evp_channel1" unique-key="channelgroup_chan1_key" />
+			foreign-key="FK_evp_channel1" unique-key="channelgroup_chan_key" />
 		<many-to-one name="channel2"
 			class="edu.iris.Fissures.network.ChannelImpl" column="channel2"
-			foreign-key="FK_evp_channel2" unique-key="channelgroup_chan2_key" />
+			foreign-key="FK_evp_channel2" unique-key="channelgroup_chan_key" />
 		<many-to-one name="channel3"
 			class="edu.iris.Fissures.network.ChannelImpl" column="channel3"
-			foreign-key="FK_evp_channel3" unique-key="channelgroup_chan3_key" />
+			foreign-key="FK_evp_channel3" unique-key="channelgroup_chan_key" />
 	</class>
 		
 
