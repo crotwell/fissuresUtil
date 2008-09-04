@@ -7,7 +7,7 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import java.sql.SQLException;
-import junit.framework.TestCase;
+
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 

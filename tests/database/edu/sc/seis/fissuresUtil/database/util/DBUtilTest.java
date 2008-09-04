@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.database.util;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
+
+import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -10,7 +11,6 @@ import org.apache.log4j.Logger;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCSequence;
-import junit.framework.TestCase;
 
 /**
  * @author crotwell Created on Jan 21, 2005

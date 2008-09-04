@@ -6,7 +6,6 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.TestUtils;
-import edu.sc.seis.fissuresUtil.time.RangeToolTest;
 
 public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
     public SeismogramIteratorTest(String name){

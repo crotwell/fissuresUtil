@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import edu.sc.seis.fissuresUtil.display.ChoiceDecimalFormat;
 import junit.framework.TestCase;
 
 /**
