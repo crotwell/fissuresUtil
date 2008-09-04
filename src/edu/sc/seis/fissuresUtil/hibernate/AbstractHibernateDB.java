@@ -83,7 +83,8 @@ public abstract class AbstractHibernateDB {
     public static synchronized void rollback() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
-            throw new RuntimeException("Can not rollback before session creation");
+            //nothing to do
+            return;
         }
         //logger.debug("TRANSACTION Rollback: " + this + " on " + s);
         sessionTL.set(null);
@@ -137,9 +138,9 @@ public abstract class AbstractHibernateDB {
         }
     };
 
-    private static ThreadLocal sessionTL = new ThreadLocal() {
+    private static ThreadLocal<Session> sessionTL = new ThreadLocal<Session>() {
 
-        protected synchronized Object initialValue() {
+        protected synchronized Session initialValue() {
             logger.debug("new hibernate session");
             return createSession();
         }
