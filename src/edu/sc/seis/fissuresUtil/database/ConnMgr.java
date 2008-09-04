@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class ConnMgr {
@@ -317,7 +317,7 @@ public class ConnMgr {
 
     private static String DB_NAME = HSQL;
 
-    private static Properties props, dbProperties;
+    private static Properties props, dbProperties = new Properties();
 
     private static List propLocs = new ArrayList();
 
