@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.BoxArea;
 import edu.iris.Fissures.GlobalArea;
@@ -17,7 +18,6 @@ import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.PointDistanceArea;
 import edu.iris.Fissures.Quantity;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.BoxAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;

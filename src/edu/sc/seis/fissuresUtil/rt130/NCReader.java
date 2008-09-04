@@ -17,10 +17,11 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.log4j.PropertyConfigurator;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
-import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.SiteId;

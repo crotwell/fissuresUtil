@@ -13,9 +13,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.log4j.Category;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
@@ -24,8 +26,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
 import edu.iris.Fissures.AuditInfo;
-import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -33,7 +35,6 @@ import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.Property;
 import edu.iris.Fissures.IfSeismogramDC.SeismogramAttr;
-import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
@@ -43,7 +44,7 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
  * Access to a dataset stored as an XML file.
  * 
  * @author <a href="mailto:">Philip Crotwell </a>
- * @version $Id: XMLDataSet.java 14714 2005-09-08 17:25:23Z groves $
+ * @version $Id: XMLDataSet.java 19860 2008-09-04 12:37:15Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.

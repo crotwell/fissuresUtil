@@ -7,7 +7,6 @@ package edu.sc.seis.fissuresUtil.display.borders;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
-import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 
 public class DistanceBorder extends AbstractUnitRangeBorder {
 

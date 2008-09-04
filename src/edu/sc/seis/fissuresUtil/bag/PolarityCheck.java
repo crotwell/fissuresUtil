@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;

@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.sac;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -22,7 +22,6 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 

@@ -3,12 +3,13 @@ package edu.sc.seis.fissuresUtil.simple;
 import java.util.Calendar;
 import java.util.Properties;
 import java.util.TimeZone;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+
 import edu.iris.Fissures.TimeRange;
-import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.EventDC;
@@ -16,7 +17,6 @@ import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.model.GlobalAreaImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.PointDistanceAreaImpl;
 import edu.iris.Fissures.model.QuantityImpl;

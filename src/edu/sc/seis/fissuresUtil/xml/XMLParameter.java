@@ -1,15 +1,16 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import java.io.OutputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import edu.iris.Fissures.IfEvent.EventAccessOperations;
+
 import edu.iris.Fissures.IfEvent.EventAttr;
-import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfParameterMgr.ParameterRef;
 import edu.iris.Fissures.event.OriginImpl;

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.sac;
 
 import java.text.DecimalFormat;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
@@ -10,8 +11,6 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Magnitude;
-import edu.iris.Fissures.IfEvent.Origin;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
