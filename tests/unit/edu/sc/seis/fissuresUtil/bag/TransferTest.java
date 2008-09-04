@@ -3,16 +3,15 @@ package edu.sc.seis.fissuresUtil.bag;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
+
+import junit.framework.TestCase;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.sac.SacPoleZero;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
-import junit.framework.TestCase;
-import junitx.framework.ArrayAssert;
 
 /**
  * @author crotwell Created on Jul 27, 2005

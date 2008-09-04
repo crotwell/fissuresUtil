@@ -8,9 +8,9 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+
 import junit.framework.TestCase;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.rt130.LeapSecondApplier;
 
 public class LeapSecondApplierTest extends TestCase {
 
