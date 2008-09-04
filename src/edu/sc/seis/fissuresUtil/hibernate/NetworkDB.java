@@ -8,7 +8,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
@@ -43,9 +42,8 @@ public class NetworkDB extends AbstractHibernateDB {
                         getSession().saveOrUpdate(net);
                         return net.getDbid();
                     }
-                    // shouldn't happen...
-                    throw new RuntimeException("can't find by code/date after ConstraintViolationException");
                 }
+                // didn't find in database, is temp so this might be ok, put new net below
             } else {
                 // use first and only net
                 NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
@@ -106,9 +104,6 @@ public class NetworkDB extends AbstractHibernateDB {
         }
         try {
             ChannelImpl indb = getChannel(chan.get_id());
-            if (ChannelIdUtil.areEqual(indb, chan)) {
-                
-            }
             chan.associateInDB(indb);
             getSession().evict(indb);
             getSession().evict(indb.getSite().getStation());
@@ -126,10 +121,29 @@ public class NetworkDB extends AbstractHibernateDB {
         return dbid;
     }
     
-    public ChannelGroup getChannelGroup(ChannelImpl chan) {
+    public List<ChannelGroup> getChannelGroup(ChannelImpl chan) {
         Query query = getSession().createQuery("from "+ChannelGroup.class.getName()+" where channel1 = :chan or channel2 = :chan or channel3 = :chan");
         query.setEntity("chan", chan);
-        return (ChannelGroup)query.uniqueResult();
+        return query.list();
+    }
+    
+    public ChannelGroup getChannelGroup(ChannelImpl chanA, ChannelImpl chanB, ChannelImpl chanC) {
+        Query query = getSession().createQuery("from "+ChannelGroup.class.getName()+" where " +
+                                               "    ( channel1 = :chanA and channel2 = :chanB and channel3 = :chanC )" +
+                                               " or ( channel1 = :chanB and channel2 = :chanA and channel3 = :chanC )" +
+                                               " or ( channel1 = :chanC and channel2 = :chanA and channel3 = :chanB )" +
+                                               " or ( channel1 = :chanA and channel2 = :chanC and channel3 = :chanB )" +
+                                               " or ( channel1 = :chanB and channel2 = :chanC and channel3 = :chanA )" +
+                                               " or ( channel1 = :chanC and channel2 = :chanB and channel3 = :chanA )");
+        query.setEntity("chanA", chanA);
+        query.setEntity("chanB", chanB);
+        query.setEntity("chanC", chanC);
+        query.setMaxResults(1);
+        List<ChannelGroup> l = query.list();
+        if(l.size() != 0) {
+            return l.get(0);
+        }
+        return null;
     }
 
     public List<StationImpl> getStationByCodes(String netCode, String staCode) {
@@ -151,9 +165,10 @@ public class NetworkDB extends AbstractHibernateDB {
         query.setString("staCode", staId.station_code);
         query.setTimestamp("staBegin",
                            new MicroSecondDate(staId.begin_time).getTimestamp());
-        StationImpl out = (StationImpl)query.uniqueResult();
-        if(out != null) {
-            return out;
+        query.setMaxResults(1);
+        List<StationImpl> l = query.list();
+        if(l.size() != 0) {
+            return l.get(0);
         }
         throw new NotFound();
     }
