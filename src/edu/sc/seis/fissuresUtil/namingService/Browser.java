@@ -1,22 +1,13 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import org.omg.CosNaming.Binding;
-import org.omg.CosNaming.BindingIteratorHolder;
-import org.omg.CosNaming.BindingListHolder;
-import org.omg.CosNaming.BindingType;
-import org.omg.CosNaming.NameComponent;
-import org.omg.CosNaming.NamingContext;
-import org.omg.CosNaming.NamingContextHelper;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
-import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 

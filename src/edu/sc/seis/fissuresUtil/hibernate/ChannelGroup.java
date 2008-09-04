@@ -3,8 +3,6 @@ package edu.sc.seis.fissuresUtil.hibernate;
 
 import org.apache.log4j.Logger;
 
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
-
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;

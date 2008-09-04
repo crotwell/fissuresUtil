@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import org.hibernate.Query;

@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Orientation;
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.Station;

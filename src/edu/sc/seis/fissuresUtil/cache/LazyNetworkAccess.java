@@ -1,9 +1,8 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
-import edu.iris.Fissures.IfNetwork.NetworkAttr;
-import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 
 /**

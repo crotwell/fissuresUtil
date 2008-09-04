@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
-import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 
 public class MockNetworkAttr{

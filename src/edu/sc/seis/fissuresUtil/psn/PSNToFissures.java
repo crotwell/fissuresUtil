@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.psn;
 
 import java.sql.Timestamp;
 import java.util.GregorianCalendar;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.FlinnEngdahlType;
 import edu.iris.Fissures.Location;
@@ -18,7 +19,6 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Magnitude;
-import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
@@ -43,7 +43,12 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
-import edu.sc.seis.seisFile.psn.*;
+import edu.sc.seis.seisFile.psn.PSNDataFile;
+import edu.sc.seis.seisFile.psn.PSNDateTime;
+import edu.sc.seis.seisFile.psn.PSNEventInfo;
+import edu.sc.seis.seisFile.psn.PSNEventRecord;
+import edu.sc.seis.seisFile.psn.PSNHeader;
+import edu.sc.seis.seisFile.psn.PSNVariableHeader;
 
 public class PSNToFissures{
 

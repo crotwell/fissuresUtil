@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfEvent;
 
 import edu.iris.Fissures.IfEvent.Magnitude;
-import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;

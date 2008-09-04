@@ -1,8 +1,6 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
-import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
-import edu.iris.Fissures.IfTimeSeries.TimeSeriesType;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
