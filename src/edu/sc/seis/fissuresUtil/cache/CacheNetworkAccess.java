@@ -42,27 +42,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         this.attr = attr;
     }
 
-    public static CacheNetworkAccess create(NetworkAttrImpl attr,
-                                            FissuresNamingService fisName)
-            throws NetworkNotFound {
-        return getVNFinder(attr, fisName).vest(attr);
-    }
-
-    public static VestingNetworkFinder getVNFinder(NetworkAttrImpl attr,
-                                            FissuresNamingService fisName)
-            throws NetworkNotFound {
-        String key = FissuresNamingService.piecesToNameString(attr.getSourceServerDNS(),
-                                                FissuresNamingService.NETWORKDC,
-                                                attr.getSourceServerName());
-        if(!vnFinderCache.containsKey(key)) {
-            VestingNetworkDC netdc = new VestingNetworkDC(attr.getSourceServerDNS(),
-                                                          attr.getSourceServerName(),
-                                                          fisName);
-            vnFinderCache.put(key, (VestingNetworkFinder)netdc.a_finder());
-        }
-        return vnFinderCache.get(key);
-    }
-
     /**
      * Resetting a CacheNetworkAccess clears the cache and calls reset on the
      * network access it's holding if it is also a ProxyNetworkAccess
@@ -74,7 +53,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         knownStations.clear();
         knownSites.clear();
         sensMap.clear();
-        vnFinderCache.clear();
         super.reset();
     }
 
@@ -228,8 +206,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         MicroSecondTimeRange range;
     }
     
-    protected static HashMap<String, VestingNetworkFinder> vnFinderCache = new HashMap<String, VestingNetworkFinder>();
-
     private Map<String, Site> knownSites = Collections.synchronizedMap(new HashMap<String, Site>());
 
     private Map<String, Station> knownStations = Collections.synchronizedMap(new HashMap<String, Station>());
