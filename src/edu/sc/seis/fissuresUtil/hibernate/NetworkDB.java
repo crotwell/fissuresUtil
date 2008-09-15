@@ -234,9 +234,9 @@ public class NetworkDB extends AbstractHibernateDB {
     }
     
     public List<StationImpl> getStationForNet(NetworkAttrImpl attr, String staCode) {
-        Query query = getSession().createQuery(getStationForNetwork+" and stationCode = :staCode");
+        Query query = getSession().createQuery(getStationForNetworkStation);
         query.setEntity("netAttr", attr);
-        query.setString("stacode", staCode);
+        query.setString("staCode", staCode);
         return query.list();
     }
 
@@ -386,7 +386,7 @@ public class NetworkDB extends AbstractHibernateDB {
             + " WHERE site.station.networkAttr = :netAttr";
 
     static String getStationForNetworkStation = getStationForNetwork
-            + " and s.code = :staCode";
+            + " and s.id.station_code = :staCode";
 
     static String getChannelForStation = "From " + ChannelImpl.class.getName()
             + " c WHERE c.site.station = :station";
