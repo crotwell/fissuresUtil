@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Properties;
+
 import edu.iris.Fissures.FlinnEngdahlRegion;
 import edu.iris.Fissures.FlinnEngdahlType;
 
@@ -16,8 +17,6 @@ import edu.iris.Fissures.FlinnEngdahlType;
  *
  * Created: Fri Sep 28 12:35:36 2001
  *
- * @author <a href="mailto: "Srinivasa Telukutla</a>
- * @version
  */
 
 public class ParseRegions {
@@ -65,7 +64,7 @@ public class ParseRegions {
     }
 
     public String getSeismicRegionName(int seisNum) {
-        if(seisNum < NUM_SEISMIC_REGIONS && seisNum > 0){
+        if(seisNum <= NUM_SEISMIC_REGIONS && seisNum > 0){
             return seisRegions[seisNum - 1].getName();
         }
         return "SeisRegion"+seisNum;
@@ -111,7 +110,7 @@ public class ParseRegions {
         try {
             ClassLoader loader = getClass().getClassLoader();
             InputStream fstream =
-                loader.getResourceAsStream("edu/sc/seis/fissuresUtil/display/FERegions.prop");
+                loader.getResourceAsStream(FE_REGION_PROP);
             Properties feProps = new Properties();
             feProps.load(fstream);
             for (int i = 1; i < NUM_SEISMIC_REGIONS + 1; i++) {
@@ -126,10 +125,11 @@ public class ParseRegions {
                 parent.add(geogRegions[i - 1]);
             }
         } catch (IOException e) {
-            System.err.println("Cannot load FE regions");
-            e.printStackTrace();
+            throw new RuntimeException("Cannot load FE regions from "+FE_REGION_PROP, e);
         } // end of catch
     }
+    
+    public static final String FE_REGION_PROP = "edu/sc/seis/fissuresUtil/display/FERegions.prop";
 
     public static final int NUM_SEISMIC_REGIONS = 50;
     public static final int NUM_GEOGRAPHIC_REGIONS = 757;
