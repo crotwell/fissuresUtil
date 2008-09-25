@@ -9,7 +9,7 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/stax/jars/stax-api-1.0.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/openmap/jars/openmap-4.6.2.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/vecmath/jars/vecmath.jar"/>
-	<classpathentry exported="true" kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.4.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/velocity/jars/velocity-1.5.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/xerces/jars/xml-apis-2.7.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-collections/jars/commons-collections-3.1.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/stax/jars/stax-1.1.1-dev.jar"/>
@@ -31,6 +31,6 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-3.2.5.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-tools-3.2.0beta9a.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/jta-unknown_USC1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/fissuresIDL1"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/fissuresIDL"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
