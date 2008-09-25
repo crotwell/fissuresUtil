@@ -272,7 +272,7 @@
         </dependency>
         <dependency>
             <id>velocity</id>
-            <version>1.4</version>
+            <version>1.5</version>
         </dependency>
         <dependency>
             <id>commons-collections</id>
