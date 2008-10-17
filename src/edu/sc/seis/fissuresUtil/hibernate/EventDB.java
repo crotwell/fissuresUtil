@@ -41,7 +41,7 @@ public class EventDB extends AbstractHibernateDB {
 		finderQueryAvoidDateline = finderQueryBase
 				+ "AND e.preferred.location.longitude between :minLon and :maxLon ";
 		finderQueryAroundDateline = finderQueryBase
-				+ " AND ((? <= e.preferred.location.longitude) OR (e.preferred.location.longitude <= ?))";
+				+ " AND ((:minLon <= e.preferred.location.longitude) OR (e.preferred.location.longitude <= :maxLon))";
 		getIdenticalEventString = "From " + getEventClass().getName()
 				+ " e WHERE " + "e.preferred.originTime.time = :originTime "
 				+ "AND e.preferred.location.latitude = :lat "
