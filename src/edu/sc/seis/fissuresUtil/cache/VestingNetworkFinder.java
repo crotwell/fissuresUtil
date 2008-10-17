@@ -49,7 +49,9 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public CacheNetworkAccess vest(NetworkAccess na) {
         CacheNetworkAccess cache = vest(na, this, numRetry, handler);
-        allKnownNetworkAccess.put(cache, null);
+        synchronized(SynchronizedNetworkAccess.class) {
+            allKnownNetworkAccess.put(cache, null);
+        }
         return cache;
     }
 
@@ -79,7 +81,9 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
                                                           numRetry,
                                                           handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry, attr);
-        allKnownNetworkAccess.put(cache, null);
+        synchronized(SynchronizedNetworkAccess.class) {
+            allKnownNetworkAccess.put(cache, null);
+        }
         return cache;
     }
 
@@ -116,7 +120,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     private RetryStrategy handler;
 
-    /** map of all knows networkAccesses from this finder in case we need to reset. */
+    /** map of all known networkAccesses from this finder in case we need to reset. */
     private WeakHashMap<CacheNetworkAccess, Object> allKnownNetworkAccess = new WeakHashMap<CacheNetworkAccess, Object>();
 
     static class JustToHaveServerAndName extends ProxyNetworkAccess {
