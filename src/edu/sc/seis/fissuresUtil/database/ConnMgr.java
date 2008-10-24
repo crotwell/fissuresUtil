@@ -111,13 +111,13 @@ public class ConnMgr {
     }
 
     public static void setURL(String url) {
+        try {
         ConnMgr.url = url;
         if (url.startsWith("jdbc:hsql")) {
-            DB_NAME = HSQL;
+            setDB(HSQL);
         } else if (url.startsWith("jdbc:postgresql")) {
-            DB_NAME = POSTGRES;
+            setDB(POSTGRES);
         }
-        try {
             checkDriver();
         } catch (Exception e) {
             throw new RuntimeException("Unable to load driver: "+getDriver(), e);
