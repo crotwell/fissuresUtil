@@ -1,12 +1,16 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.io.InputStream;
 import java.util.Properties;
+
+import net.sf.ehcache.CacheManager;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
+import edu.sc.seis.sod.Start;
 
 public class HibernateUtil {
 
@@ -42,6 +46,13 @@ public class HibernateUtil {
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
 
+    public static void setUpFromConnMgr(Properties props, String ehcacheConfig) {
+        // configure EhCache
+        InputStream ehconfigStream = (Start.class).getClassLoader().getResourceAsStream(ehcacheConfig);
+        CacheManager singletonManager = CacheManager.create(ehconfigStream);
+        setUpFromConnMgr(props);
+    }
+    
     public static void setUpFromConnMgr(Properties props) {
         String dialect;
         if(ConnMgr.getDB_TYPE().equals(ConnMgr.HSQL)) {
