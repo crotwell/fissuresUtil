@@ -32,5 +32,9 @@
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-tools-3.2.0beta9a.jar"/>
 	<classpathentry exported="true" kind="var" path="MAVEN_REPO/hibernate/jars/jta-unknown_USC1.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/fissuresIDL"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/dom4j/jars/dom4j-1.6.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.1.jar"/>
+	<classpathentry exported="true" kind="var" path="MAVEN_REPO/ehcache/jars/ehcache-1.4.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
