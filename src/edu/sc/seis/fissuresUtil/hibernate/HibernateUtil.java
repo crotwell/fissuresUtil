@@ -1,8 +1,11 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 
 import org.hibernate.SessionFactory;
@@ -10,7 +13,6 @@ import org.hibernate.cfg.Configuration;
 
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.ConnectionCreator;
-import edu.sc.seis.sod.Start;
 
 public class HibernateUtil {
 
@@ -46,10 +48,14 @@ public class HibernateUtil {
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
 
-    public static void setUpFromConnMgr(Properties props, String ehcacheConfig) {
+    public static void setUpFromConnMgr(Properties props, URL ehcacheConfig) {
+        if (ehcacheConfig == null) {throw new IllegalArgumentException("ehcacheConfig cannot be null");}
         // configure EhCache
-        InputStream ehconfigStream = (Start.class).getClassLoader().getResourceAsStream(ehcacheConfig);
-        CacheManager singletonManager = CacheManager.create(ehconfigStream);
+        try {
+            CacheManager singletonManager = CacheManager.create(ehcacheConfig.openStream());
+        } catch(IOException e) {
+            throw new RuntimeException("Trouble finding EhCache config from "+ehcacheConfig.toString(), e);
+        }
         setUpFromConnMgr(props);
     }
     
@@ -95,4 +101,6 @@ public class HibernateUtil {
                     .addProperties(props);
         }
     }
+    
+    public static final URL DEFAULT_EHCACHE_CONFIG = HibernateUtil.class.getClassLoader().getResource("edu/sc/seis/fissuresUtil/hibrenate/ehcache.xml");
 }
