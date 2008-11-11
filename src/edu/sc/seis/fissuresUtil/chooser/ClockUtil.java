@@ -108,7 +108,7 @@ public class ClockUtil {
     }
 
     /** Used to check for really obviously wrong system clocks, set to a day prior to the release date. */
-    private static MicroSecondDate OLD_DATE = new ISOTime("2007-08-01T00:00:00.000Z").getDate();
+    private static MicroSecondDate OLD_DATE = new ISOTime("2008-08-01T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
     
