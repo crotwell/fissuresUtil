@@ -7,6 +7,7 @@
 
 	<class name="edu.sc.seis.fissuresUtil.cache.CacheEvent"
 		table="event">
+		<cache usage="read-write"/>
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
@@ -37,6 +38,7 @@
 	</class>
 
 	<class name="edu.iris.Fissures.event.OriginImpl" table="origin">
+		<cache usage="read-write"/>
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>

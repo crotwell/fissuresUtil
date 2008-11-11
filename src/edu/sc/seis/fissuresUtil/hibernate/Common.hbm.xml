@@ -7,6 +7,7 @@
 
 	<class name="edu.iris.Fissures.model.UnitImpl" table="unit"
 		mutable="false"  lazy="false">
+		<cache usage="read-only"/>
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
