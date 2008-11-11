@@ -197,6 +197,7 @@
 	
 	<class name="edu.sc.seis.fissuresUtil.hibernate.ChannelGroup"
 		table="channelGroup" lazy="false">
+		<cache usage="read-write"/>
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
