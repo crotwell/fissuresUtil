@@ -36,7 +36,7 @@ public class NetworkDB extends AbstractHibernateDB {
                 while(fromDB.hasNext()) {
                     NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
                     if(net.get_code() == indb.get_code()
-                            && NetworkIdUtil.getTwoCharYear(net.get_id()) == NetworkIdUtil.getTwoCharYear(indb.get_id())) {
+                            && NetworkIdUtil.getTwoCharYear(net.get_id()).equals(NetworkIdUtil.getTwoCharYear(indb.get_id()))) {
                         net.associateInDB(indb);
                         getSession().evict(indb);
                         getSession().saveOrUpdate(net);
