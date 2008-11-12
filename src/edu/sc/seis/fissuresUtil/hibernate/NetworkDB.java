@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -30,12 +31,12 @@ public class NetworkDB extends AbstractHibernateDB {
             session.saveOrUpdate(net);
             return net.getDbid();
         }
-        Iterator fromDB = getNetworkByCode(net.get_code()).iterator();
+        Iterator<NetworkAttrImpl> fromDB = getNetworkByCode(net.get_code()).iterator();
         if(fromDB.hasNext()) {
             if(NetworkIdUtil.isTemporary(net.get_code())) {
                 while(fromDB.hasNext()) {
-                    NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
-                    if(net.get_code() == indb.get_code()
+                    NetworkAttrImpl indb = fromDB.next();
+                    if(net.get_code().equals(indb.get_code())
                             && NetworkIdUtil.getTwoCharYear(net.get_id()).equals(NetworkIdUtil.getTwoCharYear(indb.get_id()))) {
                         net.associateInDB(indb);
                         getSession().evict(indb);
@@ -413,5 +414,7 @@ public class NetworkDB extends AbstractHibernateDB {
 
     static String getNetworkByCodeString = getAllNetsString
             + " WHERE network_code = :netCode";
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(NetworkDB.class);
     
 }
