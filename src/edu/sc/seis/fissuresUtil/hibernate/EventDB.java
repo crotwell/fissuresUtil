@@ -31,7 +31,7 @@ public class EventDB extends AbstractHibernateDB {
 	protected void initQueryStrings() {
 		getLastEventString = "From " + getEventClass().getName()
 				+ " e ORDER BY e.id desc";
-		finderQueryBase = "select e FROM "
+		finderQueryBase = "select distinct e FROM "
 				+ getEventClass().getName()
 				+ " e join e.preferred.magnitudeList m "
 				+ "WHERE e.preferred.location.latitude between :minLat AND :maxLat "
