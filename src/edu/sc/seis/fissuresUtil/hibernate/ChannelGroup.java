@@ -190,15 +190,15 @@ public class ChannelGroup {
         return -1;
     }
     
-    public Channel getChannel1() {
+    public ChannelImpl getChannel1() {
         return getChannels()[0];
     }
     
-    public Channel getChannel2() {
+    public ChannelImpl getChannel2() {
         return getChannels()[1];
     }
     
-    public Channel getChannel3() {
+    public ChannelImpl getChannel3() {
         return getChannels()[2];
     }
     
