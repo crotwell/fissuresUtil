@@ -102,5 +102,6 @@ public class HibernateUtil {
         }
     }
     
-    public static final URL DEFAULT_EHCACHE_CONFIG = HibernateUtil.class.getClassLoader().getResource("edu/sc/seis/fissuresUtil/hibrenate/ehcache.xml");
+    public static final URL DEFAULT_EHCACHE_CONFIG = HibernateUtil.class.getClassLoader().getResource("edu/sc/seis/fissuresUtil/hibernate/ehcache.xml");
+
 }
