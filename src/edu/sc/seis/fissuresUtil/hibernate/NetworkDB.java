@@ -27,7 +27,7 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public int put(NetworkAttrImpl net) {
         Session session = getSession();
-        if (net.getDbid() != 0) {
+        if(net.getDbid() != 0) {
             session.saveOrUpdate(net);
             return net.getDbid();
         }
@@ -37,14 +37,16 @@ public class NetworkDB extends AbstractHibernateDB {
                 while(fromDB.hasNext()) {
                     NetworkAttrImpl indb = fromDB.next();
                     if(net.get_code().equals(indb.get_code())
-                            && NetworkIdUtil.getTwoCharYear(net.get_id()).equals(NetworkIdUtil.getTwoCharYear(indb.get_id()))) {
+                            && NetworkIdUtil.getTwoCharYear(net.get_id())
+                                    .equals(NetworkIdUtil.getTwoCharYear(indb.get_id()))) {
                         net.associateInDB(indb);
                         getSession().evict(indb);
                         getSession().saveOrUpdate(net);
                         return net.getDbid();
                     }
                 }
-                // didn't find in database, is temp so this might be ok, put new net below
+                // didn't find in database, is temp so this might be ok, put new
+                // net below
             } else {
                 // use first and only net
                 NetworkAttrImpl indb = (NetworkAttrImpl)fromDB.next();
@@ -87,18 +89,22 @@ public class NetworkDB extends AbstractHibernateDB {
         }
     }
 
-    /** Puts a channel into the database. If there is an existing channel in the database
-     *  with the same database id, but different attributes (reflecting a change at the 
-     *  server) the existing channel is expired and the new channel is inserted. This preserves any
-     *  existing objects that refer to the old channel, while allowing future work to
-     *  only access the new channel.
+    /**
+     * Puts a channel into the database. If there is an existing channel in the
+     * database with the same database id, but different attributes (reflecting
+     * a change at the server) the existing channel is expired and the new
+     * channel is inserted. This preserves any existing objects that refer to
+     * the old channel, while allowing future work to only access the new
+     * channel.
      */
     public int put(ChannelImpl chan) {
         Integer dbid;
         internUnit(chan);
         if(((StationImpl)chan.getSite().getStation()).getDbid() == 0) {
             try {
-                chan.getSite().setStation( getStationById(chan.getSite().getStation().get_id()));
+                chan.getSite().setStation(getStationById(chan.getSite()
+                        .getStation()
+                        .get_id()));
             } catch(NotFound e) {
                 int staDbid = put((StationImpl)chan.getSite().getStation());
             }
@@ -116,26 +122,51 @@ public class NetworkDB extends AbstractHibernateDB {
             return dbid.intValue();
         }
     }
-    
+
     public int put(ChannelGroup cg) {
+        ChannelGroup indb = getChannelGroup(cg.getChannel1(), 
+                                            cg.getChannel2(),
+                                            cg.getChannel3());
+        ChannelImpl[] chans = cg.getChannels();
+        for(int i = 0; i < chans.length; i++) {
+            if(chans[i].getDbid() == 0) {
+                try {
+                    chans[i] = getChannel(chans[i].get_id());
+                } catch(NotFound e) {
+                    put(chans[i]);
+                }
+            }
+        }
+        if (indb != null) {
+            cg.setDbid(indb.getDbid());
+            getSession().evict(indb);
+            getSession().saveOrUpdate(cg);
+            return cg.getDbid();
+        }
         int dbid = (Integer)getSession().save(cg);
         return dbid;
     }
-    
+
     public List<ChannelGroup> getChannelGroup(ChannelImpl chan) {
-        Query query = getSession().createQuery("from "+ChannelGroup.class.getName()+" where channel1 = :chan or channel2 = :chan or channel3 = :chan");
+        Query query = getSession().createQuery("from "
+                + ChannelGroup.class.getName()
+                + " where channel1 = :chan or channel2 = :chan or channel3 = :chan");
         query.setEntity("chan", chan);
         return query.list();
     }
-    
-    public ChannelGroup getChannelGroup(ChannelImpl chanA, ChannelImpl chanB, ChannelImpl chanC) {
-        Query query = getSession().createQuery("from "+ChannelGroup.class.getName()+" where " +
-                                               "    ( channel1 = :chanA and channel2 = :chanB and channel3 = :chanC )" +
-                                               " or ( channel1 = :chanB and channel2 = :chanA and channel3 = :chanC )" +
-                                               " or ( channel1 = :chanC and channel2 = :chanA and channel3 = :chanB )" +
-                                               " or ( channel1 = :chanA and channel2 = :chanC and channel3 = :chanB )" +
-                                               " or ( channel1 = :chanB and channel2 = :chanC and channel3 = :chanA )" +
-                                               " or ( channel1 = :chanC and channel2 = :chanB and channel3 = :chanA )");
+
+    public ChannelGroup getChannelGroup(ChannelImpl chanA,
+                                        ChannelImpl chanB,
+                                        ChannelImpl chanC) {
+        Query query = getSession().createQuery("from "
+                + ChannelGroup.class.getName()
+                + " where "
+                + "    ( channel1 = :chanA and channel2 = :chanB and channel3 = :chanC )"
+                + " or ( channel1 = :chanB and channel2 = :chanA and channel3 = :chanC )"
+                + " or ( channel1 = :chanC and channel2 = :chanA and channel3 = :chanB )"
+                + " or ( channel1 = :chanA and channel2 = :chanC and channel3 = :chanB )"
+                + " or ( channel1 = :chanB and channel2 = :chanC and channel3 = :chanA )"
+                + " or ( channel1 = :chanC and channel2 = :chanB and channel3 = :chanA )");
         query.setEntity("chanA", chanA);
         query.setEntity("chanB", chanB);
         query.setEntity("chanC", chanC);
@@ -201,7 +232,7 @@ public class NetworkDB extends AbstractHibernateDB {
 
     public NetworkAttrImpl getNetwork(int dbid) throws NotFound {
         NetworkAttrImpl out = (NetworkAttrImpl)getSession().get(NetworkAttrImpl.class,
-                                                        new Integer(dbid));
+                                                                new Integer(dbid));
         if(out == null) {
             throw new NotFound();
         }
@@ -233,8 +264,9 @@ public class NetworkDB extends AbstractHibernateDB {
         query.setEntity("netAttr", attr);
         return query.list();
     }
-    
-    public List<StationImpl> getStationForNet(NetworkAttrImpl attr, String staCode) {
+
+    public List<StationImpl> getStationForNet(NetworkAttrImpl attr,
+                                              String staCode) {
         Query query = getSession().createQuery(getStationForNetworkStation);
         query.setEntity("netAttr", attr);
         query.setString("staCode", staCode);
@@ -268,9 +300,10 @@ public class NetworkDB extends AbstractHibernateDB {
         }
         return (CacheNetworkAccess[])out.toArray(new CacheNetworkAccess[0]);
     }
-    
+
     public List<ChannelImpl> getAllChannels() {
-        return getSession().createQuery("from "+ChannelImpl.class.getName()).list();
+        return getSession().createQuery("from " + ChannelImpl.class.getName())
+                .list();
     }
 
     public List<ChannelImpl> getChannelsForStation(StationImpl station) {
@@ -286,7 +319,7 @@ public class NetworkDB extends AbstractHibernateDB {
     }
 
     public List<ChannelImpl> getChannelsForStation(StationImpl station,
-                                               MicroSecondDate when) {
+                                                   MicroSecondDate when) {
         Query query = getSession().createQuery(getChannelForStationAtTime);
         query.setEntity("station", station);
         query.setTimestamp("when", when.getTimestamp());
@@ -302,18 +335,19 @@ public class NetworkDB extends AbstractHibernateDB {
     }
 
     public List<ChannelImpl> getChannelsByCode(NetworkId net,
-                                  String sta,
-                                  String site,
-                                  String chan) {
-        String queryString = "From "+ ChannelImpl.class.getName()
-            + " WHERE "+chanCodeHQL
-            +" AND site.station.networkAttr.beginTime = :when";
+                                               String sta,
+                                               String site,
+                                               String chan) {
+        String queryString = "From " + ChannelImpl.class.getName() + " WHERE "
+                + chanCodeHQL
+                + " AND site.station.networkAttr.beginTime = :when";
         Query query = getSession().createQuery(queryString);
         query.setString("netCode", net.network_code);
         query.setString("stationCode", sta);
         query.setString("siteCode", site);
         query.setString("channelCode", chan);
-        query.setTimestamp("when", new MicroSecondDate(net.begin_time).getTimestamp());
+        query.setTimestamp("when",
+                           new MicroSecondDate(net.begin_time).getTimestamp());
         return query.list();
     }
 
@@ -392,7 +426,8 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getChannelForStation = "From " + ChannelImpl.class.getName()
             + " c WHERE c.site.station = :station";
 
-    static String getChannelGroupForStation = "From " + ChannelGroup.class.getName()
+    static String getChannelGroupForStation = "From "
+            + ChannelGroup.class.getName()
             + " c WHERE c.channel1.site.station = :station";
 
     static String getChannelForStationAtTime = getChannelForStation
@@ -400,13 +435,12 @@ public class NetworkDB extends AbstractHibernateDB {
 
     static String chanCodeHQL = " id.channel_code = :channelCode AND id.site_code = :siteCode AND id.station_code = :stationCode AND site.station.networkAttr.id.network_code = :netCode ";
 
-    static String getChannelByCode = "From "
-            + ChannelImpl.class.getName()
-            + " WHERE "+chanCodeHQL+" AND :when between chan_begin_time and chan_end_time";
+    static String getChannelByCode = "From " + ChannelImpl.class.getName()
+            + " WHERE " + chanCodeHQL
+            + " AND :when between chan_begin_time and chan_end_time";
 
-    static String getChannelById = "From "
-            + ChannelImpl.class.getName()
-            + " WHERE "+chanCodeHQL+" AND chan_begin_time =  :when";
+    static String getChannelById = "From " + ChannelImpl.class.getName()
+            + " WHERE " + chanCodeHQL + " AND chan_begin_time =  :when";
 
     static String getAllStationsString = "From edu.iris.Fissures.network.StationImpl s";
 
@@ -414,7 +448,6 @@ public class NetworkDB extends AbstractHibernateDB {
 
     static String getNetworkByCodeString = getAllNetsString
             + " WHERE network_code = :netCode";
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(NetworkDB.class);
-    
 }
