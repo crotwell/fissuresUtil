@@ -176,7 +176,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>7.4.1-jdbc3</version>
+            <version>8.3-603.jdbc3</version>
         </dependency>
         <dependency>
             <groupId>fissuresImpl</groupId>
