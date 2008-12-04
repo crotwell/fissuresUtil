@@ -11,6 +11,9 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.exceptionHandler.DefaultExtractor;
+import edu.sc.seis.fissuresUtil.exceptionHandler.Extractor;
+import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractHibernateDB {
 
@@ -47,7 +50,7 @@ public abstract class AbstractHibernateDB {
         return cacheSession;
     }
 
-    public static synchronized Session getSession() {
+    public static Session getSession() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
             s = createSession();
@@ -65,7 +68,7 @@ public abstract class AbstractHibernateDB {
     }
 
     /** commits the current session that is associated with the current thread. */
-    public static synchronized void commit() {
+    public static void commit() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
             // no session here, nothing to do
@@ -80,7 +83,7 @@ public abstract class AbstractHibernateDB {
     }
 
     /** rolls back the current session that is associated with the current thread. */
-    public static synchronized void rollback() {
+    public static void rollback() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
             //nothing to do
@@ -148,4 +151,23 @@ public abstract class AbstractHibernateDB {
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractHibernateDB.class);
 
+    static {
+        GlobalExceptionHandler.add(new DefaultExtractor() {
+
+            public boolean canExtract(Throwable throwable) {
+                return (throwable instanceof java.sql.BatchUpdateException);
+            }
+
+            public String extract(Throwable throwable) {
+                return super.extract(throwable);
+            }
+
+            public Throwable getSubThrowable(Throwable throwable) {
+                if(throwable instanceof java.sql.BatchUpdateException) {
+                    return ((java.sql.BatchUpdateException)throwable).getNextException();
+                }
+                return null;
+            }
+        });
+    }
 }
