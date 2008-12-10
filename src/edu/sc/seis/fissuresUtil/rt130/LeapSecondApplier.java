@@ -59,7 +59,7 @@ public class LeapSecondApplier {
                 unitIdToCorrections.put(unitId, new LinkedList());
                 ((List)unitIdToCorrections.get(unitId)).add(date);
             }
-            logger.info("Added PowerUp date: "+date);
+            logger.info("Added PowerUp date for "+station+"("+unitId+") at "+date);
         }
     }
 
