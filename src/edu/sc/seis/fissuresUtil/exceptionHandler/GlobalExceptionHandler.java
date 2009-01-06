@@ -183,6 +183,12 @@ public class GlobalExceptionHandler {
     public static void registerWithAWTThread() {
         System.setProperty("sun.awt.exception.handler",
                            "edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler");
+        // introduced in java1.5
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
+            public void uncaughtException(Thread thread, Throwable thrown) {
+                GlobalExceptionHandler.handle("Thrown in thread "+thread.getName(), thrown);
+            }});
     }
 
     private static String parse(Object item) throws IOException {
