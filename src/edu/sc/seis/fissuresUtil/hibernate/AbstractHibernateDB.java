@@ -46,7 +46,7 @@ public abstract class AbstractHibernateDB {
     protected static Session createSession() {
         Session cacheSession = HibernateUtil.getSessionFactory().openSession();
         cacheSession.beginTransaction();
-        //logger.debug("TRANSACTION Begin: " + this + " on " + cacheSession);
+        //logger.debug("TRANSACTION Begin on " + cacheSession);
         return cacheSession;
     }
 
@@ -75,7 +75,7 @@ public abstract class AbstractHibernateDB {
             logger.info("Commit session before creation, nothing to do");
             return;
         }
-        //logger.debug("TRANSACTION Commit: " + this + " on " + s);
+        //logger.debug("TRANSACTION Commit on " + s);
         sessionTL.set(null);
         unitCacheTL.set(null);
         s.getTransaction().commit();
@@ -89,7 +89,7 @@ public abstract class AbstractHibernateDB {
             //nothing to do
             return;
         }
-        //logger.debug("TRANSACTION Rollback: " + this + " on " + s);
+        //logger.debug("TRANSACTION Rollback on " + s);
         sessionTL.set(null);
         unitCacheTL.set(null);
         s.getTransaction().rollback();
