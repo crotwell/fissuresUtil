@@ -1,8 +1,3 @@
-/**
- * UpdateCheckerJob.java
- * 
- * @author Philip Crotwell
- */
 package edu.sc.seis.fissuresUtil.chooser;
 
 import java.util.logging.Level;
@@ -23,14 +18,6 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class UpdateCheckerJob extends AbstractJob {
 
-    public UpdateCheckerJob(String displayName,
-                            String programName,
-                            String version,
-                            String updateURL,
-                            boolean gui) {
-        this(displayName, programName, version, updateURL, gui, false);
-    }
-
     /**
      * @param forceCheck
      *            overides the users "don't bother me until..." setting in the
@@ -49,8 +36,11 @@ public class UpdateCheckerJob extends AbstractJob {
         this.isGui = gui;
         this.forceCheck = forceCheck;
         this.version = version;
-        prefs = Preferences.userNodeForPackage(this.getClass());
         this.prefsName = programName + "_" + NEXT_CHECK_DATE;
+    }
+    
+    public void setUsePreferencesForStorage(boolean usePrefs) {
+        this.usePrefs = usePrefs;
     }
 
     public void runJob() {
@@ -64,11 +54,8 @@ public class UpdateCheckerJob extends AbstractJob {
         //Turn off pref logging so it doesn't complain on Linux if the pref node isn't there.
         Logger prefsLogger = Logger.getLogger("java.util.prefs");
         prefsLogger.setLevel(Level.OFF);
-        prefs = prefs.node("UpdateCheckerTask");
         MicroSecondDate now = ClockUtil.now();
-        String nextCheckDate = prefs.get(prefsName, now.subtract(SIX_HOUR)
-                .getFissuresTime().date_time);
-        MicroSecondDate date = new MicroSecondDate(new Time(nextCheckDate, -1));
+        MicroSecondDate date = getNextCheck();
         if(date.after(now) && !forceCheck) {
             // don't check
             logger.debug("no updated wanted until " + date);
@@ -138,11 +125,9 @@ public class UpdateCheckerJob extends AbstractJob {
             nextInterval = MONTH;
         }
         MicroSecondDate nextCheck = ClockUtil.now().add(nextInterval);
-        prefs.put(prefsName, nextCheck.getFissuresTime().date_time);
+        setNextCheck(nextCheck);
         logger.debug("no update check wanted for " + nextInterval
                 + ", next at " + nextCheck);
-        prefs.flush();
-        logger.debug("done flushing prefs");
     }
 
     protected void handleUpdateNonGUI(LocationUpdate locationUpdate)
@@ -155,9 +140,32 @@ public class UpdateCheckerJob extends AbstractJob {
                 + " to get the latest version.");
         System.err.println();
         System.err.println("*******************************************************");
-        prefs.put(prefsName,
-                  ClockUtil.now().add(SIX_HOUR).getFissuresTime().date_time);
-        prefs.flush();
+        setNextCheck(ClockUtil.now().add(SIX_HOUR));
+    }
+    
+    protected MicroSecondDate getNextCheck() {
+        if ( usePrefs) {
+            MicroSecondDate now = ClockUtil.now();
+            String nextCheckDate = getPrefs().get(prefsName, now.subtract(SIX_HOUR)
+                                                  .getFissuresTime().date_time);
+            return new MicroSecondDate(new Time(nextCheckDate, -1));
+        } else {
+            return ClockUtil.now().subtract(SIX_HOUR);
+        }
+    }
+    
+    protected void setNextCheck(MicroSecondDate date) throws BackingStoreException {
+        if (usePrefs) {
+            getPrefs().put(prefsName, date.getFissuresTime().date_time);
+            getPrefs().flush();
+        }
+    }
+    
+    protected Preferences getPrefs() {
+        if (prefs == null) {
+            prefs = Preferences.userNodeForPackage(this.getClass()).node("UpdateCheckerTask");
+        }
+        return prefs;
     }
 
     protected final TimeInterval SIX_HOUR = new TimeInterval(6, UnitImpl.HOUR);
@@ -183,7 +191,9 @@ public class UpdateCheckerJob extends AbstractJob {
     protected String updateURL;
 
     protected Preferences prefs;
-
+    
+    protected boolean usePrefs = true;
+    
     static final String NEXT_CHECK_DATE = "nextCheckDate";
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(UpdateCheckerJob.class);
