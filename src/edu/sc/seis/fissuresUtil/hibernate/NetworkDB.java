@@ -44,6 +44,7 @@ public class NetworkDB extends AbstractHibernateDB {
                         getSession().saveOrUpdate(net);
                         return net.getDbid();
                     }
+                    // our net is not in db, but others of same code are, just add it, below
                 }
                 // didn't find in database, is temp so this might be ok, put new
                 // net below
