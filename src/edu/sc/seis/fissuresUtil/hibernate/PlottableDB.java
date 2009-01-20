@@ -3,6 +3,9 @@ package edu.sc.seis.fissuresUtil.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.hibernate.cfg.Configuration;
+
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
@@ -89,4 +92,14 @@ public class PlottableDB extends AbstractHibernateDB {
     }
 
     protected static int MIN_CHUNK_SIZE = 100;
+    
+    static String configFile = "edu/sc/seis/fissuresUtil/hibernate/Plottable.hbm.xml";
+    
+    public static void configHibernate(Configuration config) {
+        logger.debug("adding to HibernateUtil   "+configFile);
+        config.addResource(configFile);
+    }
+    
+
+    private static Logger logger = Logger.getLogger(PlottableDB.class);
 }
