@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.cfg.Configuration;
 
+import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
@@ -25,63 +27,99 @@ public class PlottableDB extends AbstractHibernateDB {
         return singleton;
     }
 
-    public PlottableChunk[] get(MicroSecondTimeRange requestRange,
-                                ChannelId chanId,
+    public List<PlottableChunk> get(MicroSecondTimeRange requestRange,
+                                Channel channel,
                                 int pixelsPerDay) {
-        // TODO Auto-generated method stub
-        throw new RuntimeException("Not yet implemented");
+        return get(requestRange, channel.get_id().network_id.network_code,
+                   channel.get_id().station_code,
+                   channel.get_id().site_code,
+                   channel.get_id().channel_code,
+                   pixelsPerDay);
     }
 
-    public void put(PlottableChunk[] chunks) {
+
+    public List<PlottableChunk> get(MicroSecondTimeRange requestRange,
+                                String network,
+                                String station,
+                                String site,
+                                String channel,
+                                int pixelsPerDay) {
+        Query q = getSession().createQuery("from "+PlottableChunk.class+" where "+
+        " networkCode = :net and stationCode = :sta and siteCode = :site and channelCode = :chan "+
+        " and pixelsPerDay = :pixelsPerDay "+
+        " and ( beginTimestamp <= :end and endTimestamp >= :begin )");
+        q.setString("net", network);
+        q.setString("sta", station);
+        q.setString("site", site);
+        q.setString("chan", channel);
+        q.setInteger("pixelsPerDay", pixelsPerDay);
+        q.setTimestamp("end", requestRange.getEndTime().getTimestamp());
+        q.setTimestamp("begin", requestRange.getBeginTime().getTimestamp());
+        List<PlottableChunk> chunks = q.list();
+        return chunks;
+    }
+
+    public void put(List<PlottableChunk> chunks) {
         MicroSecondTimeRange stuffInDB = getDroppingRange(chunks);
-        PlottableChunk[] dbChunks = get(stuffInDB,
-                                        chunks[0].getChannel(),
-                                        chunks[0].getPixelsPerDay());
-        PlottableChunk[] everything = new PlottableChunk[chunks.length
-                + dbChunks.length];
-        System.arraycopy(dbChunks, 0, everything, 0, dbChunks.length);
-        System.arraycopy(chunks, 0, everything, dbChunks.length, chunks.length);
+        List<PlottableChunk> dbChunks = get(stuffInDB,
+                                        chunks.get(0).getNetworkCode(),
+                                        chunks.get(0).getStationCode(),
+                                        chunks.get(0).getSiteCode(),
+                                        chunks.get(0).getChannelCode(),
+                                        chunks.get(0).getPixelsPerDay());
+        List<PlottableChunk> everything = new ArrayList<PlottableChunk>();
+        everything.addAll(dbChunks);
+        everything.addAll(chunks);
         // scrutinizeEverything(everything, "unmerged");
         everything = ReduceTool.merge(everything);
         // scrutinizeEverything(everything, "merged");
         everything = breakIntoDays(everything);
         // scrutinizeEverything(everything, "split into days");
+        PlottableChunk first = chunks.get(0);
         int rowsDropped = drop(stuffInDB,
-                               chunks[0].getChannel(),
-                               chunks[0].getPixelsPerDay());
-        for(int i = 0; i < everything.length; i++) {
-            getSession().save(everything[i]);
+                               first.getNetworkCode(),
+                               first.getStationCode(),
+                               first.getSiteCode(),
+                               first.getChannelCode(),
+                               first.getPixelsPerDay());
+        for (PlottableChunk plottableChunk : everything) {
+            getSession().save(plottableChunk);
         }
     }
     
 
     public int drop(MicroSecondTimeRange requestRange,
-                    ChannelId id,
+                    String network,
+                    String station,
+                    String site,
+                    String channel,
                     int samplesPerDay) {
-        // TODO Auto-generated method stub
-        throw new RuntimeException("Not yet implemented");
-        
+        List<PlottableChunk> indb = get(requestRange, network, station, site, channel, samplesPerDay);
+        for (PlottableChunk plottableChunk : indb) {
+            getSession().delete(plottableChunk);
+        }
+        return indb.size();
     }
     
     protected PlottableChunk[] getSmallChunks(MicroSecondTimeRange requestRange,
-                                ChannelId chanId,
+                                              String network,
+                                              String station,
+                                              String site,
+                                              String channel,
                                 int pixelsPerDay) {
         // TODO Auto-generated method stub
         throw new RuntimeException("Not yet implemented");
     }
 
-    private PlottableChunk[] breakIntoDays(PlottableChunk[] everything) {
-        List results = new ArrayList();
-        for(int i = 0; i < everything.length; i++) {
-            PlottableChunk[] days = everything[i].breakIntoDays();
-            for(int j = 0; j < days.length; j++) {
-                results.add(days[j]);
-            }
+    private List<PlottableChunk> breakIntoDays(List<PlottableChunk> everything) {
+        List<PlottableChunk> results = new ArrayList<PlottableChunk>();
+        for (PlottableChunk chunk : everything) {
+            results.addAll(chunk.breakIntoDays());
         }
-        return (PlottableChunk[])results.toArray(new PlottableChunk[0]);
+        return results;
     }
 
-    private static MicroSecondTimeRange getDroppingRange(PlottableChunk[] chunks) {
+    private static MicroSecondTimeRange getDroppingRange(List<PlottableChunk> chunks) {
         MicroSecondTimeRange stuffInDB = RangeTool.getFullTime(chunks);
         MicroSecondDate startTime = PlottableChunk.stripToDay(stuffInDB.getBeginTime());
         MicroSecondDate strippedEnd = PlottableChunk.stripToDay(stuffInDB.getEndTime());

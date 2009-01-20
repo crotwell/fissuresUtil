@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.time;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
@@ -25,6 +28,11 @@ public class SortTool {
     public static LocalSeismogramImpl[] byBeginTimeAscending(LocalSeismogramImpl[] seis) {
         Arrays.sort(seis, new SeisBeginSorter());
         return seis;
+    }
+
+    public static List<PlottableChunk> byBeginTimeAscending(List<PlottableChunk> pc) {
+        Collections.sort(pc, new PCBeginSorter());
+        return pc;
     }
 
     public static PlottableChunk[] byBeginTimeAscending(PlottableChunk[] pc) {

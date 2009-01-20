@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.time;
 
+import java.util.List;
+
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
@@ -114,15 +116,17 @@ public class RangeTool {
         }
         return new MicroSecondTimeRange(beginTime, endTime);
     }
-    public static MicroSecondTimeRange getFullTime(PlottableChunk[] pc) {
-        if(pc.length == 0) {
+    
+    
+    public static MicroSecondTimeRange getFullTime(List<PlottableChunk> pc) {
+        if(pc.size() == 0) {
             return DisplayUtils.ZERO_TIME;
         }
-        MicroSecondDate beginTime = SortTool.byBeginTimeAscending(pc)[0].getBeginTime();
+        MicroSecondDate beginTime = SortTool.byBeginTimeAscending(pc).get(0).getBeginTime();
         MicroSecondDate endTime = new MicroSecondDate(0);
-        for(int i = 0; i < pc.length; i++) {
-            if(pc[i].getEndTime().after(endTime)) {
-                endTime = pc[i].getEndTime();
+        for (PlottableChunk plottableChunk : pc) {
+            if(plottableChunk.getEndTime().after(endTime)) {
+                endTime = plottableChunk.getEndTime();
             }
         }
         return new MicroSecondTimeRange(beginTime, endTime);
