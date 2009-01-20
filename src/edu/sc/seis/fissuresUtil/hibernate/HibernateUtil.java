@@ -49,6 +49,11 @@ public class HibernateUtil {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
 
     public static void setUpFromConnMgr(Properties props, URL ehcacheConfig) {
+    	setUpEHCache(ehcacheConfig);
+        setUpFromConnMgr(props);
+    }
+    
+    static void setUpEHCache(URL ehcacheConfig) {
         if (ehcacheConfig == null) {throw new IllegalArgumentException("ehcacheConfig cannot be null");}
         // configure EhCache
         try {
@@ -56,7 +61,6 @@ public class HibernateUtil {
         } catch(IOException e) {
             throw new RuntimeException("Trouble finding EhCache config from "+ehcacheConfig.toString(), e);
         }
-        setUpFromConnMgr(props);
     }
     
     public static void setUpFromConnMgr(Properties props) {
@@ -74,7 +78,8 @@ public class HibernateUtil {
         getConfiguration().addProperties(ConnMgr.getDBProps());
     }
     
-    public static void setUpFromConnectionCreator(ConnectionCreator c) {
+    public static void setUpFromConnectionCreator(ConnectionCreator c, URL ehcacheConfig) {
+    	setUpEHCache(ehcacheConfig);
         String dialect;
         if(c.getType().equals(ConnectionCreator.HSQL)) {
             logger.info("using hsql dialect");
