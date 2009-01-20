@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.time;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.iris.Fissures.FissuresException;
@@ -146,7 +147,7 @@ public class ReduceTool {
      * second inside of the chunks, so they must be grouped according to that
      * before being merged
      */
-    public static PlottableChunk[] merge(PlottableChunk[] chunks) {
+    public static List<PlottableChunk> merge(List<PlottableChunk> chunks) {
         return new PlottableChunkMerger().merge(chunks);
     }
 
@@ -375,7 +376,10 @@ public class ReduceTool {
                                       earlier.getJDay(),
                                       earlier.getYear(),
                                       chunk.getPixelsPerDay(),
-                                      chunk.getChannel());
+                                      chunk.getNetworkCode(),
+                                      chunk.getStationCode(),
+                                      chunk.getSiteCode(),
+                                      chunk.getChannelCode());
         }
 
         public boolean shouldMerge(Object one, Object two) {
@@ -387,9 +391,9 @@ public class ReduceTool {
             return (PlottableChunk)o;
         }
 
-        public PlottableChunk[] merge(PlottableChunk[] chunks) {
-            return (PlottableChunk[])internalMerge(chunks,
-                                                   new PlottableChunk[0]);
+        public List<PlottableChunk> merge(List<PlottableChunk> chunks) {
+            return Arrays.asList((PlottableChunk[])internalMerge(chunks.toArray(),
+                                                   new PlottableChunk[0]));
         }
 
         public static int[] fill(MicroSecondTimeRange fullRange,

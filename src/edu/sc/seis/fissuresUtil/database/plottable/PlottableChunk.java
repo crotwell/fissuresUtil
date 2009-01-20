@@ -10,11 +10,9 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import edu.iris.Fissures.Plottable;
-import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 
@@ -39,7 +37,10 @@ public class PlottableChunk {
              otherStuff.getJDay(),
              otherStuff.getYear(),
              otherStuff.getPixelsPerDay(),
-             otherStuff.getChannel());
+             otherStuff.getNetworkCode(),
+             otherStuff.getStationCode(),
+             otherStuff.getSiteCode(),
+             otherStuff.getChannelCode());
     }
 
     /**
@@ -52,13 +53,19 @@ public class PlottableChunk {
                           int startPixel,
                           MicroSecondDate startDate,
                           int pixelsPerDay,
-                          ChannelId channel) {
+                          String networkCode,
+                          String stationCode,
+                          String siteCode,
+                          String channelCode) {
         this(data,
              startPixel,
              getJDay(startDate),
              getYear(startDate),
              pixelsPerDay,
-             channel);
+             networkCode,
+             stationCode,
+             siteCode,
+             channelCode);
     }
 
     /**
@@ -70,7 +77,10 @@ public class PlottableChunk {
                           int jday,
                           int year,
                           int pixelsPerDay,
-                          ChannelId channel) {
+                          String networkCode,
+                          String stationCode,
+                          String siteCode,
+                          String channelCode) {
         this.data = data;
         // here we shall get rid of days of dead space if they exist
         if(startPixel >= pixelsPerDay) {
@@ -85,7 +95,10 @@ public class PlottableChunk {
         this.pixelsPerDay = pixelsPerDay;
         this.jday = jday;
         this.year = year;
-        this.channel = channel;
+        this.networkCode = networkCode;
+        this.stationCode = stationCode;
+        this.siteCode = siteCode;
+        this.channelCode = channelCode;
     }
 
     public boolean equals(Object o) {
@@ -93,7 +106,10 @@ public class PlottableChunk {
             return true;
         } else if(o instanceof PlottableChunk) {
             PlottableChunk oChunk = (PlottableChunk)o;
-            if(ChannelIdUtil.areEqual(channel, oChunk.channel)) {
+            if(networkCode.equals(oChunk.networkCode) &&
+                    stationCode.equals(oChunk.stationCode) &&
+                    siteCode.equals(oChunk.siteCode) &&
+                    channelCode.equals(oChunk.channelCode)) {
                 if(pixelsPerDay == oChunk.pixelsPerDay) {
                     if(jday == oChunk.jday) {
                         if(year == oChunk.year) {
@@ -179,10 +195,6 @@ public class PlottableChunk {
 
     public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
-    public ChannelId getChannel() {
-        return channel;
-    }
-
     public Plottable getData() {
         return data;
     }
@@ -224,7 +236,10 @@ public class PlottableChunk {
     }
 
     public int hashCode() {
-        int hashCode = 81 + ChannelIdUtil.hashCode(getChannel());
+        int hashCode = 81 + channelCode.hashCode();
+        hashCode = 37 * hashCode + stationCode.hashCode();
+        hashCode = 37 * hashCode + siteCode.hashCode();
+        hashCode = 37 * hashCode + channelCode.hashCode();
         hashCode = 37 * hashCode + pixelsPerDay;
         hashCode = 37 * hashCode + jday;
         hashCode = 37 * hashCode + year;
@@ -233,14 +248,15 @@ public class PlottableChunk {
 
     public String toString() {
         return getNumPixels() + " pixel chunk from "
-                + ChannelIdUtil.toStringNoDates(channel) + " at "
+                + networkCode + "."
+                + stationCode + "." + siteCode + "." + channelCode + " at "
                 + pixelsPerDay + " ppd from " + getTimeRange();
     }
 
-    public PlottableChunk[] breakIntoDays() {
+    public List<PlottableChunk> breakIntoDays() {
         int numDays = (int)Math.ceil((beginPixel + getNumPixels())
                 / (double)getPixelsPerDay());
-        List dayChunks = new ArrayList();
+        List<PlottableChunk> dayChunks = new ArrayList<PlottableChunk>();
         MicroSecondDate time = getBeginTime();
         for(int i = 0; i < numDays; i++) {
             int firstDayPixels = pixelsPerDay - getBeginPixel();
@@ -263,16 +279,16 @@ public class PlottableChunk {
                                              getJDay(time),
                                              getYear(time),
                                              getPixelsPerDay(),
-                                             getChannel()));
+                                             getNetworkCode(),
+                                             getStationCode(),
+                                             getSiteCode(),
+                                             getChannelCode()));
             time = time.add(ONE_DAY);
         }
-        return (PlottableChunk[])dayChunks.toArray(new PlottableChunk[0]);
+        return dayChunks;
     }
 
     // hibernate
-    protected void setChannel(ChannelId channel) {
-        this.channel = channel;
-    }
 
     protected void setData(Plottable data) {
         this.data = data;
@@ -313,10 +329,22 @@ public class PlottableChunk {
         year = cal.get(Calendar.YEAR);
         jday = cal.get(Calendar.DAY_OF_YEAR);
     }
+    
+    protected Timestamp getEndTimestamp() {
+        return getEndTime().getTimestamp();
+    }
+    
+    protected void setEndTimestamp(Timestamp begin) {
+        // this is generated from begin and pixels, so no need to set
+        // have this method as a no-op so hibernate doesn't get mad
+    }
 
     private long dbid;
 
-    private ChannelId channel;
+    private String networkCode;
+    private String stationCode;
+    private String siteCode;
+    private String channelCode;
 
     private Plottable data;
 
@@ -325,4 +353,44 @@ public class PlottableChunk {
     private int jday, year;
 
     private static final Logger logger = Logger.getLogger(PlottableChunk.class);
+
+    
+    public String getNetworkCode() {
+        return networkCode;
+    }
+
+    
+    public void setNetworkCode(String networkCode) {
+        this.networkCode = networkCode;
+    }
+
+    
+    public String getStationCode() {
+        return stationCode;
+    }
+
+    
+    public void setStationCode(String stationCode) {
+        this.stationCode = stationCode;
+    }
+
+    
+    public String getSiteCode() {
+        return siteCode;
+    }
+
+    
+    public void setSiteCode(String siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    
+    public String getChannelCode() {
+        return channelCode;
+    }
+
+    
+    public void setChannelCode(String channelCode) {
+        this.channelCode = channelCode;
+    }
 }

@@ -10,11 +10,12 @@
 		<id name="dbid" type="long">
 			<generator class="native" />
 		</id>
-		<property name="network_code" />
-		<property name="station_code"/>
-		<property name="site_code" />
-		<property name="channel_code"/>
+		<property name="networkCode" />
+		<property name="stationCode"/>
+		<property name="siteCode" />
+		<property name="channelCode"/>
 		<property name="beginTimestamp" type="timestamp"/>
+		<property name="endTimestamp" type="timestamp"/>
 		<property name="pixelsPerDay" type="integer" />
 		<property name="beginPixel" type="integer" />
 		<component name="data"
