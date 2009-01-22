@@ -1,5 +1,8 @@
-package edu.sc.seis.fissuresUtil.database.plottable;
+package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +16,9 @@ import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.dmc.seedcodec.Codec;
+import edu.iris.dmc.seedcodec.CodecException;
+import edu.iris.dmc.seedcodec.UnsupportedCompressionType;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 
@@ -82,6 +88,17 @@ public class PlottableChunk {
                           String siteCode,
                           String channelCode) {
         this.data = data;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(out);
+        try {
+            for(int k = 0; k < data.y_coor.length; k++) {
+                dos.writeInt(data.y_coor[k]);
+            }
+        } catch(IOException e) {
+            throw new RuntimeException("Should never happen with a ByteArrayOutputStream", e);
+        }
+        yBytes = out.toByteArray();
+        
         // here we shall get rid of days of dead space if they exist
         if(startPixel >= pixelsPerDay) {
             int numDaysToAdd = startPixel / pixelsPerDay;
@@ -196,6 +213,16 @@ public class PlottableChunk {
     public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
     public Plottable getData() {
+        synchronized(this) {
+            if (data == null) {
+                int[] yValues = getYData();
+                int[] xValues = new int[yValues.length];
+                for (int i = 0; i < xValues.length; i++) {
+                    xValues[i] = i/2;
+                }
+                data = new Plottable(xValues, yValues);
+            }
+        }
         return data;
     }
 
@@ -272,7 +299,7 @@ public class PlottableChunk {
                 stopPixel = getNumPixels();
             }
             int[] y = new int[(stopPixel - startPixel) * 2];
-            System.arraycopy(data.y_coor, startPixel * 2, y, 0, y.length);
+            System.arraycopy(getYData(), startPixel * 2, y, 0, y.length);
             Plottable p = new Plottable(null, y);
             dayChunks.add(new PlottableChunk(p,
                                              pixelIntoNewDay,
@@ -346,7 +373,9 @@ public class PlottableChunk {
     private String siteCode;
     private String channelCode;
 
-    private Plottable data;
+    private byte[] xBytes, yBytes;
+    
+    private transient Plottable data = null;
 
     private int pixelsPerDay, beginPixel;
 
@@ -392,5 +421,31 @@ public class PlottableChunk {
     
     public void setChannelCode(String channelCode) {
         this.channelCode = channelCode;
+    }
+
+    public byte[] getYBytes() {
+        return yBytes;
+    }
+
+    
+    protected void setYBytes(byte[] bytes) {
+        yBytes = bytes;
+    }
+    
+    public int[] getXData() {
+        return toIntArray(xBytes);
+    }
+    
+    public int[] getYData() {
+        return toIntArray(yBytes);
+    }
+    
+    private int[] toIntArray(byte[] bytes) {
+        try {
+            return new Codec().decompress(Codec.INTEGER, bytes, bytes.length/4, false).getAsInt();
+        } catch(CodecException e) {
+            // cant happen
+            throw new RuntimeException("Should never happen", e);
+        }
     }
 }
