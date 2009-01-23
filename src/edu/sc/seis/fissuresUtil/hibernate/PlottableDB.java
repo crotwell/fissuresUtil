@@ -10,7 +10,6 @@ import org.hibernate.cfg.Configuration;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.time.RangeTool;
 import edu.sc.seis.fissuresUtil.time.ReduceTool;
@@ -44,7 +43,7 @@ public class PlottableDB extends AbstractHibernateDB {
                                 String site,
                                 String channel,
                                 int pixelsPerDay) {
-        Query q = getSession().createQuery("from "+PlottableChunk.class+" where "+
+        Query q = getSession().createQuery("from "+PlottableChunk.class.getName()+" where "+
         " networkCode = :net and stationCode = :sta and siteCode = :site and channelCode = :chan "+
         " and pixelsPerDay = :pixelsPerDay "+
         " and ( beginTimestamp <= :end and endTimestamp >= :begin )");
