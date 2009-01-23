@@ -23,22 +23,24 @@ public class ConnectionCreator {
 
     public ConnectionCreator(Properties props) {
         this(props.getProperty(DB_URL_KEY, "jdbc:hsqldb:."),
-             props.getProperty(DB_TYPE_KEY, "HSQL"),
              props.getProperty(DB_USER_KEY, "SA"),
              props.getProperty(DB_PASS_KEY, ""),
              props);
     }
 
     public ConnectionCreator(String url,
-                             String type,
                              String username,
                              String password,
                              Properties extraProps) {
         this.url = url;
-        this.type = type;
         this.username = username;
         this.password = password;
         this.extraProps = extraProps;
+        if (url.startsWith("jdbc:hsql")) {
+            type = HSQL;
+        } else if (url.startsWith("jdbc:postgresql")) {
+            type = POSTGRES;
+        }
     }
 
     public Connection createConnection() throws SQLException {
