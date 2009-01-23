@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -9,6 +11,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -89,11 +93,12 @@ public class PlottableChunk {
                           String channelCode) {
         this.data = data;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(out);
         try {
+            DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(out));
             for(int k = 0; k < data.y_coor.length; k++) {
                 dos.writeInt(data.y_coor[k]);
             }
+            dos.close();
         } catch(IOException e) {
             throw new RuntimeException("Should never happen with a ByteArrayOutputStream", e);
         }
@@ -110,6 +115,7 @@ public class PlottableChunk {
         }
         this.beginPixel = startPixel;
         this.pixelsPerDay = pixelsPerDay;
+        this.numDataPoints = data.y_coor.length;
         this.jday = jday;
         this.year = year;
         this.networkCode = networkCode;
@@ -126,21 +132,12 @@ public class PlottableChunk {
             if(networkCode.equals(oChunk.networkCode) &&
                     stationCode.equals(oChunk.stationCode) &&
                     siteCode.equals(oChunk.siteCode) &&
-                    channelCode.equals(oChunk.channelCode)) {
-                if(pixelsPerDay == oChunk.pixelsPerDay) {
-                    if(jday == oChunk.jday) {
-                        if(year == oChunk.year) {
-                            if(data.x_coor.length == oChunk.data.x_coor.length) {
-                                for(int i = 0; i < data.x_coor.length; i++) {
-                                    if(data.x_coor[i] != oChunk.data.x_coor[i]) {
-                                        return false;
-                                    }
-                                }
-                                return true;
-                            }
-                        }
-                    }
-                }
+                    channelCode.equals(oChunk.channelCode) &&
+                    pixelsPerDay == oChunk.pixelsPerDay &&
+                    jday == oChunk.jday &&
+                    year == oChunk.year &&
+                    getNumDataPoints() == oChunk.getNumDataPoints()) {
+                return true;
             }
         }
         return false;
@@ -235,7 +232,12 @@ public class PlottableChunk {
     }
 
     public int getNumPixels() {
-        return data.y_coor.length / 2;
+        // 2 data points per pixel
+        // yBytes.length * 4 == data.y_coor.length, so use the one that exists
+        if (getYBytes() != null) {
+            return getYBytes().length / 8; 
+        }
+        return getData().y_coor.length / 2;
     }
 
     public MicroSecondDate getTime(int pixel) {
@@ -263,14 +265,14 @@ public class PlottableChunk {
     }
 
     public int hashCode() {
-        int hashCode = 81 + channelCode.hashCode();
+        int hashCode = 81 + networkCode.hashCode();
         hashCode = 37 * hashCode + stationCode.hashCode();
         hashCode = 37 * hashCode + siteCode.hashCode();
         hashCode = 37 * hashCode + channelCode.hashCode();
         hashCode = 37 * hashCode + pixelsPerDay;
         hashCode = 37 * hashCode + jday;
         hashCode = 37 * hashCode + year;
-        return 37 * hashCode + data.y_coor.length;
+        return 37 * hashCode + getNumDataPoints();
     }
 
     public String toString() {
@@ -373,11 +375,11 @@ public class PlottableChunk {
     private String siteCode;
     private String channelCode;
 
-    private byte[] xBytes, yBytes;
+    private byte[] yBytes;
     
     private transient Plottable data = null;
 
-    private int pixelsPerDay, beginPixel;
+    private int pixelsPerDay, beginPixel, numDataPoints;
 
     private int jday, year;
 
@@ -427,25 +429,35 @@ public class PlottableChunk {
         return yBytes;
     }
 
-    
     protected void setYBytes(byte[] bytes) {
         yBytes = bytes;
     }
     
-    public int[] getXData() {
-        return toIntArray(xBytes);
-    }
-    
     public int[] getYData() {
-        return toIntArray(yBytes);
+        return toIntArray(getYBytes());
     }
     
     private int[] toIntArray(byte[] bytes) {
         try {
-            return new Codec().decompress(Codec.INTEGER, bytes, bytes.length/4, false).getAsInt();
-        } catch(CodecException e) {
+            DataInputStream dis = new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes)));
+            int[] decomp = new int[getNumDataPoints()];
+            for (int i = 0; i < decomp.length; i++) {
+                decomp[i] = dis.readInt();
+            }
+            return decomp;
+        } catch(IOException e) {
             // cant happen
             throw new RuntimeException("Should never happen", e);
         }
+    }
+
+    
+    public int getNumDataPoints() {
+        return numDataPoints;
+    }
+
+    
+    protected void setNumDataPoints(int numDataPoints) {
+        this.numDataPoints = numDataPoints;
     }
 }
