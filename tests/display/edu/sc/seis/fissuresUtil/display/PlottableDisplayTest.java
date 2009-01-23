@@ -41,7 +41,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
-import edu.sc.seis.fissuresUtil.database.plottable.PlottableChunk;
+import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
