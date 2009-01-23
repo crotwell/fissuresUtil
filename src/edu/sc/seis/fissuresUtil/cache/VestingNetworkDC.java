@@ -36,7 +36,10 @@ public class VestingNetworkDC extends AbstractProxyNetworkDC {
     }
 
     public NetworkFinder a_finder() {
-        return new VestingNetworkFinder(proxy, numRetry, handler);
+        if (finder == null) {
+            finder = new VestingNetworkFinder(proxy, numRetry, handler);
+        }
+        return finder;
     }
 
     private ProxyNetworkDC proxy;
@@ -44,4 +47,6 @@ public class VestingNetworkDC extends AbstractProxyNetworkDC {
     private int numRetry;
 
     private RetryStrategy handler = new ClassicRetryStrategy();
+    
+    private VestingNetworkFinder finder = null;
 }
