@@ -20,5 +20,9 @@ public class NotFound extends Exception {
     public NotFound(String mesg) {
         super(mesg);
     }
+
+    public NotFound(String mesg, Throwable t) {
+        super(mesg, t);
+    }
     
-} // DBIdNotFound
+}
