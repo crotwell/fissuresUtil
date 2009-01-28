@@ -232,12 +232,7 @@ public class PlottableChunk {
     }
 
     public int getNumPixels() {
-        // 2 data points per pixel
-        // yBytes.length * 4 == data.y_coor.length, so use the one that exists
-        if (getYBytes() != null) {
-            return getYBytes().length / 8; 
-        }
-        return getData().y_coor.length / 2;
+        return getNumDataPoints() / 2;
     }
 
     public MicroSecondDate getTime(int pixel) {
