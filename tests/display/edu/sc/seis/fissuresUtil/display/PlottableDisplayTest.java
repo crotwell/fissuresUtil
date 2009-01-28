@@ -66,8 +66,7 @@ public class PlottableDisplayTest extends TestCase {
                               2005,
                               3,
                               new edu.iris.Fissures.Dimension(6000, 0)),
-             new MicroSecondDate(t),
-             KZAChannel);
+             new MicroSecondDate(t));
     }
 
     public static final NetworkId KN = new NetworkId("KN",
@@ -81,7 +80,7 @@ public class PlottableDisplayTest extends TestCase {
                                                              new Time("2000165T093659.0000Z",
                                                                       -1));
     public static PlottableChunk createFullDayPlottable() {
-        return new PlottableChunk(FULL_DAY, 0, 1, 2000, PIXELS, CHAN_ID);
+        return new PlottableChunk(FULL_DAY, 0, 1, 2000, PIXELS, CHAN_ID.network_id.network_code, CHAN_ID.station_code, CHAN_ID.site_code, CHAN_ID.channel_code);
     }
 
     public static final int PIXELS = 6000;
@@ -115,13 +114,13 @@ public class PlottableDisplayTest extends TestCase {
                                                               CHAN_ID);
         MicroSecondTimeRange fullRange = new MicroSecondTimeRange(startTime,
                                                                   end);
-        return SimplePlotUtil.makePlottable(seis, fullRange, PIXELS);
+        return SimplePlotUtil.makePlottable(seis, PIXELS);
     }
 
     public void ttestMadeupData() {
         PlottableChunk c = createFullDayPlottable();
         Plottable plott = c.getData();
-        show(new Plottable[] {plott}, c.getBeginTime(), c.getChannel());
+        show(new Plottable[] {plott}, c.getBeginTime());
     }
 
     public void ttestPDF() throws IOException {
@@ -143,8 +142,8 @@ public class PlottableDisplayTest extends TestCase {
         Plottable plott = c.getData();
         PlottableDisplay disp = new PlottableDisplay(5400, false);
         disp.setPlottable(new Plottable[] {plott},
-                          c.getChannel().station_code,
-                          c.getChannel().channel_code,
+                          c.getStationCode(),
+                          c.getChannelCode(),
                           c.getBeginTime(),
                           Initializer.ANDYChannel);
         return disp;
@@ -164,11 +163,11 @@ public class PlottableDisplayTest extends TestCase {
         return disp;
     }
 
-    public static void show(Plottable[] plott, Date d, ChannelId id) {
+    public static void show(Plottable[] plott, Date d) {
         PlottableDisplay disp = new PlottableDisplay();
         disp.setPlottable(plott,
-                          id.station_code,
-                          id.channel_code,
+                          Initializer.ANDYChannel.station_code,
+                          Initializer.ANDYChannel.channel_code,
                           d,
                           Initializer.ANDYChannel);
         setupFrame(disp);
