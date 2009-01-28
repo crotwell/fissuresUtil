@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 19111 2007-07-25 20:01:29Z oliverpa $
+ * @version $Id: SimplePlotUtil.java 20217 2009-01-28 20:58:30Z crotwell $
  */
 public class SimplePlotUtil {
 
@@ -39,21 +39,15 @@ public class SimplePlotUtil {
      * last point before the start time of the next pixel.
      */
     public static Plottable makePlottable(LocalSeismogramImpl seis,
-                                          MicroSecondTimeRange tr,
                                           int pixelsPerDay)
             throws CodecException {
-        if(tr.getEndTime().before(seis.getBeginTime())
-                || tr.getBeginTime().after(seis.getEndTime())
-                || !canMakeAtLeastOnePixel(seis, pixelsPerDay)) {
-            return getEmptyPlottable();
-        }
         MicroSecondTimeRange correctedSeisRange = correctTimeRangeForPixelData(seis,
                                                                                pixelsPerDay);
         int startPoint = getPoint(seis, correctedSeisRange.getBeginTime());
         int endPoint = getPoint(seis, correctedSeisRange.getEndTime());
         IntRange seisPixelRange = getDayPixelRange(seis,
                                                    pixelsPerDay,
-                                                   tr.getBeginTime());
+                                                   seis.getBeginTime());
         int numPixels = seisPixelRange.getDifference();
         // check to see if numPixels doesn't go over
         MicroSecondDate rangeEnd = correctedSeisRange.getBeginTime()
