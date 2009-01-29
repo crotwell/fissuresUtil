@@ -59,6 +59,7 @@ public class PlottableDB extends AbstractHibernateDB {
     }
 
     public void put(List<PlottableChunk> chunks) {
+        if (chunks.size() == 0) {return;}
         MicroSecondTimeRange stuffInDB = getDroppingRange(chunks);
         List<PlottableChunk> dbChunks = get(stuffInDB,
                                         chunks.get(0).getNetworkCode(),
