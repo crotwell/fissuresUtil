@@ -38,7 +38,6 @@ public class SimplePlotUtilTest extends TestCase {
         MicroSecondTimeRange tr = new MicroSecondTimeRange(START_DATE,
                                                            ONE_SECOND);
         Plottable plott = SimplePlotUtil.makePlottable(seis,
-                                                       tr,
                                                        HALF_SECONDS_SPD);
         ArrayAssert.assertEquals(new int[] {0, 100}, plott.y_coor);
     }
@@ -56,7 +55,6 @@ public class SimplePlotUtilTest extends TestCase {
 
     public void testMakePlottableOnMisalignedSeismogram() throws CodecException {
         Plottable result = SimplePlotUtil.makePlottable(makeMiddleOfDaySeis(),
-                                                        START_FOR_HOUR,
                                                         HALF_SECONDS_IN_HOUR/2);
         assertEquals(0, result.x_coor.length);
         assertEquals(0, result.y_coor.length);
@@ -105,7 +103,6 @@ public class SimplePlotUtilTest extends TestCase {
             yValues[i] = 100;//Spike every minute
         }
         Plottable results = SimplePlotUtil.makePlottable(seis,
-                                                         tr,
                                                          HALF_SECONDS_SPD/2);
         ArrayAssert.assertEquals(yValues, results.y_coor);
         return results;
