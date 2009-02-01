@@ -107,7 +107,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
                     // idea is to give jacorb a chance to garbage collect
                     // connection/socket
                     // so we get a clean fresh socket to server
-                    Thread.sleep(1000);
+                    Thread.sleep(10000);
                 } catch(InterruptedException e) {}
                 insideReset = false;
             }
