@@ -98,8 +98,11 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
             // to rest...StackOverflow
             if(!insideReset) {
                 insideReset = true;
-                for(CacheNetworkAccess net : allKnownNetworkAccess.keySet()) {
-                    net.reset();
+                // copy to array instead of iterating over keyset as weakHashMap might loose keys during iteration
+                // causing ConcurrentModificationException
+                CacheNetworkAccess[] nets = allKnownNetworkAccess.keySet().toArray(new CacheNetworkAccess[0]);
+                for (int i = 0; i < nets.length; i++) {
+                    nets[i].reset();
                 }
                 try {
                     // give a chance for outstanding requests to server to come
