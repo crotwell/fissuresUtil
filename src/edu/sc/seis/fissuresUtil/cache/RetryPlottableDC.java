@@ -197,8 +197,8 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
     public PlottableDCOperations getWrappedDC(Class wrappedClass) {
         if(getWrappedDC().getClass().equals(wrappedClass)) {
             return getWrappedDC();
-        } else if(getWrappedDC().getClass().equals(ProxySeismogramDC.class)) {
-            ((ProxySeismogramDC)getWrappedDC()).getWrappedDC(wrappedClass);
+        } else if(getWrappedDC() instanceof ProxySeismogramDC) {
+            ((ProxyPlottableDC)getWrappedDC()).getWrappedDC(wrappedClass);
         }
         throw new IllegalArgumentException("This doesn't contain a DC of class "
                 + wrappedClass);
