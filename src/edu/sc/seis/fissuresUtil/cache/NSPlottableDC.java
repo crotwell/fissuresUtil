@@ -87,7 +87,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
             return getPlottableDC().get_whole_day_sizes();
         } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in get_whole_day_sizes(), regetting from nameservice to try again.", e);
             reset();
             return getPlottableDC().get_whole_day_sizes();
         } // end of try-catch
@@ -98,7 +98,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
             return getPlottableDC().get_event_sizes();
         } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in get_event_sizes(), regetting from nameservice to try again.", e);
             reset();
             return getPlottableDC().get_event_sizes();
         } // end of try-catch
@@ -110,7 +110,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
             return getPlottableDC().get_for_day(chan, year, jday, dim);
         } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in get_for_day(), regetting from nameservice to try again.", e);
             reset();
             return getPlottableDC().get_for_day(chan, year, jday, dim);
         } // end of try-catch
@@ -121,7 +121,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
             return getPlottableDC().custom_sizes();
         } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in custom_sizes(), regetting from nameservice to try again.", e);
             reset();
             return getPlottableDC().custom_sizes();
         } // end of try-catch
@@ -133,7 +133,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
             return getPlottableDC().get_for_event(event, chan, dim);
         } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in get_for_event(), regetting from nameservice to try again.", e);
             reset();
             return getPlottableDC().get_for_event(event, chan, dim);
         } // end of try-catch
@@ -145,7 +145,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
             return getPlottableDC().get_plottable(rf, dim);
         } catch(Throwable e) {
             // retry in case regetting from name service helps
-            logger.warn("Exception in a_channel_finder(), regetting from nameservice to try again.", e);
+            logger.warn("Exception in get_plottable(), regetting from nameservice to try again.", e);
             reset();
             return getPlottableDC().get_plottable(rf, dim);
         } // end of try-catch
