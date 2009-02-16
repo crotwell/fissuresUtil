@@ -10,6 +10,7 @@ import java.net.URL;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
@@ -65,8 +66,16 @@ public class ClockUtil {
         return new MicroSecondDate().add(getTimeOffset());
     }
 
-    public static MicroSecondDate future() {
+    public static MicroSecondDate tomorrow() {
         return now().add(ONE_DAY);
+    }
+    
+    public static MicroSecondDate wayPast() {
+        return new MicroSecondDate(0);
+    }
+    
+    public static MicroSecondDate wayFuture() {
+        return new MicroSecondDate(TimeUtils.future);
     }
 
     public static TimeInterval getServerTimeOffset() throws IOException {
@@ -108,7 +117,7 @@ public class ClockUtil {
     }
 
     /** Used to check for really obviously wrong system clocks, set to a day prior to the release date. */
-    private static MicroSecondDate OLD_DATE = new ISOTime("2008-08-01T00:00:00.000Z").getDate();
+    private static MicroSecondDate OLD_DATE = new ISOTime("2009-02-14T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
     
