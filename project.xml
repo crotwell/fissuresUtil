@@ -129,12 +129,6 @@
             <url>http://www.isti.com</url>
         </dependency>
         <dependency>
-            <groupId>isti</groupId>
-            <artifactId>isti.util.toplevel</artifactId>
-            <version>1.0USC</version>
-            <url>http://www.isti.com</url>
-        </dependency>
-        <dependency>
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>b9</version>
