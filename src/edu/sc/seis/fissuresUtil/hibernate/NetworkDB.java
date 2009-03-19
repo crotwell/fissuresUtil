@@ -21,6 +21,7 @@ import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.LazyNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class NetworkDB extends AbstractHibernateDB {
@@ -431,14 +432,20 @@ public class NetworkDB extends AbstractHibernateDB {
             + ChannelGroup.class.getName()
             + " c WHERE c.channel1.site.station = :station";
 
+    // often happens that a channel has end time of 2500-01-01 until it is ended and a new channel is created
+    // no way for sod to know, but when this happens, you usually want the channel that overlaps the time
+    // with the latest begin time, hence the order by desc
     static String getChannelForStationAtTime = getChannelForStation
-            + " and :when between chan_begin_time and chan_end_time";
+            + " and :when between chan_begin_time and chan_end_time  order by chan_begin_time desc";
 
     static String chanCodeHQL = " id.channel_code = :channelCode AND id.site_code = :siteCode AND id.station_code = :stationCode AND site.station.networkAttr.id.network_code = :netCode ";
 
+    // often happens that a channel has end time of 2500-01-01 until it is ended and a new channel is created
+    // no way for sod to know, but when this happens, you usually want the channel that overlaps the time
+    // with the latest begin time, hence the order by desc
     static String getChannelByCode = "From " + ChannelImpl.class.getName()
             + " WHERE " + chanCodeHQL
-            + " AND :when between chan_begin_time and chan_end_time";
+            + " AND :when between chan_begin_time and chan_end_time order by chan_begin_time desc";
 
     static String getChannelById = "From " + ChannelImpl.class.getName()
             + " WHERE " + chanCodeHQL + " AND chan_begin_time =  :when";
