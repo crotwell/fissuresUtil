@@ -18,7 +18,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     public VestingNetworkFinder(ProxyNetworkDC netDC,
                                 int numRetry,
                                 RetryStrategy handler) {
-        super(new CacheByIdNetworkFinder(new NSNetworkFinder(netDC, numRetry, handler)));
+        super(new CacheByIdNetworkFinder(new RetryNetworkFinder(new NSNetworkFinder(netDC), numRetry, handler)));
         this.numRetry = numRetry;
         this.handler = handler;
     }
