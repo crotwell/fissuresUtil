@@ -342,7 +342,7 @@ public class NetworkDB extends AbstractHibernateDB {
                                                String chan) {
         String queryString = "From " + ChannelImpl.class.getName() + " WHERE "
                 + chanCodeHQL
-                + " AND site.station.networkAttr.beginTime = :when";
+                + " AND site.station.networkAttr.beginTime.time = :when";
         Query query = getSession().createQuery(queryString);
         query.setString("netCode", net.network_code);
         query.setString("stationCode", sta);
