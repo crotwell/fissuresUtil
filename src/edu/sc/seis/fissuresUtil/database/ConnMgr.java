@@ -111,6 +111,9 @@ public class ConnMgr {
     }
 
     public static void setURL(String url) {
+        if (url == null || url.length() == 0) {
+            throw new RuntimeException("URL is empty.");
+        }
         try {
         ConnMgr.url = url;
         if (url.startsWith("jdbc:hsql")) {
