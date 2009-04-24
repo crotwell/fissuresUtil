@@ -155,7 +155,7 @@ public abstract class AbstractHibernateDB {
         GlobalExceptionHandler.add(new DefaultExtractor() {
 
             public boolean canExtract(Throwable throwable) {
-                return (throwable instanceof java.sql.BatchUpdateException);
+                return (throwable instanceof java.sql.SQLException);
             }
 
             public String extract(Throwable throwable) {
@@ -163,8 +163,8 @@ public abstract class AbstractHibernateDB {
             }
 
             public Throwable getSubThrowable(Throwable throwable) {
-                if(throwable instanceof java.sql.BatchUpdateException) {
-                    return ((java.sql.BatchUpdateException)throwable).getNextException();
+                if(throwable instanceof java.sql.SQLException) {
+                    return ((java.sql.SQLException)throwable).getNextException();
                 }
                 return null;
             }
