@@ -3,6 +3,10 @@ package edu.sc.seis.fissuresUtil.namingService;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+
+import org.jacorb.orb.ParsedIOR;
+import org.jacorb.orb.iiop.IIOPAddress;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.omg.CosNaming.Binding;
 import org.omg.CosNaming.BindingIteratorHolder;
 import org.omg.CosNaming.BindingListHolder;
@@ -10,8 +14,12 @@ import org.omg.CosNaming.BindingType;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 import org.omg.CosNaming.NamingContextHelper;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class NameServiceTreeModel implements TreeModel {
 
@@ -45,7 +53,19 @@ public class NameServiceTreeModel implements TreeModel {
                 }
             } else {
                 NameComponent name = bindings[arg1].binding_name[bindings[arg1].binding_name.length - 1];
-                return name.id + "." + name.kind;
+                String IOR;
+                IIOPAddress addr = null;
+                try {
+                    IOR = Initializer.getORB().object_to_string(nc.resolve(bindings[arg1].binding_name));
+                    ParsedIOR parsed = new ParsedIOR((org.jacorb.orb.ORB)Initializer.getORB(),
+                                                     IOR);
+                    IIOPProfile profile = (IIOPProfile)parsed.getProfiles().get(0);
+                    addr = (IIOPAddress)profile.getAddress();
+                } catch(NotFound e) {
+                } catch(CannotProceed e) {
+                } catch(InvalidName e) {
+                }
+                return name.id + "." + name.kind+(addr==null?"":" ("+addr.getIP()+":"+addr.getPort()+")");
             }
         }
         return "dummy";
