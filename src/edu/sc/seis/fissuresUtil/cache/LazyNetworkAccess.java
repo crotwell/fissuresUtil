@@ -24,7 +24,17 @@ public class LazyNetworkAccess extends CacheNetworkAccess {
     public NetworkAccess getNetworkAccess() {
         if(super.getNetworkAccess() == null) {
             try {
-                setNetworkAccess(netFinder.retrieve_by_id(attr.get_id()));
+                if (attr.get_code().charAt(0) == '_') {
+                    //virtual network, must use retrieve_by_name
+                    NetworkAccess[] nets = netFinder.retrieve_by_name(attr.get_code());
+                    if (nets.length != 0) {
+                        setNetworkAccess(nets[0]);
+                    } else {
+                        throw new NetworkNotFound();
+                    }
+                } else {
+                    setNetworkAccess(netFinder.retrieve_by_id(attr.get_id()));
+                }
             } catch(NetworkNotFound e) {
                 throw new RuntimeException("unable to reconnect to networkaccess: "
                                                    + NetworkIdUtil.toString(attr),
