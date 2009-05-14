@@ -56,7 +56,7 @@ public class DataSetEventOrganizer extends TopLevelOrganizer implements
         addChannel(channel, getEventDataSet(event), audit);
     }
 
-    public void addChannel(Channel channel, DataSet dataSet, AuditInfo[] audit) {
+    public static void addChannel(Channel channel, DataSet dataSet, AuditInfo[] audit) {
         String channelParamName = CHANNEL
                 + ChannelIdUtil.toString(channel.get_id());
         if(channel != null && dataSet.getParameter(channelParamName) == null) {
