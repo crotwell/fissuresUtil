@@ -45,6 +45,9 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
     public void reset() {
         if(nf instanceof ProxyNetworkFinder) {
             ((ProxyNetworkFinder)nf).reset();
+        } else {
+            // must be real corba object, so discard to allow orb to reclaim/reopen sockets after garbage collection
+            nf = null;
         }
     }
 
