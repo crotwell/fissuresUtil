@@ -10,6 +10,7 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Quantity;
+import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.exceptionHandler.DefaultExtractor;
 import edu.sc.seis.fissuresUtil.exceptionHandler.Extractor;
@@ -105,19 +106,27 @@ public abstract class AbstractHibernateDB {
     }
 
     protected static UnitImpl intern(UnitImpl unit) {
-        HashSet unitCache = getUnitCache();
+        HashSet<UnitImpl> unitCache = getUnitCache();
         if(unitCache.size() == 0) {
             loadUnits(getSession());
         }
-        Iterator it = unitCache.iterator();
+        Iterator<UnitImpl> it = unitCache.iterator();
         while(it.hasNext()) {
-            UnitImpl internUnit = (UnitImpl)it.next();
+            UnitImpl internUnit = it.next();
             if(unit.equals(internUnit)) {
                 return internUnit;
             }
         }
-        for(int i = 0; i < unit.getSubUnits().length; i++) {
-            intern(unit.getSubUnit(i));
+        if (unit.getBaseUnit().equals(UnitBase.COMPOSITE)) {
+            UnitImpl[] internedSubUnits = new UnitImpl[unit.getNumSubUnits()];
+            for(int i = 0; i < unit.getNumSubUnits(); i++) {
+                internedSubUnits[i] = intern(unit.getSubUnit(i));
+            }
+            unit = new UnitImpl(internedSubUnits,
+                                unit.getPower(),
+                                unit.name,
+                                unit.getMultiFactor(),
+                                unit.getExponent());
         }
         Session session = getSession();
         Integer dbid = (Integer)session.save(unit);
@@ -125,19 +134,19 @@ public abstract class AbstractHibernateDB {
         return unit;
     }
 
-    protected static HashSet getUnitCache() {
-        HashSet out = (HashSet)unitCacheTL.get();
+    protected static HashSet<UnitImpl> getUnitCache() {
+        HashSet<UnitImpl> out = unitCacheTL.get();
         if(out == null) {
-            out = new HashSet();
+            out = new HashSet<UnitImpl>();
             unitCacheTL.set(out);
         }
         return out;
     }
 
-    private static ThreadLocal unitCacheTL = new ThreadLocal() {
+    private static ThreadLocal<HashSet<UnitImpl>> unitCacheTL = new ThreadLocal<HashSet<UnitImpl>>() {
 
-        protected synchronized Object initialValue() {
-            return new HashSet();
+        protected synchronized HashSet<UnitImpl> initialValue() {
+            return new HashSet<UnitImpl>();
         }
     };
 
