@@ -11,6 +11,7 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.ChannelIdIterHolder;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.ConcreteNetworkAccess;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
@@ -21,6 +22,7 @@ import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.IfNetwork.TimeCorrection;
+import edu.iris.Fissures.IfNetwork.VirtualNetworkAccess;
 
 public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWrapper {
 
@@ -35,6 +37,14 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
     public void reset() {
         if(getNetworkAccess() instanceof ProxyNetworkAccess) {
             ((ProxyNetworkAccess)getNetworkAccess()).reset();
+        } else if(getNetworkAccess() instanceof ConcreteNetworkAccess) {
+            // must be real corba object, so discard to allow orb to reclaim/reopen sockets after garbage collection
+            ((ConcreteNetworkAccess)net)._release();
+            setNetworkAccess(null);
+        } else if(getNetworkAccess() instanceof VirtualNetworkAccess) {
+            // must be real corba object, so discard to allow orb to reclaim/reopen sockets after garbage collection
+            ((VirtualNetworkAccess)net)._release();
+            setNetworkAccess(null);
         }
     }
 
