@@ -103,7 +103,6 @@ public class EventDB extends AbstractHibernateDB {
             internUnit(origins[i].getLocation());
         }
 		Integer dbid = (Integer) session.save(event);
-		//event.setDbId(dbid.intValue());
 		return dbid.longValue();
 	}
 	
