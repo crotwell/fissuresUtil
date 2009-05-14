@@ -68,9 +68,6 @@ public class PhaseCut {
                                            " does not exist at this distance, "+
                                            distAz.getDelta()+" degrees");
         }
-
-        logger.debug("Phase cut from "+beginTime+" to "+endTime);
-
         Cut cut = new Cut(beginTime, endTime);
         return cut.apply(seis);
     }
