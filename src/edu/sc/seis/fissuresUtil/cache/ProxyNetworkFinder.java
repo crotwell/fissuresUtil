@@ -37,6 +37,10 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
     public ProxyNetworkFinder(NetworkFinder nf) {
         this.nf = nf;
     }
+    
+    public NetworkFinder getWrappedNetworkFinder() {
+        return nf;
+    }
 
     /**
      * If this ProxyNetworkFinder is holding onto a ProxyNetworkFinder, it calls
@@ -47,6 +51,7 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
             ((ProxyNetworkFinder)nf).reset();
         } else {
             // must be real corba object, so discard to allow orb to reclaim/reopen sockets after garbage collection
+            nf._release();
             nf = null;
         }
     }
@@ -56,22 +61,23 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
     }
 
     public NetworkFinder getCorbaObject() {
-        if(nf instanceof ProxyNetworkFinder) {
-            return ((ProxyNetworkFinder)nf).getCorbaObject();
-        } else if(!(nf instanceof ProxyNetworkFinder)) { return nf; }
-        return null;
+        if(getWrappedNetworkFinder() instanceof ProxyNetworkFinder) {
+            return ((ProxyNetworkFinder)getWrappedNetworkFinder()).getCorbaObject();
+        } else  {
+            return getWrappedNetworkFinder(); 
+        }
     }
     
     public String getServerName() {
-        if(nf instanceof ProxyNetworkFinder) {
-            return ((ProxyNetworkFinder)nf).getServerName();
+        if(getWrappedNetworkFinder() instanceof ProxyNetworkFinder) {
+            return ((ProxyNetworkFinder)getWrappedNetworkFinder()).getServerName();
         }
         return null;
     }
 
     public String getServerDNS() {
-        if(nf instanceof ProxyNetworkFinder) {
-            return ((ProxyNetworkFinder)nf).getServerDNS();
+        if(getWrappedNetworkFinder() instanceof ProxyNetworkFinder) {
+            return ((ProxyNetworkFinder)getWrappedNetworkFinder()).getServerDNS();
         }
         return null;
     }
@@ -86,19 +92,19 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
-        return nf.retrieve_by_id(id);
+        return getWrappedNetworkFinder().retrieve_by_id(id);
     }
 
     public NetworkAccess[] retrieve_by_code(String code) throws NetworkNotFound {
-        return nf.retrieve_by_code(code);
+        return getWrappedNetworkFinder().retrieve_by_code(code);
     }
 
     public NetworkAccess[] retrieve_by_name(String name) throws NetworkNotFound {
-        return nf.retrieve_by_name(name);
+        return getWrappedNetworkFinder().retrieve_by_name(name);
     }
 
     public NetworkAccess[] retrieve_all() {
-        return nf.retrieve_all();
+        return getWrappedNetworkFinder().retrieve_all();
     }
 
     public void _release() {

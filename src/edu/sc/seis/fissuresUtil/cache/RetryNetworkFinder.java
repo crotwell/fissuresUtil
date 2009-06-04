@@ -20,7 +20,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         int count = 0;
         SystemException latest;
         try {
-            return nf.retrieve_all();
+            return super.retrieve_all();
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -28,7 +28,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                NetworkAccess[] result = nf.retrieve_all();
+                NetworkAccess[] result = super.retrieve_all();
                 strategy.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -44,7 +44,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         int count = 0;
         SystemException latest;
         try {
-            return nf.retrieve_by_code(code);
+            return super.retrieve_by_code(code);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -52,7 +52,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                NetworkAccess[] result = nf.retrieve_by_code(code);
+                NetworkAccess[] result = super.retrieve_by_code(code);
                 strategy.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -68,7 +68,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         int count = 0;
         SystemException latest;
         try {
-            return nf.retrieve_by_id(id);
+            return super.retrieve_by_id(id);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -76,7 +76,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                NetworkAccess result = nf.retrieve_by_id(id);
+                NetworkAccess result = super.retrieve_by_id(id);
                 strategy.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -92,7 +92,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         int count = 0;
         SystemException latest;
         try {
-            return nf.retrieve_by_name(name);
+            return super.retrieve_by_name(name);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -100,7 +100,7 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
         }
         while(shouldRetry(count++, latest)) {
             try {
-                NetworkAccess[] result = nf.retrieve_by_name(name);
+                NetworkAccess[] result = super.retrieve_by_name(name);
                 strategy.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
