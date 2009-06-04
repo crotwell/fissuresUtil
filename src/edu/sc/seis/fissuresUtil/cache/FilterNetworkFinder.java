@@ -16,19 +16,19 @@ public class FilterNetworkFinder extends ProxyNetworkFinder {
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
-        return make(nf.retrieve_by_id(id));
+        return make(getWrappedNetworkFinder().retrieve_by_id(id));
     }
 
     public NetworkAccess[] retrieve_by_code(String code) throws NetworkNotFound {
-        return wrap(nf.retrieve_by_code(code));
+        return wrap(getWrappedNetworkFinder().retrieve_by_code(code));
     }
 
     public NetworkAccess[] retrieve_by_name(String name) throws NetworkNotFound {
-        return wrap(nf.retrieve_by_name(name));
+        return wrap(getWrappedNetworkFinder().retrieve_by_name(name));
     }
 
     public NetworkAccess[] retrieve_all() {
-        return wrap(nf.retrieve_all());
+        return wrap(getWrappedNetworkFinder().retrieve_all());
     }
 
     private FilterNetworkAccess[] wrap(NetworkAccess[] nas) {

@@ -12,46 +12,46 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
         this.netDC = netDC;
     }
 
-    private synchronized ProxyNetworkFinder getFinder() {
-        if(finder == null) {
-            finder = new SynchronizedNetworkFinder(netDC.a_finder());
+    public synchronized NetworkFinder getWrappedNetworkFinder() {
+        if(nf == null) {
+            nf = new SynchronizedNetworkFinder(netDC.a_finder());
         }
-        return finder;
+        return nf;
     }
 
     public NetworkAccess retrieve_by_id(NetworkId id) throws NetworkNotFound {
         try {
-            return getFinder().retrieve_by_id(id);
+            return super.retrieve_by_id(id);
         } catch(Throwable e) {
             reset();
-            return getFinder().retrieve_by_id(id);
+            return super.retrieve_by_id(id);
         } // end of try-catch
     }
 
     public NetworkAccess[] retrieve_by_code(String code) throws NetworkNotFound {
         try {
-            return getFinder().retrieve_by_code(code);
+            return super.retrieve_by_code(code);
         } catch(Throwable e) {
             reset();
-            return getFinder().retrieve_by_code(code);
+            return super.retrieve_by_code(code);
         } // end of try-catch
     }
 
     public NetworkAccess[] retrieve_by_name(String name) throws NetworkNotFound {
         try {
-            return getFinder().retrieve_by_name(name);
+            return super.retrieve_by_name(name);
         } catch(Throwable e) {
             reset();
-            return getFinder().retrieve_by_name(name);
+            return super.retrieve_by_name(name);
         } // end of try-catch
     }
 
     public NetworkAccess[] retrieve_all() {
         try {
-            return getFinder().retrieve_all();
+            return super.retrieve_all();
         } catch(Throwable e) {
             reset();
-            return getFinder().retrieve_all();
+            return super.retrieve_all();
         } // end of try-catch
     }
 
@@ -61,19 +61,9 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
      * that any changes there need to be checked here, as well.
      */
     public void reset() {
+        super.reset();
         netDC.reset();
-        if(finder != null) {
-            finder._release();
-        }
-        finder = null;
-    }
-
-    public boolean hasCorbaObject() {
-        return getCorbaObject() != null;
-    }
-
-    public NetworkFinder getCorbaObject() {
-        return getFinder().getCorbaObject();
+        nf = null; // so we can create a new SynchronizedNetworkFinder
     }
 
     public String getServerDNS() {
@@ -86,5 +76,4 @@ public class NSNetworkFinder extends ProxyNetworkFinder {
 
     ProxyNetworkDC netDC;
 
-    private ProxyNetworkFinder finder;
 }
