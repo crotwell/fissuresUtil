@@ -24,7 +24,7 @@ import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 
 public class EventDB extends AbstractHibernateDB {
 
-	public EventDB() {
+    protected EventDB() {
 		initQueryStrings();
 	}
 
