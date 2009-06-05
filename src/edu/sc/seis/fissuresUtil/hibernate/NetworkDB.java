@@ -26,6 +26,8 @@ import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class NetworkDB extends AbstractHibernateDB {
 
+    protected NetworkDB() {}
+    
     public int put(NetworkAttrImpl net) {
         Session session = getSession();
         if(net.getDbid() != 0) {

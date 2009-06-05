@@ -17,6 +17,8 @@ import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 public class PlottableDB extends AbstractHibernateDB {
     
+    protected PlottableDB() {}
+    
     private static PlottableDB singleton;
 
     public static PlottableDB getSingleton() {
