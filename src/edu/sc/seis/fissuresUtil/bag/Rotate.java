@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Rotate.java Created: Sun Dec 15 13:43:21 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Rotate.java 17004 2006-04-25 19:38:48Z crotwell $
+ * @version $Id: Rotate.java 20575 2009-07-13 20:50:32Z crotwell $
  */
 public class Rotate  {
 
@@ -27,7 +27,7 @@ public class Rotate  {
         // want x north, y east, 
         if ((xOrient.azimuth - yOrient.azimuth) % 360 == 90) {
             // ok
-        } else if ((xOrient.azimuth - yOrient.azimuth) % 360 == -90) {
+        } else if ((xOrient.azimuth - yOrient.azimuth) % 360 == 270) {
             // need to swap
             LocalSeismogramImpl tmp = x;
             Orientation tmpOrient = xOrient;
