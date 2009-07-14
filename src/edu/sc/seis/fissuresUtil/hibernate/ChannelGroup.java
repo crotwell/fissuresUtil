@@ -87,17 +87,17 @@ public class ChannelGroup {
     }
 
     /**
-     * Gets the horizontals as X and Y, so that the second channel's azimmuth is
-     * the first's + 90 degrees. If this is not possible, then a zero length
+     * Gets the horizontals as X and Y, so that the first channel's azimuth is
+     * the seconds + 90 degrees, ie x -> east and y -> north. If this is not possible, then a zero length
      * array is returned.
      */
     public ChannelImpl[] getHorizontalXY() {
         ChannelImpl[] out = getHorizontal();
         if(out.length != 2) {
             out = new ChannelImpl[0];
-        } else if((out[0].getOrientation().azimuth + 90) % 360 == out[1].getOrientation().azimuth % 360) {
-            // in right order
         } else if((out[1].getOrientation().azimuth + 90) % 360 == out[0].getOrientation().azimuth % 360) {
+            // in right order
+        } else if((out[0].getOrientation().azimuth + 90) % 360 == out[1].getOrientation().azimuth % 360) {
             ChannelImpl tmp = out[0];
             out[0] = out[1];
             out[1] = tmp;

@@ -11,7 +11,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Rotate.java Created: Sun Dec 15 13:43:21 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Rotate.java 20575 2009-07-13 20:50:32Z crotwell $
+ * @version $Id: Rotate.java 20577 2009-07-14 13:40:49Z crotwell $
  */
 public class Rotate  {
 
@@ -24,10 +24,12 @@ public class Rotate  {
                                                   String transverseCode,
                                                   String radialCode)
             throws FissuresException, IncompatibleSeismograms {
-        // want x north, y east, 
-        if ((xOrient.azimuth - yOrient.azimuth) % 360 == 90) {
+        // want y north, x east, or at least x + 90 deg == y
+        double angle = (xOrient.azimuth - yOrient.azimuth) % 360;
+        if (angle < 0) {angle += 360;}
+        if (angle == 90) {
             // ok
-        } else if ((xOrient.azimuth - yOrient.azimuth) % 360 == 270) {
+        } else if (angle == 270) {
             // need to swap
             LocalSeismogramImpl tmp = x;
             Orientation tmpOrient = xOrient;
@@ -36,7 +38,7 @@ public class Rotate  {
             y = tmp;
             yOrient = tmpOrient;
         } else {
-            throw new IncompatibleSeismograms("not 90 deg separation: "+((xOrient.azimuth - yOrient.azimuth)%360));
+            throw new IncompatibleSeismograms("not 90 deg separation: "+xOrient.azimuth+" - "+yOrient.azimuth+" = "+angle);
         }
         double radialAz = getRadialAzimuth(staLoc, evtLoc);
         float[][] data = Rotate.rotate(x, y, dtor(radialAz-yOrient.azimuth));
