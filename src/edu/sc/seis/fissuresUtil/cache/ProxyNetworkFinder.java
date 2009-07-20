@@ -47,6 +47,7 @@ public abstract class ProxyNetworkFinder implements NetworkFinder, CorbaServerWr
      * reset on that network finder. Otherwise it just falls through.
      */
     public void reset() {
+        if (nf == null) {return;}
         if(nf instanceof ProxyNetworkFinder) {
             ((ProxyNetworkFinder)nf).reset();
         } else {
