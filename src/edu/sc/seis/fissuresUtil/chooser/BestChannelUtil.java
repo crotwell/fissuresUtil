@@ -14,9 +14,9 @@ public class BestChannelUtil {
 
     protected static final String[] gainCodeHeuristic = { "H", "L" };
 
-    protected static final String[] bandCodeHeuristic = { "L", "B", "S" };
+    protected static final String[] bandCodeHeuristic = { "B", "H", "L", "M", "S", "V", "E", "U" };
 
-    private static final String[] orientationCodes = { "Z", "N", "E", "1", "2" };
+    private static final String[] orientationCodes = { "Z", "N", "E", "1", "2", "3", "U", "V", "W" };
 
     public static String[] getSiteCodeHeuristic() {
         return siteCodeHeuristic;
@@ -30,6 +30,37 @@ public class BestChannelUtil {
         return bandCodeHeuristic;
     }
 
+    public static Channel[] getBestMotionVector(Channel[] allChannels) {
+        for (int i = 0; i < bandCodeHeuristic.length; i++) {
+            Channel[] out = getBestMotionVector(allChannels, bandCodeHeuristic[i]);
+            if (out != null) {
+                return out;
+            }
+        }
+        return null;
+    }
+    
+    public static  Channel[] getBestMotionVector(Channel[] allChannels,
+                                                 String bandCode) {
+        Channel[] tmpH = BestChannelUtil.getHorizontalChannels(allChannels,
+                                                               bandCode);
+        Channel tmpV = null;
+        if(tmpH != null && tmpH.length != 0) {
+            // look for channel with same band, site and gain,
+            // but with orientation code Z
+            tmpV = BestChannelUtil.getChannel(allChannels,
+                                              bandCode,
+                                              "Z",
+                                              tmpH[0].getSite().get_code(),
+                                              tmpH[0].get_code()
+                                                      .substring(1, 2));
+            if(tmpV != null) {
+                return new Channel[] {tmpH[0], tmpH[1], tmpV};
+            }
+        }
+        return null;
+    }
+    
     /**
      * Prunes channels whose effective time does not overlap the given time.
      */
@@ -84,7 +115,7 @@ public class BestChannelUtil {
      * assumed to come from the same station. Makes sure that the 2 channels
      * have the same gain and site.
      * 
-     * @returns best vertical channel, or null if no vertical can be found
+     * @returns best horizontal channels, or null if no horizontals can be found
      */
     public static Channel[] getHorizontalChannels(Channel[] inChan,
             String bandCode) {

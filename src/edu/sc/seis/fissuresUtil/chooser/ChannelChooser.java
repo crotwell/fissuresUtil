@@ -50,7 +50,7 @@ import edu.sc.seis.fissuresUtil.cache.VestingNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 19860 2008-09-04 12:37:15Z crotwell $
+ * @version $Id: ChannelChooser.java 20590 2009-07-20 15:44:00Z crotwell $
  */
 /**
  * @author Charlie Groves
@@ -848,7 +848,7 @@ public class ChannelChooser extends JPanel {
                         } else if(orientation.equals("HORIZONTAL_ONLY")) {
                             chans = getHorizontalChannels(staChans, bc);
                         } else if(orientation.equals("THREE_COMPONENT")) {
-                            chans = getMotionVector(staChans, bc);
+                            chans = BestChannelUtil.getBestMotionVector(staChans, bc);
                         } else if(orientation.equals("BEST_CHANNELS")) {
                             chans = getBest(staChans, bc);
                         }
@@ -887,7 +887,7 @@ public class ChannelChooser extends JPanel {
     }
 
     private Channel[] getBest(Channel[] staChans, String bc) {
-        Channel[] chans = getMotionVector(staChans, bc);
+        Channel[] chans = BestChannelUtil.getBestMotionVector(staChans, bc);
         if(chans == null) {
             chans = BestChannelUtil.getChannels(staChans, bc);
         }
@@ -902,26 +902,6 @@ public class ChannelChooser extends JPanel {
     private Channel[] getHorizontalChannels(Channel[] allChannels,
                                             String bandCode) {
         return BestChannelUtil.getHorizontalChannels(allChannels, bandCode);
-    }
-
-    private Channel[] getMotionVector(Channel[] allChannels, String bandCode) {
-        Channel[] tmpH = BestChannelUtil.getHorizontalChannels(allChannels,
-                                                               bandCode);
-        Channel tmpV = null;
-        if(tmpH != null && tmpH.length != 0) {
-            // look for channel with same band, site and gain,
-            // but with orientation code Z
-            tmpV = BestChannelUtil.getChannel(allChannels,
-                                              bandCode,
-                                              "Z",
-                                              tmpH[0].getSite().get_code(),
-                                              tmpH[0].get_code()
-                                                      .substring(1, 2));
-            if(tmpV != null) {
-                return new Channel[] {tmpH[0], tmpH[1], tmpV};
-            }
-        }
-        return null;
     }
 
     /**
