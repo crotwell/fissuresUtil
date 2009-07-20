@@ -19,6 +19,7 @@ import edu.sc.seis.fissuresUtil.cache.EventUtil;
 public class ChannelGroup {
 
     public ChannelGroup(ChannelImpl[] channels) {
+        assert channels.length == 3;
         this.channels = channels;
     }
     
@@ -208,6 +209,26 @@ public class ChannelGroup {
     
     public NetworkAttr getNetworkAttr() {
         return getStation().getNetworkAttr();
+    }
+    
+    public boolean areEqual(ChannelGroup other) {
+        ChannelImpl[] otherChans = other.getChannels();
+        for (int i = 0; i < otherChans.length; i++) {
+            if (ChannelIdUtil.areEqual(getChannel1(), otherChans[i])) {
+                for (int j = 0; j < otherChans.length; j++) {
+                    if(j==i) {continue;}
+                    if (ChannelIdUtil.areEqual(getChannel2(), otherChans[j])) {
+                        for (int k = 0; k < otherChans.length; k++) {
+                            if(k==i || k==i) {continue;}
+                            if (ChannelIdUtil.areEqual(getChannel3(), otherChans[k])) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
     
     private void setChannel(int index, ChannelImpl chan) {
