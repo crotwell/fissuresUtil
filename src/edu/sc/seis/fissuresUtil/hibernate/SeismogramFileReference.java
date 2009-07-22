@@ -42,11 +42,11 @@ public class SeismogramFileReference {
         this.fileType = fileType;
     }
 
-    public String getNetCode() {
+    public String getNetworkCode() {
         return netCode;
     }
 
-    public String getStaCode() {
+    public String getStationCode() {
         return staCode;
     }
 
@@ -54,7 +54,7 @@ public class SeismogramFileReference {
         return siteCode;
     }
 
-    public String getChanCode() {
+    public String getChannelCode() {
         return chanCode;
     }
 
@@ -74,11 +74,11 @@ public class SeismogramFileReference {
         return fileType;
     }
 
-    protected void setNetCode(String netCode) {
+    protected void setNetworkCode(String netCode) {
         this.netCode = netCode;
     }
 
-    protected void setStaCode(String staCode) {
+    protected void setStationCode(String staCode) {
         this.staCode = staCode;
     }
 
@@ -86,7 +86,7 @@ public class SeismogramFileReference {
         this.siteCode = siteCode;
     }
 
-    protected void setChanCode(String chanCode) {
+    protected void setChannelCode(String chanCode) {
         this.chanCode = chanCode;
     }
 
