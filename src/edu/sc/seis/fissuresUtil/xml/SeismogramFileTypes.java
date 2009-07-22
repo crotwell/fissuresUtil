@@ -15,23 +15,23 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramFileTypes {
 
-    private SeismogramFileTypes(String val, int intVal) {
-        this.val = val;
+    private SeismogramFileTypes(String name, int intVal) {
+        this.name = name;
         this.intVal = intVal;
     }
 
     public String toString() {
-        return getValue();
+        return getName();
     }
 
     public boolean equals(Object obj) {
         if(!(obj instanceof SeismogramFileTypes))
             return false;
-        return ((SeismogramFileTypes)obj).getValue().equals(this.val);
+        return ((SeismogramFileTypes)obj).getName().equals(this.name);
     }
 
-    public String getValue() {
-        return this.val;
+    public String getName() {
+        return this.name;
     }
 
     public int getIntValue() {
@@ -40,11 +40,11 @@ public class SeismogramFileTypes {
 
     public URL getURLValue() {
         try {
-            return new URL(URL_PREFIX + getValue());
+            return new URL(URL_PREFIX + getName());
         } catch(MalformedURLException e) {
             // shouldn't ever happen as these are static strings
             GlobalExceptionHandler.handle("Trouble creating URL for file type "
-                    + getValue(), e);
+                    + getName(), e);
         }
         return null;
     }
@@ -89,7 +89,7 @@ public class SeismogramFileTypes {
 
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/SeismogramFileTypes/";
 
-    private String val;
+    private String name;
 
     private int intVal;
 }// SeismogramFileTypes
