@@ -37,13 +37,15 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
                                          SeismogramAttrImpl seis,
                                          String fileLocation,
                                          SeismogramFileTypes filetype) {
-        // Todo fix this
-        throw new RuntimeException("not yet implemented");
+        saveSeismogramToDatabase(new SeismogramFileReference(channel, seis, fileLocation, filetype));
+    }
+    
+    public void saveSeismogramToDatabase(SeismogramFileReference seisRef) {
+        getSession().save(seisRef);
     }
 
     public RequestFilter[] findMatchingSeismograms(RequestFilter[] requestArray,
-                                                   boolean ignoreNetworkTimes)
-            throws SQLException {
+                                                   boolean ignoreNetworkTimes) {
         List results = queryDatabaseForSeismograms(requestArray,
                                                    false,
                                                    ignoreNetworkTimes);
@@ -52,21 +54,19 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
         return reduced;
     }
 
-    public LocalSeismogram[] getMatchingSeismograms(RequestFilter[] requestArray,
-                                                    boolean ignoreNetworkTimes)
-            throws SQLException {
+    public LocalSeismogramImpl[] getMatchingSeismograms(RequestFilter[] requestArray,
+                                                    boolean ignoreNetworkTimes) {
         List results = queryDatabaseForSeismograms(requestArray,
                                                    true,
                                                    ignoreNetworkTimes);
-        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])results.toArray(new LocalSeismogramImpl[results.size()]);
+        LocalSeismogramImpl[] seis = (LocalSeismogramImpl[])results.toArray(new LocalSeismogramImpl[0]);
         LocalSeismogramImpl[] reduced = ReduceTool.merge(seis);
         return reduced;
     }
 
     public List queryDatabaseForSeismograms(RequestFilter[] request,
                                             boolean returnSeismograms,
-                                            boolean ignoreNetworkTimes)
-            throws SQLException {
+                                            boolean ignoreNetworkTimes) {
         RequestFilter[] minimalRequest = ReduceTool.merge(request);
         List resultCollector = new ArrayList();
         for(int i = 0; i < minimalRequest.length; i++) {
@@ -81,8 +81,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
     private void queryDatabaseForSeismogram(List resultCollector,
                                             RequestFilter request,
                                             boolean returnSeismograms,
-                                            boolean ignoreNetworkTimes)
-            throws SQLException {
+                                            boolean ignoreNetworkTimes) {
         // Retrieve channel ID, begin time, and end time from the request
         // and place the times into a time table while
         // buffering the query by one second on each end.
@@ -137,7 +136,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
                         curSeis = urlSeis.getSeismograms();
                     }
                     for(int j = 0; j < curSeis.length; j++) {
-                        LocalSeismogram seis = cutter.apply(curSeis[j]);
+                        LocalSeismogramImpl seis = cutter.apply(curSeis[j]);
                         if(seis != null) {
                             resultCollector.add(seis);
                         }
@@ -212,8 +211,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
     }
 
 
-    public int removeSeismogramFromDatabase(String seisFile)
-            throws SQLException {
+    public int removeSeismogramFromDatabase(String seisFile) {
         String query = "delete  "
             + SeismogramFileReference.class.getName()
             + " where filePath = "+seisFile;
