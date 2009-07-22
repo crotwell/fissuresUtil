@@ -35,6 +35,7 @@
         <mapping resource="edu/sc/seis/fissuresUtil/hibernate/Common.hbm.xml"/>
         <mapping resource="edu/sc/seis/fissuresUtil/hibernate/Network.hbm.xml"/>
         <mapping resource="edu/sc/seis/fissuresUtil/hibernate/Event.hbm.xml"/>
+        <mapping resource="edu/sc/seis/fissuresUtil/hibernate/SeisFileRef.hbm.xml"/>
 
     </session-factory>
 
