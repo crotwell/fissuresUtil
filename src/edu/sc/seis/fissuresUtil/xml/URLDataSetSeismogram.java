@@ -302,7 +302,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             return saveAsMSeed(seis, directory, channel, event);
         } else {
             throw new UnsupportedFileTypeException("Unsupported File Type "
-                    + saveFileType.getValue());
+                    + saveFileType.getName());
         }
     }
 
@@ -445,7 +445,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             seis = SacToFissures.getSeismogram(sacTime);
         } else {
             throw new UnsupportedFileTypeException("File type "
-                    + fileType[seisNum].getValue() + " is not supported");
+                    + fileType[seisNum].getName() + " is not supported");
         }
         // set channel id correctly if extra info stored in Aux data
         Object netBegin = getAuxillaryData(NETWORK_BEGIN);
