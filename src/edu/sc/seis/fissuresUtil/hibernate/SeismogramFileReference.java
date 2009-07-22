@@ -2,7 +2,26 @@ package edu.sc.seis.fissuresUtil.hibernate;
 
 import java.sql.Timestamp;
 
+import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.network.ChannelImpl;
+import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
+import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
+
 public class SeismogramFileReference {
+
+    public SeismogramFileReference(ChannelImpl channel,
+                                   SeismogramAttrImpl seis,
+                                   String fileLocation,
+                                   SeismogramFileTypes filetype) {
+        this(channel.getId().network_id.network_code, 
+             channel.getId().station_code,
+             channel.getId().site_code,
+             channel.getId().channel_code,
+             seis.getBeginTime().getTimestamp(),
+             seis.getEndTime().getTimestamp(),
+             fileLocation,
+             filetype.getIntValue());
+    }
 
     public SeismogramFileReference(String netCode,
                                    String staCode,
