@@ -10,10 +10,10 @@
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="network_code" />
-		<property name="station_code"/>
-		<property name="site_code" />
-		<property name="channel_code"/>
+		<property name="networkCode" />
+		<property name="stationCode"/>
+		<property name="siteCode" />
+		<property name="channelCode"/>
 		<property name="beginTime" type="timestamp"/>
 		<property name="endTime" type="timestamp"/>
 		<property name="filePath"/>
