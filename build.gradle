@@ -12,13 +12,11 @@ dependencies {
     compile "log4jUSC:log4j:1.2.15"
     compile "ehcache:ehcache:1.4.1"
     compile "hibernate:hibernate:3.3.1"
-/*
-    compile "hibernate:antlr:2.7.6"
+    compile "org.slf4j:slf4j-api:1.5.8"
+    runtime group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.5.8', transitive: false
+    compile "javassist:javassist:3.4.GA"
     compile "hibernate:jta:1.1"
-    compile "hibernate:javassist:3.4.GA"
-    compile "hibernate:slf4j-api:1.5.3"
-    compile "hibernate:slf4j-log4j12:1.5.3"
-*/
+    compile "hibernate:antlr:2.7.6"
     compile "dom4j:dom4j:1.6.1"
     compile "commons-logging:commons-logging:1.0.4"
     compile "isti:isti.util:1.0.3USC"
