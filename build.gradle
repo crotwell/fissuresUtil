@@ -4,9 +4,7 @@ version = '1.1.0internal'
 
 dependencies {
     compile project(':fissuresImpl') { transitive = true }
-    compile project(':fissuresIDL') { transitive = true }
     compile project(':seisFile') { transitive = true }
-    compile project(':seedCodec') { transitive = true }
     compile project(':TauP') { transitive = true }
     compile group: 'org.jacorb', name: 'jacorb', version: '2.3.1', transitive: false
     compile "log4jUSC:log4j:1.2.15"
