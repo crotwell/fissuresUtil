@@ -9,8 +9,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.Object;
+
 import edu.iris.Fissures.IfNetwork.NetworkDCOperations;
 import edu.iris.Fissures.IfNetwork.NetworkExplorer;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
@@ -22,10 +23,9 @@ import edu.iris.Fissures.IfNetwork.NetworkFinder;
  */
 public class FilterNetworkDC extends VestingNetworkDC {
 
-    public FilterNetworkDC(VestingNetworkDC wrappedDC, Pattern[] patterns) {
+    public FilterNetworkDC(ProxyNetworkDC wrappedDC, Pattern[] patterns) {
         super(wrappedDC);
         this.patterns = patterns;
-        vester = wrappedDC;
     }
 
     public NetworkExplorer a_explorer() {
@@ -33,7 +33,7 @@ public class FilterNetworkDC extends VestingNetworkDC {
     }
 
     public NetworkFinder a_finder() {
-        return new FilterNetworkFinder((VestingNetworkFinder)vester.a_finder(),
+        return new FilterNetworkFinder((VestingNetworkFinder)super.a_finder(),
                                        patterns);
     }
 
@@ -55,10 +55,6 @@ public class FilterNetworkDC extends VestingNetworkDC {
         return (Pattern[])gottenPatterns.toArray(new Pattern[0]);
     }
 
-    public NetworkDCOperations getWrappedDC() {
-        return vester;
-    }
-
     public NetworkDCOperations getWrappedDC(Class wrappedClass) {
         if(this.getClass().isAssignableFrom(wrappedClass)) {
             return this;
@@ -70,16 +66,6 @@ public class FilterNetworkDC extends VestingNetworkDC {
         throw new IllegalArgumentException("Can't find class "
                 + wrappedClass.getName());
     }
-
-    public void reset() {
-        vester.reset();
-    }
-
-    public Object getCorbaObject() {
-        return vester.getCorbaObject();
-    }
-
-    private VestingNetworkDC vester;
 
     private Pattern[] patterns;
 }

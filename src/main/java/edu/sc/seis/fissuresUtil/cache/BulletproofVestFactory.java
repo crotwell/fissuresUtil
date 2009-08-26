@@ -37,17 +37,15 @@ public class BulletproofVestFactory {
         return vestEventDC(serverDNS,
                            serverName,
                            fisName,
-                           getDefaultNumRetry(),
-                           new ClassicRetryStrategy());
+                           new ClassicRetryStrategy(getDefaultNumRetry()));
     }
 
     public static ProxyEventDC vestEventDC(String serverDNS,
                                            String serverName,
                                            FissuresNamingService fisName,
-                                           int numRetry,
                                            RetryStrategy strat) {
         NSEventDC ns = new NSEventDC(serverDNS, serverName, fisName);
-        RetryEventDC retry = new RetryEventDC(ns, numRetry, strat);
+        RetryEventDC retry = new RetryEventDC(ns, strat);
         CacheEventDC cache = new CacheEventDC(retry);
         return cache;
     }
@@ -68,17 +66,15 @@ public class BulletproofVestFactory {
         return vestSeismogramDC(serverDNS,
                                 serverName,
                                 fisName,
-                                numRetry,
-                                new ClassicRetryStrategy());
+                                new ClassicRetryStrategy(numRetry));
     }
 
     public static ProxySeismogramDC vestSeismogramDC(String serverDNS,
                                                      String serverName,
                                                      FissuresNamingService fisName,
-                                                     int numRetry,
                                                      RetryStrategy strat) {
         NSSeismogramDC ns = new NSSeismogramDC(serverDNS, serverName, fisName);
-        RetrySeismogramDC retryDC = new RetrySeismogramDC(ns, numRetry, strat);
+        RetrySeismogramDC retryDC = new RetrySeismogramDC(ns, strat);
         return retryDC;
     }
 
@@ -98,17 +94,15 @@ public class BulletproofVestFactory {
         return vestPlottableDC(serverDNS,
                                serverName,
                                fisName,
-                               numRetry,
-                               new ClassicRetryStrategy());
+                               new ClassicRetryStrategy(numRetry));
     }
 
     public static ProxyPlottableDC vestPlottableDC(String serverDNS,
                                                    String serverName,
                                                    FissuresNamingService fisName,
-                                                   int numRetry,
                                                    RetryStrategy strat) {
         NSPlottableDC ns = new NSPlottableDC(serverDNS, serverName, fisName);
-        RetryPlottableDC retry = new RetryPlottableDC(ns, numRetry, strat);
+        RetryPlottableDC retry = new RetryPlottableDC(ns, strat);
         CachePlottableDC cache = new CachePlottableDC(retry);
         return cache;
     }

@@ -12,14 +12,12 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public VestingNetworkFinder(ProxyNetworkDC netDC, int numRetry) {
-        this(netDC, numRetry, new ClassicRetryStrategy());
+        this(netDC, new ClassicRetryStrategy(numRetry));
     }
 
     public VestingNetworkFinder(ProxyNetworkDC netDC,
-                                int numRetry,
                                 RetryStrategy handler) {
-        super(new CacheByIdNetworkFinder(new RetryNetworkFinder(new NSNetworkFinder(netDC), numRetry, handler)));
-        this.numRetry = numRetry;
+        super(new CacheByIdNetworkFinder(new RetryNetworkFinder(new NSNetworkFinder(netDC), handler)));
         this.handler = handler;
     }
 
@@ -48,7 +46,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     }
 
     public CacheNetworkAccess vest(NetworkAccess na) {
-        CacheNetworkAccess cache = vest(na, this, numRetry, handler);
+        CacheNetworkAccess cache = vest(na, this, handler);
         synchronized(SynchronizedNetworkAccess.class) {
             allKnownNetworkAccess.put(cache, null);
         }
@@ -57,13 +55,11 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     private static CacheNetworkAccess vest(NetworkAccess na,
                                            VestingNetworkFinder vnf,
-                                           int numRetry,
                                            RetryStrategy handler) {
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
         ProxyNetworkAccess justToHaveServerAndName = new JustToHaveServerAndName(synch,
                                                                                  vnf);
         RetryNetworkAccess retry = new RetryNetworkAccess(justToHaveServerAndName,
-                                                          numRetry,
                                                           handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
         NetworkId id = cache.get_attributes().get_id();
@@ -78,7 +74,6 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         logger.debug("(CacheById test) vest "+NetworkIdUtil.toString(id));
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(id, this);
         RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess,
-                                                          numRetry,
                                                           handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry, attr);
         synchronized(SynchronizedNetworkAccess.class) {
@@ -118,8 +113,6 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     }
 
     private transient boolean insideReset = false;
-
-    int numRetry;
 
     private RetryStrategy handler;
 

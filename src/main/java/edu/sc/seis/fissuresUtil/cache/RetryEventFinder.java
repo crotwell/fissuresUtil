@@ -12,9 +12,8 @@ import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
 
 public class RetryEventFinder extends ProxyEventFinder implements EventFinder {
 
-    public RetryEventFinder(ProxyEventDC edc, int retries, RetryStrategy strat) {
+    public RetryEventFinder(ProxyEventDC edc, RetryStrategy strat) {
         super(new NSEventFinder(edc));
-        this.retry = retries;
         this.handler = strat;
     }
 
@@ -241,10 +240,8 @@ public class RetryEventFinder extends ProxyEventFinder implements EventFinder {
     }
 
     private boolean shouldRetry(int count, SystemException t) {
-        return handler.shouldRetry(t, this, count, retry);
+        return handler.shouldRetry(t, this, count);
     }
-
-    private int retry;
 
     private RetryStrategy handler;
 }

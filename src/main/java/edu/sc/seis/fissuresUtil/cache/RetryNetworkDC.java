@@ -19,14 +19,12 @@ import edu.iris.Fissures.IfNetwork.NetworkFinder;
 public class RetryNetworkDC extends AbstractProxyNetworkDC {
 
     public RetryNetworkDC(NetworkDCOperations netDC, int retry) {
-        this(netDC, retry, new ClassicRetryStrategy());
+        this(netDC, new ClassicRetryStrategy(retry));
     }
 
     public RetryNetworkDC(NetworkDCOperations netDC,
-                          int retry,
                           RetryStrategy handler) {
         super(netDC);
-        this.retry = retry;
         this.handler = handler;
     }
 
@@ -44,7 +42,7 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(handler.shouldRetry(latest, this, count++, retry)) {
+        while(handler.shouldRetry(latest, this, count++)) {
             try {
                 NetworkExplorer result = netDC.a_explorer();
                 handler.serverRecovered(this);
@@ -68,7 +66,7 @@ public class RetryNetworkDC extends AbstractProxyNetworkDC {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(handler.shouldRetry(latest, this, count++, retry)) {
+        while(handler.shouldRetry(latest, this, count++)) {
             try {
                 NetworkFinder result = netDC.a_finder();
                 handler.serverRecovered(this);

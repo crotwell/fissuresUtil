@@ -20,14 +20,12 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
 
     public RetryPlottableDC(NSPlottableDC plottable, int retry) {
-        this(plottable, retry, new ClassicRetryStrategy());
+        this(plottable, new ClassicRetryStrategy(retry));
     }
 
     public RetryPlottableDC(NSPlottableDC plottable,
-                            int retry,
                             RetryStrategy strat) {
         this.plottable = plottable;
-        this.retry = retry;
         this.strat = strat;
     }
 
@@ -42,7 +40,7 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
             // repackage to get at least a partial stack trace
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(lastException, this, count++, retry)) {
+        while(strat.shouldRetry(lastException, this, count++)) {
             try {
                 boolean result = plottable.custom_sizes();
                 strat.serverRecovered(this);
@@ -67,7 +65,7 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(lastException, this, count++, retry)) {
+        while(strat.shouldRetry(lastException, this, count++)) {
             try {
                 Plottable[] result = plottable.get_plottable(request,
                                                              pixel_size);
@@ -92,7 +90,7 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(lastException, this, count++, retry)) {
+        while(strat.shouldRetry(lastException, this, count++)) {
             try {
                 Dimension[] result = plottable.get_whole_day_sizes();
                 strat.serverRecovered(this);
@@ -120,7 +118,7 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(lastException, this, count++, retry)) {
+        while(strat.shouldRetry(lastException, this, count++)) {
             try {
                 Plottable[] result = plottable.get_for_day(channel_id,
                                                            year,
@@ -147,7 +145,7 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(lastException, this, count++, retry)) {
+        while(strat.shouldRetry(lastException, this, count++)) {
             try {
                 Dimension[] result = plottable.get_event_sizes();
                 strat.serverRecovered(this);
@@ -174,7 +172,7 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(lastException, this, count++, retry)) {
+        while(strat.shouldRetry(lastException, this, count++)) {
             try {
                 Plottable[] result = plottable.get_for_event(event,
                                                              channel_id,

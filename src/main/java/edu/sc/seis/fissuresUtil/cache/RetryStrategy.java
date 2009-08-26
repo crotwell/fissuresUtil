@@ -19,8 +19,7 @@ public interface RetryStrategy {
 
     public boolean shouldRetry(SystemException exc,
                                CorbaServerWrapper server,
-                               int tryCount,
-                               int numRetries);
+                               int tryCount);
     
     public void serverRecovered(CorbaServerWrapper server);
 }

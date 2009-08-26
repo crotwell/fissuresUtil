@@ -16,12 +16,11 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper {
 
     public RetrySeismogramDC(NSSeismogramDC dc, int retry) {
-        this(dc, retry, new ClassicRetryStrategy());
+        this(dc, new ClassicRetryStrategy(retry));
     }
 
-    public RetrySeismogramDC(NSSeismogramDC dc, int retry, RetryStrategy strat) {
+    public RetrySeismogramDC(NSSeismogramDC dc, RetryStrategy strat) {
         this.dc = dc;
-        this.retry = retry;
         this.strat = strat;
     }
 
@@ -57,7 +56,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 RequestFilter[] result = dc.available_data(a_filterseq);
                 strat.serverRecovered(this);
@@ -82,7 +81,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 dc.cancel_request(a_request);
                 strat.serverRecovered(this);
@@ -106,7 +105,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 String result = dc.queue_seismograms(a_filterseq);
                 strat.serverRecovered(this);
@@ -137,7 +136,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 String result = dc.request_seismograms(a_filterseq,
                                                        a_client,
@@ -164,7 +163,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 String result = dc.request_status(a_request);
                 strat.serverRecovered(this);
@@ -189,7 +188,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 LocalSeismogram[] result = dc.retrieve_queue(a_request);
                 strat.serverRecovered(this);
@@ -214,7 +213,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         } catch(OutOfMemoryError e) {
             throw new RuntimeException("Out of memory", e);
         }
-        while(strat.shouldRetry(latest, this, count++, retry)) {
+        while(strat.shouldRetry(latest, this, count++)) {
             try {
                 LocalSeismogram[] result = dc.retrieve_seismograms(a_filterseq);
                 strat.serverRecovered(this);

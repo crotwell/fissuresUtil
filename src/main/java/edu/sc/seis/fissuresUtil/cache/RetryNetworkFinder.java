@@ -9,11 +9,9 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 public class RetryNetworkFinder extends ProxyNetworkFinder {
 
     public RetryNetworkFinder(NetworkFinder nf,
-                              int retry,
                               RetryStrategy strategy) {
         super(nf);
         this.strategy = strategy;
-        this.retry = retry;
     }
 
     public NetworkAccess[] retrieve_all() {
@@ -113,10 +111,8 @@ public class RetryNetworkFinder extends ProxyNetworkFinder {
     }
 
     private boolean shouldRetry(int count, SystemException t) {
-        return strategy.shouldRetry(t, this, count, retry);
+        return strategy.shouldRetry(t, this, count);
     }
-
-    private int retry;
 
     private RetryStrategy strategy;
 }

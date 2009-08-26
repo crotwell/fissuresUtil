@@ -12,10 +12,9 @@ import edu.iris.Fissures.IfEvent.EventFinder;
  */
 public class RetryEventDC extends ProxyEventDC {
 
-    public RetryEventDC(ProxyEventDC eventDC, int retry, RetryStrategy strat) {
+    public RetryEventDC(ProxyEventDC eventDC, RetryStrategy strat) {
         setEventDC(eventDC);
         this.handler = strat;
-        this.retry = retry;
     }
 
     public EventChannelFinder a_channel_finder() {
@@ -67,10 +66,8 @@ public class RetryEventDC extends ProxyEventDC {
     }
 
     private boolean shouldRetry(int i, SystemException t) {
-        return handler.shouldRetry(t, this, i, retry);
+        return handler.shouldRetry(t, this, i);
     }
-
-    protected int retry;
 
     private RetryStrategy handler;
 }
