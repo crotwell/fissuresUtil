@@ -33,14 +33,12 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
 
     public RetryNetworkAccess(NetworkAccess net,
                               int retry){
-        this(net, retry, new ClassicRetryStrategy());
+        this(net, new ClassicRetryStrategy(retry));
     }
 
     public RetryNetworkAccess(NetworkAccess net,
-                              int retry,
                               RetryStrategy handler) {
         super(net);
-        this.retry = retry;
         this.handler = handler;
     }
 
@@ -403,10 +401,8 @@ public class RetryNetworkAccess extends ProxyNetworkAccess {
     }
 
     private boolean shouldRetry(int count, SystemException t) {
-        return handler.shouldRetry(t, this, count, retry);
+        return handler.shouldRetry(t, this, count);
     }
-
-    private int retry;
 
     private RetryStrategy handler;
     

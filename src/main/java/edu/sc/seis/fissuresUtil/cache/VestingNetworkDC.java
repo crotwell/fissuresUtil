@@ -7,46 +7,32 @@ public class VestingNetworkDC extends AbstractProxyNetworkDC {
 
     protected VestingNetworkDC(ProxyNetworkDC netDC) {
         super(netDC);
-        proxy = netDC;
+        handler = new ClassicRetryStrategy(BulletproofVestFactory.getDefaultNumRetry());
     }
 
     public VestingNetworkDC(String dns,
                             String name,
                             FissuresNamingService fisName) {
-        this(dns, name, fisName, new ClassicRetryStrategy());
+        this(dns, name, fisName, new ClassicRetryStrategy(BulletproofVestFactory.getDefaultNumRetry()));
     }
 
     public VestingNetworkDC(String dns,
                             String name,
                             FissuresNamingService fisName,
                             RetryStrategy handler) {
-        this(dns, name, fisName, handler, BulletproofVestFactory.getDefaultNumRetry());
-    }
-
-    public VestingNetworkDC(String dns,
-                            String name,
-                            FissuresNamingService fisName,
-                            RetryStrategy handler,
-                            int numRetry) {
         this(new RetryNetworkDC(new NSNetworkDC(dns, name, fisName),
-                                numRetry,
                                 handler));
-        this.numRetry = numRetry;
         this.handler = handler;
     }
 
     public NetworkFinder a_finder() {
         if (finder == null) {
-            finder = new VestingNetworkFinder(proxy, numRetry, handler);
+            finder = new VestingNetworkFinder((ProxyNetworkDC)getWrappedDC(), handler);
         }
         return finder;
     }
 
-    private ProxyNetworkDC proxy;
-
-    private int numRetry;
-
-    private RetryStrategy handler = new ClassicRetryStrategy();
+    private RetryStrategy handler;
     
     private VestingNetworkFinder finder = null;
 }

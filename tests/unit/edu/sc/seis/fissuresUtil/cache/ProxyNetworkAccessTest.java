@@ -14,8 +14,7 @@ public class ProxyNetworkAccessTest extends TestCase {
 
         public boolean shouldRetry(SystemException exc,
                            CorbaServerWrapper server,
-                           int retryCount,
-                           int numRetries) {
+                           int retryCount) {
             assertEquals(0, retryCount);
             count++;
             return true;

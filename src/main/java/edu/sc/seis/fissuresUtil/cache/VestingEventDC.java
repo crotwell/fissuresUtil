@@ -10,27 +10,20 @@ public class VestingEventDC extends ProxyEventDC {
                           String serverDNS,
                           FissuresNamingService fns,
                           int numRetries) {
-        this(new RetryEventDC(new NSEventDC(serverDNS, serverName, fns),
-                              numRetries,
-                              new ClassicRetryStrategy()),
-             numRetries,
-             new ClassicRetryStrategy());
+        this(serverName, serverDNS, fns, new ClassicRetryStrategy(numRetries));
     }
 
     public VestingEventDC(String serverName,
                           String serverDNS,
                           FissuresNamingService fns,
-                          int numRetries,
                           RetryStrategy strat) {
         this(new RetryEventDC(new NSEventDC(serverDNS, serverName, fns),
-                              numRetries,
-                              strat), numRetries, strat);
+                              strat), strat);
     }
 
-    public VestingEventDC(ProxyEventDC dc, int numRetries, RetryStrategy strat) {
+    public VestingEventDC(ProxyEventDC dc, RetryStrategy strat) {
         setEventDC(dc);
         this.pdc = dc;
-        this.retries = numRetries;
         this.strat = strat;
     }
 
@@ -39,10 +32,8 @@ public class VestingEventDC extends ProxyEventDC {
     }
 
     public EventFinder a_finder() {
-        return new RetryEventFinder(pdc, retries, strat);
+        return new RetryEventFinder(pdc, strat);
     }
-
-    private int retries;
 
     private ProxyEventDC pdc;
 

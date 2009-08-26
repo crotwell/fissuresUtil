@@ -4,10 +4,13 @@ import org.omg.CORBA.SystemException;
 
 public class ClassicRetryStrategy extends BaseRetryStrategy {
 
+    public ClassicRetryStrategy(int numRetries) {
+        super(numRetries);
+    }
+
     public boolean shouldRetry(SystemException exc,
                                CorbaServerWrapper server,
-                               int tryCount,
-                               int numRetries) {
+                               int tryCount) {
         String tryString;
         if(numRetries != -1) {
             tryString = "" + numRetries;
@@ -16,7 +19,7 @@ public class ClassicRetryStrategy extends BaseRetryStrategy {
         }
         logger.debug("Caught exception on " + server.getFullName()
                 + ", retrying " + tryCount + " of " + tryString, exc);
-        return basicShouldRetry(exc, server, tryCount, numRetries);
+        return basicShouldRetry(exc, server, tryCount);
     }
 
     public void serverRecovered(CorbaServerWrapper server) {
