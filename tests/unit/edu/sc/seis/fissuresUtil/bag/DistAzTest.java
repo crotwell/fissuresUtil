@@ -18,7 +18,7 @@ extends TestCase
 // JUnitDoclet end extends_implements
 {
   // JUnitDoclet begin class
-  edu.sc.seis.fissuresUtil.bag.DistAz distaz = null;
+  DistAz distaz = null;
   // JUnitDoclet end class
   
   public DistAzTest(String name) {
@@ -52,7 +52,10 @@ extends TestCase
     // JUnitDoclet end method main
   }
   
-  
+  public void sueTest() {
+      DistAz dz = new edu.sc.seis.fissuresUtil.bag.DistAz(29.331, -113.697, 29.331, -113.697);
+      assertEquals(0, dz.getDelta(), 0.000001);
+  }
   
   /**
   * JUnitDoclet moves marker to this method, if there is not match
