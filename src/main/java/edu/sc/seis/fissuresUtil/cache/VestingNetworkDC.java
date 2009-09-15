@@ -20,14 +20,14 @@ public class VestingNetworkDC extends AbstractProxyNetworkDC {
                             String name,
                             FissuresNamingService fisName,
                             RetryStrategy handler) {
-        this(new RetryNetworkDC(new NSNetworkDC(dns, name, fisName),
+        super(new RetryNetworkDC(new NSNetworkDC(dns, name, fisName),
                                 handler));
         this.handler = handler;
     }
 
     public NetworkFinder a_finder() {
         if (finder == null) {
-            finder = new VestingNetworkFinder((ProxyNetworkDC)getWrappedDC(), handler);
+            finder = new VestingNetworkFinder(this, handler);
         }
         return finder;
     }
