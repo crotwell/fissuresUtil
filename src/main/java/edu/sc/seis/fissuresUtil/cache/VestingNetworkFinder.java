@@ -1,5 +1,12 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
@@ -47,9 +54,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public CacheNetworkAccess vest(NetworkAccess na) {
         CacheNetworkAccess cache = vest(na, this, handler);
-        synchronized(SynchronizedNetworkAccess.class) {
-            allKnownNetworkAccess.put(cache, null);
-        }
+        addKnownNetworkAccess(cache);
         return cache;
     }
 
@@ -76,10 +81,27 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess,
                                                           handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry, attr);
-        synchronized(SynchronizedNetworkAccess.class) {
-            allKnownNetworkAccess.put(cache, null);
-        }
+        addKnownNetworkAccess(cache);
         return cache;
+    }
+    
+    private int numNetsAdded = 0;
+    
+    void addKnownNetworkAccess(CacheNetworkAccess cache) {
+        synchronized(SynchronizedNetworkAccess.class) {
+            allKnownNetworkAccess.add(new SoftReference<CacheNetworkAccess>(cache));
+        }
+        numNetsAdded+=1;
+        if (numNetsAdded % 1000 == 0) {
+            // zap any soft references with null refs
+            Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccess.iterator();
+            while (it.hasNext()) {
+                SoftReference<CacheNetworkAccess> net = it.next();
+                if (net.get() == null) {
+                    it.remove();
+                }
+            }
+        }
     }
 
     @Override
@@ -93,11 +115,15 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
             // to rest...StackOverflow
             if(!insideReset) {
                 insideReset = true;
-                // copy to array instead of iterating over keyset as weakHashMap might loose keys during iteration
-                // causing ConcurrentModificationException
-                CacheNetworkAccess[] nets = allKnownNetworkAccess.keySet().toArray(new CacheNetworkAccess[0]);
-                for (int i = 0; i < nets.length; i++) {
-                    nets[i].reset();
+                Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccess.iterator();
+                while (it.hasNext()) {
+                    SoftReference<CacheNetworkAccess> net = it.next();
+                    CacheNetworkAccess cnet = net.get();
+                    if (cnet != null) {
+                        cnet.reset();
+                    } else {
+                        it.remove();
+                    }
                 }
                 try {
                     // give a chance for outstanding requests to server to come
@@ -117,8 +143,8 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
     private RetryStrategy handler;
 
     /** map of all known networkAccesses from this finder in case we need to reset. */
-    private WeakHashMap<CacheNetworkAccess, Object> allKnownNetworkAccess = new WeakHashMap<CacheNetworkAccess, Object>();
-
+    private Set<SoftReference<CacheNetworkAccess>> allKnownNetworkAccess = new HashSet<SoftReference<CacheNetworkAccess>>();
+    
     static class JustToHaveServerAndName extends ProxyNetworkAccess {
 
         public JustToHaveServerAndName(NetworkAccess net,
