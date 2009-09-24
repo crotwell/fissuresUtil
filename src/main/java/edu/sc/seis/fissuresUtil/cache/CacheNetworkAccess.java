@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -95,8 +96,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     public Channel[] retrieve_for_station(StationId id) {
         String idStr = StationIdUtil.toString(id);
         synchronized(channelMap) {
-            if(!channelMap.containsKey(idStr)) {
-                Channel[] chans = getNetworkAccess().retrieve_for_station(id);
+            SoftReference<Channel[]> chansRef = channelMap.get(idStr);
+            Channel[] chans = chansRef != null ? chansRef.get() : null;
+            if(chans == null) {
+                chans = getNetworkAccess().retrieve_for_station(id);
                 for(int i = 0; i < chans.length; i++) {
                     Channel.intern(chans[i]);
                 }
@@ -105,10 +108,10 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
                             + StationIdUtil.toString(id) + " in network "
                             + NetworkIdUtil.toString(get_attributes().get_id()));
                 }
-                channelMap.put(idStr, chans);
+                channelMap.put(idStr, new SoftReference<Channel[]>(chans));
                 return chans;
             }
-            return (Channel[])channelMap.get(idStr);
+            return chans;
         }
     }
 
@@ -214,7 +217,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
 
     protected Station[] stations;
 
-    private HashMap channelMap = new HashMap();
+    private HashMap<String, SoftReference<Channel[]>> channelMap = new HashMap<String, SoftReference<Channel[]>>();
 
     private HashMap sensMap = new HashMap();
 
