@@ -6,12 +6,8 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
-    compile group: 'org.jacorb', name: 'jacorb', version: '2.3.1', transitive: false
-    compile "log4jUSC:log4j:1.2.15"
     compile "ehcache:ehcache:1.4.1"
     compile "hibernate:hibernate:3.3.1"
-    compile "org.slf4j:slf4j-api:1.5.8"
-    runtime group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.5.8', transitive: false
     compile "javassist:javassist:3.4.GA"
     compile "hibernate:jta:1.1"
     compile "hibernate:antlr:2.7.6"
