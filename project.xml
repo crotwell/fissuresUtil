@@ -183,7 +183,7 @@
             <version>1.0_getset</version>
         </dependency>
         <dependency>
-            <groupId>SeedCodec</groupId>
+            <groupId>seedCodec</groupId>
             <artifactId>SeedCodec</artifactId>
             <version>1.0.6internal</version>
         </dependency>
