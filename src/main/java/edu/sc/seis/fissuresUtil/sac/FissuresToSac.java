@@ -252,10 +252,18 @@ public class FissuresToSac {
 		PoleZeroFilter pz = filter.pole_zero_filter();
 		int gamma = 0;
 		UnitImpl unit = (UnitImpl) stage.input_units;
-		if (unit.isConvertableTo(UnitImpl.METER_PER_SECOND)) {
-			gamma = 1;
-		} else if (unit.isConvertableTo(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
+        QuantityImpl scaleUnit = new QuantityImpl(1, unit);
+		if (unit.isConvertableTo(UnitImpl.METER)) {
+            gamma = 0;
+            scaleUnit = scaleUnit.convertTo(UnitImpl.METER);
+        } else if (unit.isConvertableTo(UnitImpl.METER_PER_SECOND)) {
+            gamma = 1;
+            scaleUnit = scaleUnit.convertTo(UnitImpl.METER_PER_SECOND);
+        } else if (unit.isConvertableTo(UnitImpl.METER_PER_SECOND_PER_SECOND)) {
 			gamma = 2;
+            scaleUnit = scaleUnit.convertTo(UnitImpl.METER_PER_SECOND_PER_SECOND);
+		} else {
+		    throw new IllegalArgumentException("response unit is not displacement, velocity or acceleration: "+unit);
 		}
 		int num_zeros = pz.zeros.length + gamma;
 		double mulFactor = 1;
@@ -287,6 +295,7 @@ public class FissuresToSac {
 		} else {
 			constant = (float) (sd * calc_A0(poles, zeros, fs));
 		}
+		constant *= scaleUnit.getValue();
 		return new SacPoleZero(poles, zeros, constant);
 	}
 	
@@ -308,7 +317,5 @@ public class FissuresToSac {
 	}
 
 	private static Cmplx ONE = new Cmplx(1,0);
-	
-	private UnitImpl DEFAULT_DEPTH_UNIT = UnitImpl.METER;
 
 }// FissuresToSac
