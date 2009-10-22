@@ -42,6 +42,12 @@ public class CacheEvent extends ProxyEventAccessOperations {
     public CacheEvent(EventAccessOperations event) {
         if(event == null) { throw new IllegalArgumentException("EventAccess cannot be null"); }
         setEventAccess(event);
+        get_attributes();
+        try {
+            getPreferred();
+        } catch (NoPreferredOrigin e) {
+            // oh well...
+        }
     }
 
     public EventAttr get_attributes() {

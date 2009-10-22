@@ -19,6 +19,7 @@ import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
+import edu.iris.Fissures.IfNetwork.NetworkFinder;
 
 public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
 
@@ -28,16 +29,21 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
         this.ef = ef;
     }
 
+    
+    public EventFinder getWrappedEventFinder() {
+        return ef;
+    }
+    
     public String getServerDNS() {
-        if(ef instanceof ProxyEventFinder) {
-            return ((ProxyEventFinder)ef).getServerDNS();
+        if(getWrappedEventFinder() instanceof ProxyEventFinder) {
+            return ((ProxyEventFinder)getWrappedEventFinder()).getServerDNS();
         }
         return null;
     }
 
     public String getServerName() {
-        if(ef instanceof ProxyEventFinder) {
-            return ((ProxyEventFinder)ef).getServerName();
+        if(getWrappedEventFinder() instanceof ProxyEventFinder) {
+            return ((ProxyEventFinder)getWrappedEventFinder()).getServerName();
         }
         return null;
     }
@@ -52,8 +58,8 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
     }
 
     public void reset() {
-        if(ef instanceof ProxyEventFinder) {
-            ((ProxyEventFinder)ef).reset();
+        if(getWrappedEventFinder() instanceof ProxyEventFinder) {
+            ((ProxyEventFinder)getWrappedEventFinder()).reset();
         }
     }
 
@@ -62,28 +68,28 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
     }
 
     public EventFinder getCorbaObject() {
-        if(ef instanceof ProxyEventFinder) {
-            return ((ProxyEventFinder)ef).getCorbaObject();
-        } else if(!(ef instanceof ProxyEventFinder)) {
-            return ef;
+        if(getWrappedEventFinder() instanceof ProxyEventFinder) {
+            return ((ProxyEventFinder)getWrappedEventFinder()).getCorbaObject();
+        } else if(!(getWrappedEventFinder() instanceof ProxyEventFinder)) {
+            return getWrappedEventFinder();
         }
         return null;
     }
 
     public EventAccess[] get_by_name(String name) {
-        return getCorbaObject().get_by_name(name);
+        return getWrappedEventFinder().get_by_name(name);
     }
 
     public String[] catalogs_from(String contrib) {
-        return getCorbaObject().catalogs_from(contrib);
+        return getWrappedEventFinder().catalogs_from(contrib);
     }
 
     public String[] known_catalogs() {
-        return getCorbaObject().known_catalogs();
+        return getWrappedEventFinder().known_catalogs();
     }
 
     public String[] known_contributors() {
-        return getCorbaObject().known_contributors();
+        return getWrappedEventFinder().known_contributors();
     }
 
     public EventAccess[] query_events(Area the_area,
@@ -97,7 +103,7 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
                                       String[] contributors,
                                       int seq_max,
                                       EventSeqIterHolder iter) {
-        return getCorbaObject().query_events(the_area,
+        return getWrappedEventFinder().query_events(the_area,
                                              min_depth,
                                              max_depth,
                                              time_range,
@@ -111,15 +117,15 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
     }
 
     public EventFactory a_factory() {
-        return getCorbaObject().a_factory();
+        return getWrappedEventFinder().a_factory();
     }
 
     public EventChannelFinder a_channel_finder() {
-        return getCorbaObject().a_channel_finder();
+        return getWrappedEventFinder().a_channel_finder();
     }
 
     public EventFinder a_finder() {
-        return getCorbaObject().a_finder();
+        return this;
     }
 
     public void _release() {
