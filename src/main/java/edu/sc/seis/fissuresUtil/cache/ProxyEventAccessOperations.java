@@ -3,6 +3,18 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
+import org.omg.CORBA.Context;
+import org.omg.CORBA.ContextList;
+import org.omg.CORBA.DomainManager;
+import org.omg.CORBA.ExceptionList;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.NVList;
+import org.omg.CORBA.NamedValue;
+import org.omg.CORBA.Object;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.Request;
+import org.omg.CORBA.SetOverrideType;
+
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.IfEvent.Event;
@@ -23,7 +35,7 @@ import edu.iris.Fissures.event.OriginImpl;
  * @author oliverpa
  */
 public abstract class ProxyEventAccessOperations implements
-        EventAccessOperations {
+        EventAccess, CorbaServerWrapper {
 
     public EventAccess getCorbaObject() {
         if(event instanceof ProxyEventAccessOperations) {
@@ -33,8 +45,31 @@ public abstract class ProxyEventAccessOperations implements
         }
     }
 
+
+    public String getServerDNS() {
+        if(getWrappedEventAccess() instanceof ProxyEventAccessOperations) {
+            return ((ProxyEventAccessOperations)getWrappedEventAccess()).getServerDNS();
+        }
+        return null;
+    }
+
+    public String getServerName() {
+        if(getWrappedEventAccess() instanceof ProxyEventAccessOperations) {
+            return ((ProxyEventAccessOperations)getWrappedEventAccess()).getServerName();
+        }
+        return null;
+    }
+    
+    public String getFullName(){
+        return getServerDNS() + "/" + getServerName();
+    }
+
+    public String getServerType() {
+        return EVENTACCESS_TYPE;
+    }
+
     public boolean hasCorbaObject() {
-        return event != null;
+        return getCorbaObject() != null;
     }
 
     public EventAccessOperations getWrappedEventAccess() {
@@ -208,6 +243,92 @@ public abstract class ProxyEventAccessOperations implements
 
     public String toString() {
         return EventUtil.getEventInfo(this);
+    }
+
+    public void _release() {
+        if(hasCorbaObject()) {
+            getCorbaObject()._release();
+        }else{
+        throw new NO_IMPLEMENT();
+        }
+    }
+
+    public boolean _non_existent() {
+        if(hasCorbaObject()) { return getCorbaObject()._non_existent(); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public int _hash(int maximum) {
+        if(hasCorbaObject()) { return getCorbaObject()._hash(maximum); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public boolean _is_a(String repositoryIdentifier) {
+        if(hasCorbaObject()) { return getCorbaObject()._is_a(repositoryIdentifier); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public DomainManager[] _get_domain_managers() {
+        if(hasCorbaObject()) { return getCorbaObject()._get_domain_managers(); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Object _duplicate() {
+        if(hasCorbaObject()) { return getCorbaObject()._duplicate(); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Object _get_interface_def() {
+        if(hasCorbaObject()) { return getCorbaObject()._get_interface_def(); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public boolean _is_equivalent(Object other) {
+        if(hasCorbaObject()) { return getCorbaObject()._is_equivalent(other); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Policy _get_policy(int policy_type) {
+        if(hasCorbaObject()) { return getCorbaObject()._get_policy(policy_type); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Request _request(String operation) {
+        if(hasCorbaObject()) { return getCorbaObject()._request(operation); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Object _set_policy_override(Policy[] policies,
+                                       SetOverrideType set_add) {
+        if(hasCorbaObject()) { return getCorbaObject()._set_policy_override(policies,
+                                                                            set_add); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Request _create_request(Context ctx,
+                                   String operation,
+                                   NVList arg_list,
+                                   NamedValue result) {
+        if(hasCorbaObject()) { return getCorbaObject()._create_request(ctx,
+                                                                       operation,
+                                                                       arg_list,
+                                                                       result); }
+        throw new NO_IMPLEMENT();
+    }
+
+    public Request _create_request(Context ctx,
+                                   String operation,
+                                   NVList arg_list,
+                                   NamedValue result,
+                                   ExceptionList exclist,
+                                   ContextList ctxlist) {
+        if(hasCorbaObject()) { return getCorbaObject()._create_request(ctx,
+                                                                       operation,
+                                                                       arg_list,
+                                                                       result,
+                                                                       exclist,
+                                                                       ctxlist); }
+        throw new NO_IMPLEMENT();
     }
 
     private boolean hashSet = false;

@@ -31,6 +31,18 @@ public class BulletproofVestFactory {
         return cache;
     }
 
+    public static ProxyEventAccessOperations[] vestEventAccess(EventAccessOperations[] events) {
+        return vestEventAccess(events, 3);
+    }
+    
+    public static ProxyEventAccessOperations[] vestEventAccess(EventAccessOperations[] events, int numRetry) {
+        ProxyEventAccessOperations[] out = new ProxyEventAccessOperations[events.length];
+        for (int i = 0; i < events.length; i++) {
+            out[i] = vestEventAccess(events[i], numRetry);
+        }
+        return out;
+    }
+
     public static ProxyEventDC vestEventDC(String serverDNS,
                                            String serverName,
                                            FissuresNamingService fisName) {

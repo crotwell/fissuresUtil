@@ -21,6 +21,8 @@ public interface CorbaServerWrapper {
     public static final String EVENTDC_TYPE = "EventDC";
 
     public static final String EVENTFINDER_TYPE = "EventFinder";
+    
+    public static final String EVENTACCESS_TYPE = "EventAccess";
 
     public static final String SEISDC_TYPE = "SeismogramDC";
 

@@ -12,8 +12,8 @@ import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
 
 public class RetryEventFinder extends ProxyEventFinder implements EventFinder {
 
-    public RetryEventFinder(ProxyEventDC edc, RetryStrategy strat) {
-        super(new NSEventFinder(edc));
+    public RetryEventFinder(ProxyEventFinder ef, RetryStrategy strat) {
+        super(ef);
         this.handler = strat;
     }
 

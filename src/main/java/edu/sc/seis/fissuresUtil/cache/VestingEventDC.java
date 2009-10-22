@@ -32,7 +32,7 @@ public class VestingEventDC extends ProxyEventDC {
     }
 
     public EventFinder a_finder() {
-        return new RetryEventFinder(pdc, strat);
+        return new VestingEventFinder(new RetryEventFinder(new NSEventFinder(pdc), strat), strat);
     }
 
     private ProxyEventDC pdc;
