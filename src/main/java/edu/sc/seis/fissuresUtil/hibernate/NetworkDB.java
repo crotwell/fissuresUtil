@@ -292,17 +292,17 @@ public class NetworkDB extends AbstractHibernateDB {
         return out;
     }
 
-    public CacheNetworkAccess[] getAllNets(ProxyNetworkDC networkDC) {
+    public List<CacheNetworkAccess> getAllNets(ProxyNetworkDC networkDC) {
         Query query = getSession().createQuery(getAllNetsString);
-        List result = query.list();
-        List out = new ArrayList();
-        Iterator it = result.iterator();
+        List<NetworkAttrImpl> result = query.list();
+        List<CacheNetworkAccess> out = new ArrayList<CacheNetworkAccess>();
+        Iterator<NetworkAttrImpl> it = result.iterator();
         while(it.hasNext()) {
-            NetworkAttrImpl attr = (NetworkAttrImpl)it.next();
+            NetworkAttrImpl attr = it.next();
             CacheNetworkAccess cnet = new LazyNetworkAccess(attr, networkDC);
             out.add(cnet);
         }
-        return (CacheNetworkAccess[])out.toArray(new CacheNetworkAccess[0]);
+        return out;
     }
 
     public List<ChannelImpl> getAllChannels() {
