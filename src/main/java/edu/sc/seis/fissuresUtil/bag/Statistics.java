@@ -1,7 +1,11 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.List;
+
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.model.QuantityImpl;
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
 /**
@@ -11,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 19144 2007-07-30 20:24:21Z crotwell $
+ * @version $Id: Statistics.java 20876 2009-11-11 19:34:03Z crotwell $
  */
 
 public class Statistics  {
@@ -77,6 +81,20 @@ public class Statistics  {
             endIndex = fSeries.length;
         }else{
             dSeries = seismo.get_as_doubles();
+            endIndex = dSeries.length;
+        }
+        beginIndex = 0;
+    }
+    
+    public Statistics(List<QuantityImpl> vals) {
+        this(vals, vals.get(0).getUnit());
+    }
+    
+    public Statistics(List<QuantityImpl> vals, UnitImpl unit) {
+        dSeries = new double[vals.size()];
+        for (int i = 0; i < dSeries.length; i++) {
+            QuantityImpl q = vals.get(i);
+            dSeries[i] = q.getValue(unit);
             endIndex = dSeries.length;
         }
         beginIndex = 0;
