@@ -12,7 +12,7 @@ dependencies {
     compile "hibernate:jta:1.1"
     compile "hibernate:antlr:2.7.6"
     compile "dom4j:dom4j:1.6.1"
-    compile "commons-logging:commons-logging:1.0.4"
+    compile "commons-logging:commons-logging:1.1"
     compile "isti:isti.util:1.0.3USC"
     compile "jdom:jdom:b9"
     compile "edu.sc.seis.mapData:etopo10:1.0"
@@ -25,7 +25,7 @@ dependencies {
     compile "itext:itext:2.0.7"
     compile "staxUSC:stax-api:1.0"
     compile group: 'staxUSC', name: 'stax', version: '1.1.1-dev', transitive: false
-    compile "velocity:velocity:1.5"
+    compile "org.apache.velocity:velocity:1.6.2"
     compile "commons-collections:commons-collections:3.1"
     compile "commons-lang:commons-lang:2.1"
     compile "oro:oro:2.0.8"
