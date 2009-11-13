@@ -27,7 +27,7 @@ dependencies {
     compile group: 'staxUSC', name: 'stax', version: '1.1.1-dev', transitive: false
     compile "org.apache.velocity:velocity:1.6.2"
     compile "commons-collections:commons-collections:3.1"
-    compile "commons-lang:commons-lang:2.1"
+    compile "commons-lang:commons-lang:2.4"
     compile "oro:oro:2.0.8"
     compile "jfreechart:jcommon:1.0.0"
     compile "jfreechart:jfreechart:1.0.1"
