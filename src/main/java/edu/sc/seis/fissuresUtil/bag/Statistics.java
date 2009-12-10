@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 20876 2009-11-11 19:34:03Z crotwell $
+ * @version $Id: Statistics.java 20906 2009-12-10 20:43:42Z crotwell $
  */
 
 public class Statistics  {
@@ -87,7 +87,7 @@ public class Statistics  {
     }
     
     public Statistics(List<QuantityImpl> vals) {
-        this(vals, vals.get(0).getUnit());
+        this(vals, vals.size()!=0 ? vals.get(0).getUnit() : UnitImpl.UNKNOWN);
     }
     
     public Statistics(List<QuantityImpl> vals, UnitImpl unit) {
