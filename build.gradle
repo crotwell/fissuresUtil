@@ -18,6 +18,7 @@ dependencies {
     compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
     compile "postgresql:postgresql:8.3-604.jdbc3"
+    compile "mysql:mysql-connector-java:5.1.9"
     compile "xerces:xerces:2.7.1"
     compile "xerces:xml-apis:2.7.1"
     compile "xalan:xalan:2.6.0"

@@ -73,6 +73,8 @@ public class ConnMgr {
             load(cl, loc + MCKOI_PROPS, existing);
         else if(DB_NAME == POSTGRES)
             load(cl, loc + POSTGRES_PROPS, existing);
+        else if(DB_NAME == MYSQL)
+            load(cl, loc + MYSQL_PROPS, existing);
     }
 
     private static void load(ClassLoader cl, String loc, Properties existing)
@@ -120,6 +122,8 @@ public class ConnMgr {
             setDB(HSQL);
         } else if (url.startsWith("jdbc:postgresql")) {
             setDB(POSTGRES);
+        } else if (url.startsWith("jdbc:mysql")) {
+            setDB(MYSQL);
         }
             checkDriver();
         } catch (Exception e) {
@@ -309,7 +313,11 @@ public class ConnMgr {
     public static final String MCKOI = "MCKOI";
 
     private static String MCKOI_PROPS = "MCKOI.props";
-
+    
+    public static final String MYSQL = "MYSQL";
+    
+    public static final String MYSQL_PROPS = "Mysql.props";
+    
     public static final String POSTGRES = "POSTGRES";
 
     public static final String POSTGRES_PROPS = "Postgres.props";
