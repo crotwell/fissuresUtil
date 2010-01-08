@@ -1,11 +1,9 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 
 import org.hibernate.SessionFactory;
@@ -71,6 +69,9 @@ public class HibernateUtil {
         } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.POSTGRES)) {
             logger.info("using postgres dialect");
             dialect = org.hibernate.dialect.PostgreSQLDialect.class.getName();
+        } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.MYSQL)) {
+            logger.info("using mysql dialect");
+            dialect = org.hibernate.dialect.MySQLDialect.class.getName();
         } else {
             throw new RuntimeException("Unknown database type: '"+ConnMgr.getDB_TYPE()+"'");
         }
