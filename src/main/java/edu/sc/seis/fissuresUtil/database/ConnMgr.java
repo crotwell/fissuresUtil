@@ -129,6 +129,18 @@ public class ConnMgr {
         } catch (Exception e) {
             throw new RuntimeException("Unable to load driver: "+getDriver(), e);
         }
+        String[] splitURL = url.split("\\?");
+        if (splitURL.length != 1) {
+            String[] URLparams = splitURL[1].split("&");
+            for (String param : URLparams) {
+                if (param.startsWith("user=")) {
+                    getProps().setProperty("user", param.substring("user=".length()));
+                }
+                if (param.startsWith("password=")) {
+                    getProps().setProperty("password", param.substring("password=".length()));
+                }
+            }
+        }
     }
 
     public static void setURL(String url,
