@@ -6,8 +6,8 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
-    compile "ehcache:ehcache:1.4.1"
     compile "org.hibernate:hibernate-core:3.3.2.GA"
+    compile "org.hibernate:hibernate-ehcache:3.3.2.GA"
     compile "javassist:javassist:3.9.0.GA"
     compile "hibernate:jta:1.1"
     compile "hibernate:antlr:2.7.6"
