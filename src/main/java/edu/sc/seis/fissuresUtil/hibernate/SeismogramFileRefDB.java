@@ -18,6 +18,7 @@ import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.bag.EncodedCut;
+import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -42,6 +43,26 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
     
     public void saveSeismogramToDatabase(SeismogramFileReference seisRef) {
         getSession().save(seisRef);
+    }
+
+    public void saveSeismogramToDatabase(CacheEvent event,
+                                         ChannelImpl channel,
+                                         SeismogramAttrImpl seis,
+                                         String fileLocation,
+                                         SeismogramFileTypes filetype) {
+        saveSeismogramToDatabase(new EventSeismogramFileReference(event, channel, seis, fileLocation, filetype));
+    }
+    public void saveSeismogramToDatabase(EventSeismogramFileReference seisRef) {
+        getSession().save(seisRef);
+    }
+    
+    public List<EventSeismogramFileReference> getSeismogramsForEvent(CacheEvent event) {
+        String query = "from "
+            + EventSeismogramFileReference.class.getName()
+            + " where event = :event";
+        Query q = getSession().createQuery(query);
+        q.setEntity("event", event);
+        return q.list();
     }
 
     public RequestFilter[] findMatchingSeismograms(RequestFilter[] requestArray,
@@ -105,7 +126,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
         MicroSecondDate adjustedEndTime = new MicroSecondDate(request.end_time).add(ONE_SECOND);
         String query = "from "
                 + SeismogramFileReference.class.getName()
-                + " where netCode = :netCode and staCode = :staCode and siteCode = :siteCode and chanCode = :chanCode "
+                + " where networkCode = :netCode and stationCode = :staCode and siteCode = :siteCode and channelCode = :chanCode "
                 + " and beginTime < :end and endTime >= :begin";
         // Populate databaseResults with all of the matching seismograms
         // from the database.
@@ -211,6 +232,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
     }
 
 
+    /** removes the seismogram reference from the database for the given file name. */
     public int removeSeismogramFromDatabase(String seisFile) {
         String query = "delete  "
             + SeismogramFileReference.class.getName()
