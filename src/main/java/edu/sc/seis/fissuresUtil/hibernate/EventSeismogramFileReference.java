@@ -6,14 +6,21 @@ import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 
 
-public class EventSeismogramFileReference extends SeismogramFileReference {
+public class EventSeismogramFileReference extends AbstractSeismogramFileReference {
 
     public EventSeismogramFileReference(CacheEvent event,
                                         ChannelImpl channel,
                                         SeismogramAttrImpl seis,
                                         String fileLocation,
                                         SeismogramFileTypes filetype) {
-        super(channel, seis, fileLocation, filetype);
+        super(channel.getId().network_id.network_code, 
+              channel.getId().station_code,
+              channel.getId().site_code,
+              channel.getId().channel_code,
+              seis.getBeginTime().getTimestamp(),
+              seis.getEndTime().getTimestamp(),
+              fileLocation,
+              filetype.getIntValue());
         this.event = event;
     }
 
