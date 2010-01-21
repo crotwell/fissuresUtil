@@ -89,6 +89,10 @@ public class SimplePhaseStoN {
         
         Statistics longStat = new Statistics(longSeis);
         double denominator = longStat.stddev();
+        if (denominator == 0) {
+            // check for all zero seis
+            return null;
+        }
         Statistics shortStat = new Statistics(shortSeis);
         // use the stddev of the short, but based on the mean of the
         // long term
