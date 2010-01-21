@@ -1,26 +1,26 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+
 import java.sql.Timestamp;
 
-import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 
-public class SeismogramFileReference {
+public class SeismogramFileReference extends AbstractSeismogramFileReference {
 
     public SeismogramFileReference(ChannelImpl channel,
                                    SeismogramAttrImpl seis,
                                    String fileLocation,
                                    SeismogramFileTypes filetype) {
-        this(channel.getId().network_id.network_code, 
-             channel.getId().station_code,
-             channel.getId().site_code,
-             channel.getId().channel_code,
-             seis.getBeginTime().getTimestamp(),
-             seis.getEndTime().getTimestamp(),
-             fileLocation,
-             filetype.getIntValue());
+        super(channel.getId().network_id.network_code, 
+              channel.getId().station_code,
+              channel.getId().site_code,
+              channel.getId().channel_code,
+              seis.getBeginTime().getTimestamp(),
+              seis.getEndTime().getTimestamp(),
+              fileLocation,
+              filetype.getIntValue());
     }
 
     public SeismogramFileReference(String netCode,
@@ -31,104 +31,7 @@ public class SeismogramFileReference {
                                    Timestamp endTime,
                                    String filePath,
                                    int fileType) {
-        super();
-        this.netCode = netCode;
-        this.staCode = staCode;
-        this.siteCode = siteCode;
-        this.chanCode = chanCode;
-        this.beginTime = beginTime;
-        this.endTime = endTime;
-        this.filePath = filePath;
-        this.fileType = fileType;
+        super(netCode, staCode, siteCode, chanCode, beginTime, endTime, filePath, fileType);
     }
-
-    public String getNetworkCode() {
-        return netCode;
-    }
-
-    public String getStationCode() {
-        return staCode;
-    }
-
-    public String getSiteCode() {
-        return siteCode;
-    }
-
-    public String getChannelCode() {
-        return chanCode;
-    }
-
-    public Timestamp getBeginTime() {
-        return beginTime;
-    }
-
-    public Timestamp getEndTime() {
-        return endTime;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public int getFileType() {
-        return fileType;
-    }
-
-    protected void setNetworkCode(String netCode) {
-        this.netCode = netCode;
-    }
-
-    protected void setStationCode(String staCode) {
-        this.staCode = staCode;
-    }
-
-    protected void setSiteCode(String siteCode) {
-        this.siteCode = siteCode;
-    }
-
-    protected void setChannelCode(String chanCode) {
-        this.chanCode = chanCode;
-    }
-
-    protected void setBeginTime(Timestamp beginTime) {
-        this.beginTime = beginTime;
-    }
-
-    protected void setEndTime(Timestamp endTime) {
-        this.endTime = endTime;
-    }
-
-    protected void setFilePath(String filePath) {
-        this.filePath = filePath;
-    }
-
-    protected void setFileType(int fileType) {
-        this.fileType = fileType;
-    }
-
-    public int getDbid() {
-        return dbid;
-    }
-
-    protected void setDbid(int dbid) {
-        this.dbid = dbid;
-    }
-
-    protected int dbid;
-
-    protected String netCode;
-
-    protected String staCode;
-
-    protected String siteCode;
-
-    protected String chanCode;
-
-    protected Timestamp beginTime;
-
-    protected Timestamp endTime;
-
-    protected String filePath;
-
-    protected int fileType;
+    
 }
