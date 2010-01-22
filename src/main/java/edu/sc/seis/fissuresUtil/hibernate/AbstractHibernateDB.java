@@ -1,8 +1,12 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -11,13 +15,20 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.UnitBase;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.exceptionHandler.DefaultExtractor;
 import edu.sc.seis.fissuresUtil.exceptionHandler.Extractor;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractHibernateDB {
 
+    public static boolean DEBUG_SESSION_CREATION = false;
+    
+    public static int DEBUG_SESSION_CREATION_SECONDS = 30;
+    
     public AbstractHibernateDB() {
         logger.debug("init "+this);
     }
@@ -45,9 +56,13 @@ public abstract class AbstractHibernateDB {
     }
 
     protected static Session createSession() {
-        Session cacheSession = HibernateUtil.getSessionFactory().openSession();
+        final Session cacheSession = HibernateUtil.getSessionFactory().openSession();
         cacheSession.beginTransaction();
         //logger.debug("TRANSACTION Begin on " + cacheSession);
+        if (DEBUG_SESSION_CREATION) {
+            knownSessions.add(new SessionStackTrace(cacheSession, 
+                                                    Thread.currentThread().getStackTrace()));
+        }
         return cacheSession;
     }
 
@@ -157,7 +172,11 @@ public abstract class AbstractHibernateDB {
             return createSession();
         }
     };
+    
+    private static List<SessionStackTrace> knownSessions = new LinkedList<SessionStackTrace>();
 
+    private static TimeInterval MAX_SESSION_LIFE = new TimeInterval(30, UnitImpl.SECOND);
+    
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractHibernateDB.class);
 
     static {
@@ -178,5 +197,42 @@ public abstract class AbstractHibernateDB {
                 return null;
             }
         });
+
+        if (DEBUG_SESSION_CREATION) {
+            Timer t = new Timer("zombie session checker", true);
+            t.schedule(new TimerTask() {
+                public void run() {
+                    Iterator<SessionStackTrace> iterator = knownSessions.iterator();
+                    while (iterator.hasNext()) {
+                        SessionStackTrace item = iterator.next();
+                        if ( ! item.session.isOpen() ) {
+                            iterator.remove();
+                        }
+                        if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
+                            TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
+                            logger.warn("Session still open after "+aliveTime+" seconds. "+ item.session);
+                            for (int i = 0; i < item.stackTrace.length; i++) {
+                                logger.warn(item.stackTrace[i]);
+                            }
+                        }
+                    }
+                    
+                }
+            }, DEBUG_SESSION_CREATION_SECONDS*1000, DEBUG_SESSION_CREATION_SECONDS*1000);
+        }
     }
+}
+
+
+class SessionStackTrace {
+    
+    public SessionStackTrace(Session session, 
+                             StackTraceElement[] stackTrace) {
+        this.session = session;
+        this.stackTrace = stackTrace;
+        this.createTime = ClockUtil.now();
+    }
+    Session session;
+    StackTraceElement[] stackTrace;
+    MicroSecondDate createTime;
 }
