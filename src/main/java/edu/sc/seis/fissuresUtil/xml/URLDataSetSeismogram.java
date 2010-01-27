@@ -71,6 +71,18 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
              name);
     }
 
+    public URLDataSetSeismogram(URL url,
+                                SeismogramFileTypes fileType,
+                                DataSet dataset,
+                                String name,
+                                RequestFilter requestFilter) {
+        this(new URL[] {url},
+             new SeismogramFileTypes[] {fileType},
+             dataset,
+             name,
+             requestFilter);
+    }
+
     public URLDataSetSeismogram(URL[] url,
                                 SeismogramFileTypes[] fileType,
                                 DataSet dataset,
