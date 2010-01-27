@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public abstract class AbstractHibernateDB {
 
     public static boolean DEBUG_SESSION_CREATION = false;
     
-    public static int DEBUG_SESSION_CREATION_SECONDS = 30;
+    public static int DEBUG_SESSION_CREATION_SECONDS = 300;
     
     public AbstractHibernateDB() {
         logger.debug("init "+this);
@@ -173,9 +174,9 @@ public abstract class AbstractHibernateDB {
         }
     };
     
-    private static List<SessionStackTrace> knownSessions = new LinkedList<SessionStackTrace>();
+    private static List<SessionStackTrace> knownSessions = Collections.synchronizedList(new LinkedList<SessionStackTrace>());
 
-    private static TimeInterval MAX_SESSION_LIFE = new TimeInterval(30, UnitImpl.SECOND);
+    private static TimeInterval MAX_SESSION_LIFE = new TimeInterval(300, UnitImpl.SECOND);
     
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractHibernateDB.class);
 
@@ -202,21 +203,22 @@ public abstract class AbstractHibernateDB {
             Timer t = new Timer("zombie session checker", true);
             t.schedule(new TimerTask() {
                 public void run() {
-                    Iterator<SessionStackTrace> iterator = knownSessions.iterator();
-                    while (iterator.hasNext()) {
-                        SessionStackTrace item = iterator.next();
-                        if ( ! item.session.isOpen() ) {
-                            iterator.remove();
-                        }
-                        if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
-                            TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
-                            logger.warn("Session still open after "+aliveTime+" seconds. "+ item.session);
-                            for (int i = 0; i < item.stackTrace.length; i++) {
-                                logger.warn(item.stackTrace[i]);
+                    synchronized(knownSessions) {
+                        Iterator<SessionStackTrace> iterator = knownSessions.iterator();
+                        while (iterator.hasNext()) {
+                            SessionStackTrace item = iterator.next();
+                            if ( ! item.session.isOpen() ) {
+                                iterator.remove();
+                            }
+                            if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
+                                TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
+                                logger.warn("Session still open after "+aliveTime+" seconds. "+ item.session);
+                                for (int i = 0; i < item.stackTrace.length; i++) {
+                                    logger.warn(item.stackTrace[i]);
+                                }
                             }
                         }
                     }
-                    
                 }
             }, DEBUG_SESSION_CREATION_SECONDS*1000, DEBUG_SESSION_CREATION_SECONDS*1000);
         }
