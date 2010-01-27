@@ -35,7 +35,8 @@ public abstract class AbstractSeismogramFileReference {
         this.fileType = fileType;
     }
 
-    public URLDataSetSeismogram getDataSetSeismogram(DataSet ds) {
+    public URLDataSetSeismogram getDataSetSeismogram(DataSet ds,
+                                                     RequestFilter rf) {
         try {
             MicroSecondDate b = new MicroSecondDate(getBeginTime());
             MicroSecondDate e = new MicroSecondDate(getEndTime());
@@ -43,19 +44,11 @@ public abstract class AbstractSeismogramFileReference {
                                             SeismogramFileTypes.fromInt(getFileType()),
                                             ds,
                                             getNetworkCode()+"."+getStationCode()+"."+getSiteCode()+"."+getChannelCode(),
-                                            new RequestFilter(NetworkDB.getSingleton().getChannel(getNetworkCode(),
-                                                                                                  getStationCode(),
-                                                                                                  getSiteCode(),
-                                                                                                  getChannelCode(),
-                                                                                                  b).getId(),
-                                                              b.getFissuresTime(), e.getFissuresTime())
-                                            );
+                                            rf);
         } catch(MalformedURLException e) {
             throw new RuntimeException("should not happen as URL from file.", e);
         } catch(UnsupportedFileTypeException e) {
             throw new RuntimeException("should not happen, type from database: "+getFileType());
-        } catch(NotFound e) {
-            throw new RuntimeException("Shouldn't happen as channel should be in database.", e);
         }
     }
     
