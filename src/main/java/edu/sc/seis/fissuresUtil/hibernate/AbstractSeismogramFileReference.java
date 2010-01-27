@@ -4,6 +4,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.sql.Timestamp;
 
+import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 import edu.sc.seis.fissuresUtil.xml.URLDataSetSeismogram;
@@ -34,16 +37,28 @@ public abstract class AbstractSeismogramFileReference {
 
     public URLDataSetSeismogram getDataSetSeismogram(DataSet ds) {
         try {
+            MicroSecondDate b = new MicroSecondDate(getBeginTime());
+            MicroSecondDate e = new MicroSecondDate(getEndTime());
             return new URLDataSetSeismogram(new File(getFilePath()).toURI().toURL(), 
                                             SeismogramFileTypes.fromInt(getFileType()),
                                             ds,
-                                            getNetworkCode()+"."+getStationCode()+"."+getSiteCode()+"."+getChannelCode());
+                                            getNetworkCode()+"."+getStationCode()+"."+getSiteCode()+"."+getChannelCode(),
+                                            new RequestFilter(NetworkDB.getSingleton().getChannel(getNetworkCode(),
+                                                                                                  getStationCode(),
+                                                                                                  getSiteCode(),
+                                                                                                  getChannelCode(),
+                                                                                                  b).getId(),
+                                                              b.getFissuresTime(), e.getFissuresTime())
+                                            );
         } catch(MalformedURLException e) {
             throw new RuntimeException("should not happen as URL from file.", e);
         } catch(UnsupportedFileTypeException e) {
             throw new RuntimeException("should not happen, type from database: "+getFileType());
+        } catch(NotFound e) {
+            throw new RuntimeException("Shouldn't happen as channel should be in database.", e);
         }
     }
+    
     public String getNetworkCode() {
         return netCode;
     }
