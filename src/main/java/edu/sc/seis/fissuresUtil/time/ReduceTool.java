@@ -150,6 +150,16 @@ public class ReduceTool {
     public static List<PlottableChunk> merge(List<PlottableChunk> chunks) {
         return new PlottableChunkMerger().merge(chunks);
     }
+    
+    public static RequestFilter cover(RequestFilter[] rf) {
+        if (rf == null || rf.length == 0) { return null;}
+        RFMerger rfm = new RFMerger();
+        RequestFilter out = rf[0];
+        for (int i = 1; i < rf.length; i++) {
+            out = (RequestFilter)rfm.merge(out, rf[i]);
+        }
+        return out;
+    }
 
     private static abstract class Merger {
 
