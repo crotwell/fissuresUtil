@@ -75,6 +75,8 @@ public class ConnMgr {
             load(cl, loc + POSTGRES_PROPS, existing);
         else if(DB_NAME == MYSQL)
             load(cl, loc + MYSQL_PROPS, existing);
+        else if(DB_NAME == ORACLE)
+            load(cl, loc + ORACLE_PROPS, existing);
     }
 
     private static void load(ClassLoader cl, String loc, Properties existing)
@@ -124,6 +126,8 @@ public class ConnMgr {
             setDB(POSTGRES);
         } else if (url.startsWith("jdbc:mysql")) {
             setDB(MYSQL);
+        } else if (url.startsWith("jdbc:oracle")) {
+            setDB(ORACLE);
         }
             checkDriver();
         } catch (Exception e) {
@@ -329,6 +333,10 @@ public class ConnMgr {
     public static final String MYSQL = "MYSQL";
     
     public static final String MYSQL_PROPS = "Mysql.props";
+
+    public static final String ORACLE = "ORACLE";
+    
+    public static final String ORACLE_PROPS = "Oracle.props";
     
     public static final String POSTGRES = "POSTGRES";
 

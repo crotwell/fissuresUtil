@@ -72,6 +72,9 @@ public class HibernateUtil {
         } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.MYSQL)) {
             logger.info("using mysql dialect");
             dialect = org.hibernate.dialect.MySQLDialect.class.getName();
+        } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.ORACLE)) {
+            logger.info("using oracle dialect");
+            dialect = org.hibernate.dialect.Oracle10gDialect.class.getName();
         } else {
             throw new RuntimeException("Unknown database type: '"+ConnMgr.getDB_TYPE()+"'");
         }
