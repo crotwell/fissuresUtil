@@ -9,6 +9,9 @@ import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 
 public class SeismogramFileReference extends AbstractSeismogramFileReference {
 
+    /** just for hibernate */
+    protected SeismogramFileReference() {}
+    
     public SeismogramFileReference(ChannelImpl channel,
                                    SeismogramAttrImpl seis,
                                    String fileLocation,
