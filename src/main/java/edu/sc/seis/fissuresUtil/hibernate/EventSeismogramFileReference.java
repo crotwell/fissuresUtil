@@ -8,6 +8,9 @@ import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 
 public class EventSeismogramFileReference extends AbstractSeismogramFileReference {
 
+    /** just for hibernate */
+    protected EventSeismogramFileReference() {}
+    
     public EventSeismogramFileReference(CacheEvent event,
                                         ChannelImpl channel,
                                         SeismogramAttrImpl seis,

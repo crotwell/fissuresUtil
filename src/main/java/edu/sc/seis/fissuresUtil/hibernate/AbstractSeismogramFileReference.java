@@ -16,6 +16,9 @@ public abstract class AbstractSeismogramFileReference {
 
     protected int dbid;
 
+    /** just for hibernate */
+    protected AbstractSeismogramFileReference() {}
+    
     public AbstractSeismogramFileReference(String netCode,
                                            String staCode,
                                            String siteCode,
