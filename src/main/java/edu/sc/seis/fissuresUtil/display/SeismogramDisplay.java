@@ -8,6 +8,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,20 +168,24 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
         throw new IllegalArgumentException("The passed in data set seismgoram must have a drawable seismogram using it in this display");
     }
 
-    public void outputToPDF(String filename) throws FileNotFoundException {
+    public void outputToPDF(String filename) throws IOException {
         outputToPDF(new File(filename));
     }
 
-    public void outputToPDF(File f) throws FileNotFoundException {
-        outputToPDF(new BufferedOutputStream(new FileOutputStream(f)));
+    public void outputToPDF(File f) throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
+        outputToPDF(bos);
+        bos.close();
     }
 
     public void outputToPDF(File f, TitleBorder header)
-            throws FileNotFoundException {
-        outputToPDF(new BufferedOutputStream(new FileOutputStream(f)),
+            throws IOException {
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
+        outputToPDF(bos,
                     true,
                     true,
                     header);
+        bos.close();
     }
 
     public void outputToPDF(OutputStream os) {
