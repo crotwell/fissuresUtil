@@ -39,9 +39,6 @@ public class DistAz {
      c getBaz()   => Back Azimuth from event to station in degrees
      */
     public DistAz(Station sta, EventAccessOperations ev){
-        this((StationImpl)sta, ev);
-    }
-    public DistAz(StationImpl sta, EventAccessOperations ev){
         this(sta.getLocation(), getLoc(ev));
     }
 
@@ -51,9 +48,6 @@ public class DistAz {
      c getBaz()   => Back Azimuth from origin to station in degrees
      */
     public DistAz(Station sta, Origin origin){
-        this((StationImpl)sta, origin);
-    }
-    public DistAz(StationImpl sta, Origin origin){
         this(sta.getLocation(), getLoc(origin));
     }
 
@@ -63,9 +57,6 @@ public class DistAz {
      c getBaz()   => Back Azimuth from event to site in degrees
      */
     public DistAz(Site site, EventAccessOperations ev){
-        this((SiteImpl)site, ev);
-    }
-    public DistAz(SiteImpl site, EventAccessOperations ev){
         this(site.getLocation(), getLoc(ev));
     }
 
