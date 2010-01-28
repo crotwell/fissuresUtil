@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.hibernate;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Timestamp;
 
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -43,13 +44,11 @@ public abstract class AbstractSeismogramFileReference {
         try {
             MicroSecondDate b = new MicroSecondDate(getBeginTime());
             MicroSecondDate e = new MicroSecondDate(getEndTime());
-            return new URLDataSetSeismogram(new File(getFilePath()).toURI().toURL(), 
+            return new URLDataSetSeismogram(getFilePathAsURL(), 
                                             SeismogramFileTypes.fromInt(getFileType()),
                                             ds,
                                             getNetworkCode()+"."+getStationCode()+"."+getSiteCode()+"."+getChannelCode(),
                                             rf);
-        } catch(MalformedURLException e) {
-            throw new RuntimeException("should not happen as URL from file.", e);
         } catch(UnsupportedFileTypeException e) {
             throw new RuntimeException("should not happen, type from database: "+getFileType());
         }
@@ -81,6 +80,14 @@ public abstract class AbstractSeismogramFileReference {
 
     public String getFilePath() {
         return filePath;
+    }
+    
+    public URL getFilePathAsURL() {
+        try {
+            return new File(getFilePath()).toURI().toURL();
+        } catch(MalformedURLException e) {
+            throw new RuntimeException("Should not happen as url comes from file.", e);
+        }
     }
 
     public int getFileType() {
