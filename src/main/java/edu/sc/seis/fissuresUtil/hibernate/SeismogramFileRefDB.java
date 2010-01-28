@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.hibernate;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
@@ -31,6 +33,7 @@ import edu.sc.seis.fissuresUtil.rt130.RT130ToLocalSeismogram;
 import edu.sc.seis.fissuresUtil.time.ReduceTool;
 import edu.sc.seis.fissuresUtil.xml.SeismogramFileTypes;
 import edu.sc.seis.fissuresUtil.xml.URLDataSetSeismogram;
+import edu.sc.seis.fissuresUtil.xml.UnsupportedFileTypeException;
 
 public class SeismogramFileRefDB extends AbstractHibernateDB {
 
@@ -63,6 +66,35 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
         Query q = getSession().createQuery(query);
         q.setEntity("event", event);
         return q.list();
+    }
+    
+    public URLDataSetSeismogram getDataSetSeismogram(ChannelId chan, CacheEvent event, RequestFilter rf) {
+        String query = "from "
+            + EventSeismogramFileReference.class.getName()
+            + " where event = :event and "
+            + " networkCode = :netCode and stationCode = :staCode and siteCode = :siteCode and channelCode = :chanCode ";
+        Query q = getSession().createQuery(query);
+        q.setEntity("event", event);
+        q.setString("netCode", chan.network_id.network_code);
+        q.setString("staCode", chan.station_code);
+        q.setString("siteCode", chan.site_code);
+        q.setString("chanCode", chan.channel_code);
+        List<EventSeismogramFileReference> esRefList = q.list();
+        List<URL> urlList = new ArrayList<URL>();
+        List<SeismogramFileTypes> ftList = new ArrayList<SeismogramFileTypes>();
+        for (EventSeismogramFileReference esRef : esRefList) {
+            urlList.add(esRef.getFilePathAsURL());
+            try {
+                ftList.add(SeismogramFileTypes.fromInt(esRef.getFileType()));
+            } catch(UnsupportedFileTypeException e) {
+                throw new RuntimeException("Should not happen as only valid file types should get into the db via hibernate.", e);
+            }
+        }
+        return new URLDataSetSeismogram(urlList.toArray(new URL[0]),
+                                        ftList.toArray(new SeismogramFileTypes[0]),
+                                        null,
+                                        ChannelIdUtil.toStringFormatDates(chan),
+                                        rf);
     }
 
     public RequestFilter[] findMatchingSeismograms(RequestFilter[] requestArray,
