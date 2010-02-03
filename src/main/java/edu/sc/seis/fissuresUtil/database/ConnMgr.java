@@ -126,27 +126,44 @@ public class ConnMgr {
             setDB(POSTGRES);
         } else if (url.startsWith("jdbc:mysql")) {
             setDB(MYSQL);
+            String[] splitURL = url.split("\\?");
+            if (splitURL.length != 1) {
+                String[] URLparams = splitURL[1].split("&");
+                for (String param : URLparams) {
+                    if (param.startsWith("user=")) {
+                        getProps().setProperty("user", param.substring("user=".length()));
+                    }
+                    if (param.startsWith("password=")) {
+                        getProps().setProperty("password", param.substring("password=".length()));
+                    }
+                }
+            }
         } else if (url.startsWith("jdbc:oracle")) {
             setDB(ORACLE);
+            String[] splitURL;
+            if (url.indexOf("thin") > 0){
+               splitURL = (url.split("@//"))[0].split("thin:");
+            }
+            else if (url.indexOf("oci") > 0){
+               splitURL = (url.split("@//"))[0].split("oci:");
+            } else {
+                splitURL = new String[0];
+            }
+
+            if (splitURL.length > 1) {
+                String[] URLparams = splitURL[1].split("/");
+                if (URLparams.length != 1) {
+                   getProps().setProperty("user", URLparams[0]);
+                   getProps().setProperty("password", URLparams[1]);
+                }
+            }
         }
             checkDriver();
         } catch (Exception e) {
             throw new RuntimeException("Unable to load driver: "+getDriver(), e);
         }
-        String[] splitURL = url.split("\\?");
-        if (splitURL.length != 1) {
-            String[] URLparams = splitURL[1].split("&");
-            for (String param : URLparams) {
-                if (param.startsWith("user=")) {
-                    getProps().setProperty("user", param.substring("user=".length()));
-                }
-                if (param.startsWith("password=")) {
-                    getProps().setProperty("password", param.substring("password=".length()));
-                }
-            }
-        }
-    }
 
+    }
     public static void setURL(String url,
                               String databaseUser,
                               String databasePassword) {
