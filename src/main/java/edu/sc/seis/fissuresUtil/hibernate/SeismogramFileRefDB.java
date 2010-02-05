@@ -3,14 +3,12 @@ package edu.sc.seis.fissuresUtil.hibernate;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Query;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
@@ -19,7 +17,7 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
-import edu.sc.seis.fissuresUtil.bag.EncodedCut;
+import edu.sc.seis.fissuresUtil.bag.Cut;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
@@ -139,7 +137,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
         // and place the times into a time table while
         // buffering the query by one second on each end.
         ChannelImpl chanId;
-        EncodedCut cutter = new EncodedCut(request);
+        Cut cutter = new Cut(request);
         try {
             if(ignoreNetworkTimes) {
                 chanId = chanTable.getChannel(request.channel_id.network_id.network_code,
@@ -189,7 +187,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
                         curSeis = urlSeis.getSeismograms();
                     }
                     for(int j = 0; j < curSeis.length; j++) {
-                        LocalSeismogramImpl seis = cutter.apply(curSeis[j]);
+                        LocalSeismogramImpl seis = cutter.applyEncoded(curSeis[j]);
                         if(seis != null) {
                             resultCollector.add(seis);
                         }

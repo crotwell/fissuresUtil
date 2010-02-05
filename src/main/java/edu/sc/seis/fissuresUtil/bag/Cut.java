@@ -1,7 +1,12 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.IfTimeSeries.EncodedData;
+import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -15,7 +20,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 18995 2007-04-23 15:44:02Z crotwell $
+ * @version $Id: Cut.java 21021 2010-02-05 19:45:30Z crotwell $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -42,9 +47,11 @@ public class Cut implements LocalSeismogramFunction {
                 && seis.getEndTime().equals(getEnd())) {
             return seis;
         }
-        int beginIndex = getBeginIndex(seis);
-        int endIndex = getEndIndex(seis);
-        return cut(seis, beginIndex, endIndex);
+        // first trim unneeded encoded data. This helps a lot for large seismograms as no decompression needed
+        LocalSeismogramImpl tmpSeis = applyEncoded(seis);
+        int beginIndex = getBeginIndex(tmpSeis);
+        int endIndex = getEndIndex(tmpSeis);
+        return cut(tmpSeis, beginIndex, endIndex);
     }
 
     public static LocalSeismogramImpl cut(LocalSeismogramImpl seis, int beginIndex, int endIndex) throws FissuresException {
@@ -150,5 +157,57 @@ public class Cut implements LocalSeismogramFunction {
             result.end_time = original.end_time;
         }
         return result;
+    }
+    
+
+
+    /**
+     * Makes a seismogram covering as little extra beyond begin and end times of
+     * this cut without extracting the data from the encoded data array. This
+     * means there may be a few extra points around the begin and end time as
+     * the encoded data segments probably won't line up with the cut times. If
+     * the cut and the seismogram have no time in common, null is returned. If
+     * the data isn't encoded, a regular cut is performed on it
+     * 
+     * @return an encoded seismogram covering as little of cut time as possible
+     *         or null if there's no overlap
+     * @throws FissuresException
+     * 
+     */
+    public LocalSeismogramImpl applyEncoded(LocalSeismogramImpl seis)
+            throws FissuresException {
+        if(!seis.is_encoded()) {
+            return seis;
+        }
+        if(!overlaps(seis)) {
+            return null;
+        }
+        int beginIndex = getBeginIndex(seis);
+        int endIndex = getEndIndex(seis);
+        List outData = new ArrayList();
+        EncodedData[] ed = seis.get_as_encoded();
+        int currentPoint = 0;
+        int firstUsedPoint = -1;
+        int pointsInNewSeis = 0;
+        for(int i = 0; i < ed.length && currentPoint < endIndex; i++) {
+            if(currentPoint + ed[i].num_points > beginIndex) {
+                outData.add(ed[i]);
+                pointsInNewSeis += ed[i].num_points;
+                if(firstUsedPoint == -1) {
+                    firstUsedPoint = currentPoint;
+                }
+            }
+            currentPoint += ed[i].num_points;
+        }
+        TimeSeriesDataSel ds = new TimeSeriesDataSel();
+        ds.encoded_values((EncodedData[])outData.toArray(new EncodedData[outData.size()]));
+        LocalSeismogramImpl outSeis = new LocalSeismogramImpl(seis, ds);
+        outSeis.begin_time = seis.getBeginTime()
+                .add((TimeInterval)seis.getSampling()
+                        .getPeriod()
+                        .multiplyBy(firstUsedPoint))
+                .getFissuresTime();
+        outSeis.num_points = pointsInNewSeis;
+        return outSeis;
     }
 }// Cut
