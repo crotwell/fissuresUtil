@@ -42,7 +42,7 @@
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="_id"/>
+		<property name="_id" column="origin_id"/> <!-- oracle doesn't like column names starting with _ -->
 		<property name="originTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="time" sql-type="timestamp" index="origin_time_idx"/>

@@ -79,7 +79,7 @@
 		</component>
 		<property name="operator"/>
 		<property name="description" type="text" />
-		<property name="comment" type="text" />
+		<property name="comment" column="stationComment" type="text" />  <!-- comment reserved word in oracle -->
 		<property name="endTime"
 			type="edu.sc.seis.fissuresUtil.hibernate.FTimeUserType">
 			<column name="sta_end_time" sql-type="timestamp"></column>
@@ -188,7 +188,7 @@
 				<column name="site_end_nanos" sql-type="integer"></column>
 				<column name="site_end_leaps" sql-type="integer"></column>
 			</property>
-			<property name="comment" type="text" />
+			<property name="comment" column="channelComment" type="text" /> <!-- comment reserved word in oracle -->
 			<many-to-one name="station"
 				class="edu.iris.Fissures.network.StationImpl"
 				foreign-key="FK_CHANNEL_STATION" cascade="save-update"  unique-key="chan_code_date" lazy="false"/>
