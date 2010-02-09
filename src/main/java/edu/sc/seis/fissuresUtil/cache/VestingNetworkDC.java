@@ -30,12 +30,14 @@ public class VestingNetworkDC extends AbstractProxyNetworkDC {
             // don't want to give this to VestingNetworkFinder as the NSNetworkFinder calls a_finder on the netdc
             // vnf -> nsf -> vndc -> vnf -> nsf -> vncd -> ...
             // resulting in StackOverflow. Passing in the wrapped stops this infinite loop
-            finder = new VestingNetworkFinder((ProxyNetworkDC)getWrappedDC(), handler);
+            
+            finder = new CleanDupNetworks(new VestingNetworkFinder((ProxyNetworkDC)getWrappedDC(), handler));
+            //finder = new VestingNetworkFinder((ProxyNetworkDC)getWrappedDC(), handler);
         }
         return finder;
     }
 
     private RetryStrategy handler;
     
-    private VestingNetworkFinder finder = null;
+    private ProxyNetworkFinder finder = null;
 }

@@ -24,7 +24,9 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
     }
 
     public DataCenterOperations getWrappedDC(Class wrappedClass) {
-        if(wrappedClass.equals(DataCenter.class)) {
+        if(wrappedClass.equals(this.getClass())) {
+            return this;
+        } else if(wrappedClass.equals(DataCenter.class)) {
             return getDataCenter();
         } else {
             throw new IllegalArgumentException("NSSeismogramDCs only contain DataCenters, so it can't contain a ProxyDC of class "

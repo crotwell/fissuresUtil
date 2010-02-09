@@ -6,51 +6,29 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.SystemException;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 
-public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper {
+public class RetrySeismogramDC extends AbstractProxySeismogramDC {
 
     public RetrySeismogramDC(NSSeismogramDC dc, int retry) {
         this(dc, new ClassicRetryStrategy(retry));
     }
 
     public RetrySeismogramDC(NSSeismogramDC dc, RetryStrategy strat) {
-        this.dc = dc;
+        super(dc);
         this.strat = strat;
-    }
-
-    public void reset() {
-    // don't need to do anything
-    }
-
-    public DataCenterOperations getWrappedDC() {
-        return dc;
-    }
-
-    public DataCenterOperations getWrappedDC(Class wrappedClass) {
-        if(getWrappedDC().getClass().equals(wrappedClass)) {
-            return getWrappedDC();
-        } else if(getWrappedDC().getClass().equals(ProxySeismogramDC.class)) {
-            ((ProxySeismogramDC)getWrappedDC()).getWrappedDC(wrappedClass);
-        }
-        throw new IllegalArgumentException("This RetryDataCenter doesn't contain a DC of class "
-                + wrappedClass);
-    }
-
-    public org.omg.CORBA.Object getCorbaObject() {
-        return dc.getCorbaObject();
     }
 
     public RequestFilter[] available_data(RequestFilter[] a_filterseq) {
         int count = 0;
         SystemException latest;
         try {
-            return dc.available_data(a_filterseq);
+            return getWrappedDC().available_data(a_filterseq);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -58,7 +36,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                RequestFilter[] result = dc.available_data(a_filterseq);
+                RequestFilter[] result = getWrappedDC().available_data(a_filterseq);
                 strat.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -74,7 +52,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         int count = 0;
         SystemException latest;
         try {
-            dc.cancel_request(a_request);
+            getWrappedDC().cancel_request(a_request);
             return;
         } catch(SystemException t) {
             latest = t;
@@ -83,7 +61,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                dc.cancel_request(a_request);
+                getWrappedDC().cancel_request(a_request);
                 strat.serverRecovered(this);
             } catch(SystemException t) {
                 latest = t;
@@ -99,7 +77,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         int count = 0;
         SystemException latest;
         try {
-            return dc.queue_seismograms(a_filterseq);
+            return getWrappedDC().queue_seismograms(a_filterseq);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -107,7 +85,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                String result = dc.queue_seismograms(a_filterseq);
+                String result = getWrappedDC().queue_seismograms(a_filterseq);
                 strat.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -127,7 +105,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         int count = 0;
         SystemException latest;
         try {
-            return dc.request_seismograms(a_filterseq,
+            return getWrappedDC().request_seismograms(a_filterseq,
                                           a_client,
                                           long_lived,
                                           expiration_time);
@@ -138,7 +116,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                String result = dc.request_seismograms(a_filterseq,
+                String result = getWrappedDC().request_seismograms(a_filterseq,
                                                        a_client,
                                                        long_lived,
                                                        expiration_time);
@@ -157,7 +135,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         int count = 0;
         SystemException latest;
         try {
-            return dc.request_status(a_request);
+            return getWrappedDC().request_status(a_request);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -165,7 +143,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                String result = dc.request_status(a_request);
+                String result = getWrappedDC().request_status(a_request);
                 strat.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -182,7 +160,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         int count = 0;
         SystemException latest;
         try {
-            return dc.retrieve_queue(a_request);
+            return getWrappedDC().retrieve_queue(a_request);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -190,7 +168,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                LocalSeismogram[] result = dc.retrieve_queue(a_request);
+                LocalSeismogram[] result = getWrappedDC().retrieve_queue(a_request);
                 strat.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -207,7 +185,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         int count = 0;
         SystemException latest;
         try {
-            return dc.retrieve_seismograms(a_filterseq);
+            return getWrappedDC().retrieve_seismograms(a_filterseq);
         } catch(SystemException t) {
             latest = t;
         } catch(OutOfMemoryError e) {
@@ -215,7 +193,7 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
         }
         while(strat.shouldRetry(latest, this, count++)) {
             try {
-                LocalSeismogram[] result = dc.retrieve_seismograms(a_filterseq);
+                LocalSeismogram[] result = getWrappedDC().retrieve_seismograms(a_filterseq);
                 strat.serverRecovered(this);
                 return result;
             } catch(SystemException t) {
@@ -228,28 +206,8 @@ public class RetrySeismogramDC implements ProxySeismogramDC, CorbaServerWrapper 
     }
 
     public String toString() {
-        return "Retry " + dc.toString();
+        return "Retry " + getWrappedDC().toString();
     }
-
-    public String getServerDNS() {
-        return dc.getServerDNS();
-    }
-
-    public String getServerName() {
-        return dc.getServerName();
-    }
-
-    public String getFullName() {
-        return getServerDNS() + "/" + getServerName();
-    }
-
-    public String getServerType() {
-        return dc.getServerType();
-    }
-
-    private NSSeismogramDC dc;
-
-    private int retry;
 
     private RetryStrategy strat;
 }
