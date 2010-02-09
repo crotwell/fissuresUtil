@@ -52,7 +52,7 @@ public class CoarseRequestCutSeismogramDC extends AbstractProxySeismogramDC {
         for (int i = 0; i < out.length; i++) {
             outNpts += out[i].num_points;
         }
-        if (origNpts != outNpts) {
+        if (origNpts - outNpts > .2*outNpts) {
             logger.warn("Server sent seismograms significantly beyond request: orig num points="+origNpts+"  cut num points="+outNpts);
         }
         return out;
