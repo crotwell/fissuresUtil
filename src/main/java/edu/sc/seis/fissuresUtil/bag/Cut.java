@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
@@ -12,6 +13,7 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.time.ReduceTool;
 
 /**
  * Cuts seismograms based on a begin and end time.
@@ -20,7 +22,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 21021 2010-02-05 19:45:30Z crotwell $
+ * @version $Id: Cut.java 21029 2010-02-09 16:58:40Z crotwell $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -167,7 +169,7 @@ public class Cut implements LocalSeismogramFunction {
      * means there may be a few extra points around the begin and end time as
      * the encoded data segments probably won't line up with the cut times. If
      * the cut and the seismogram have no time in common, null is returned. If
-     * the data isn't encoded, a regular cut is performed on it
+     * the data isn't encoded, no cut is performed
      * 
      * @return an encoded seismogram covering as little of cut time as possible
      *         or null if there's no overlap
@@ -184,7 +186,7 @@ public class Cut implements LocalSeismogramFunction {
         }
         int beginIndex = getBeginIndex(seis);
         int endIndex = getEndIndex(seis);
-        List outData = new ArrayList();
+        List<EncodedData> outData = new ArrayList<EncodedData>();
         EncodedData[] ed = seis.get_as_encoded();
         int currentPoint = 0;
         int firstUsedPoint = -1;
@@ -210,4 +212,24 @@ public class Cut implements LocalSeismogramFunction {
         outSeis.num_points = pointsInNewSeis;
         return outSeis;
     }
+    
+    /** Applys a coarse cut to the seismograms based on the request filter. This uses Cut.applyEncoded to cut
+     * sections of encoded data without decompressing first. Thus large data volumes can be reduced without memory problems.
+     */
+    public static LocalSeismogramImpl[] coarseCut(RequestFilter[] aFilterseq, LocalSeismogram[] seis) throws FissuresException {
+        List<LocalSeismogramImpl> out = new ArrayList<LocalSeismogramImpl>();
+        RequestFilter[] mergedRequest = ReduceTool.merge(aFilterseq);
+        for (int i = 0; i < mergedRequest.length; i++) {
+            Cut c = new Cut(mergedRequest[i]);
+            for (int j = 0; j < seis.length; j++) {
+                LocalSeismogramImpl tmpSeis = c.applyEncoded((LocalSeismogramImpl)seis[j]);
+                if (tmpSeis != null) {
+                    out.add(tmpSeis);
+                }
+            }
+        }
+        
+        return out.toArray(new LocalSeismogramImpl[0]);
+    }
+
 }// Cut
