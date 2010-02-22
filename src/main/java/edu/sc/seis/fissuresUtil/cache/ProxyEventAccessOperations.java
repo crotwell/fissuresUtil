@@ -199,8 +199,8 @@ public abstract class ProxyEventAccessOperations implements
         } else if(o instanceof EventAccessOperations) {
             EventAccessOperations oEvent = (EventAccessOperations)o;
             if(get_attributes().equals(oEvent.get_attributes())) {
-                Origin thisOrigin = getOrigin();
-                Origin otherOrigin = EventUtil.extractOrigin(oEvent);
+                OriginImpl thisOrigin = getOrigin();
+                OriginImpl otherOrigin = EventUtil.extractOrigin(oEvent);
                 if(thisOrigin == otherOrigin) {
                     return true;
                 } else if(thisOrigin != null
