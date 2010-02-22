@@ -26,7 +26,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractHibernateDB {
 
-    public static boolean DEBUG_SESSION_CREATION = false;
+    public static boolean DEBUG_SESSION_CREATION = true;
     
     public static int DEBUG_SESSION_CREATION_SECONDS = 300;
     
@@ -209,8 +209,7 @@ public abstract class AbstractHibernateDB {
                             SessionStackTrace item = iterator.next();
                             if ( ! item.session.isOpen() ) {
                                 iterator.remove();
-                            }
-                            if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
+                            } else if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
                                 TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
                                 logger.warn("Session still open after "+aliveTime+" seconds. "+ item.session);
                                 for (int i = 0; i < item.stackTrace.length; i++) {
