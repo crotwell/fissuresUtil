@@ -6,6 +6,7 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
+    compile "com.isti:jevalresp:1.57"
     compile "org.hibernate:hibernate-core:3.3.2.GA"
     compile "org.hibernate:hibernate-ehcache:3.3.2.GA"
     compile "javassist:javassist:3.9.0.GA"
@@ -35,4 +36,22 @@ dependencies {
     compile "activationUSC:activation:1.0.2"
     testCompile "junit:junit:3.8.2"
     testCompile "junit-addons:junit-addons:1.4"
+}
+
+def getDExtras() {
+    return [ 'seis.name':'sod-3.0.0alpha.sod',
+                'org.omg.CORBA.ORBSingletonClass':'org.jacorb.orb.ORBSingleton',
+                'python.path':'${LIB}',
+                'java.awt.headless':'true',
+                'org.omg.CORBA.ORBClass':'org.jacorb.orb.ORB',
+                'swing.volatileImageBufferEnabled':'false',
+                'java.endorsed.dirs':'${LIB}/endorsed',
+                'jacorb.connection.client.pending_reply_timeout':'120000',
+                'jacorb.log.default.verbosity':'2' ]
+}
+
+task makeScript(dependsOn: copyToLib) << { task ->
+    dExtras = getDExtras()
+    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
+    ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', task.project, dExtras:dExtras)
 }
