@@ -6,7 +6,6 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
-    compile "com.isti:jevalresp:1.57"
     compile "org.hibernate:hibernate-core:3.3.2.GA"
     compile "org.hibernate:hibernate-ehcache:3.3.2.GA"
     compile "javassist:javassist:3.9.0.GA"
