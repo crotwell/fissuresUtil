@@ -211,7 +211,7 @@ public abstract class AbstractHibernateDB {
                                 iterator.remove();
                             } else if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
                                 TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
-                                logger.warn("Session still open after "+aliveTime+" seconds. "+ item.session);
+                                logger.warn("Session still open after "+aliveTime+" seconds. ");
                                 for (int i = 0; i < item.stackTrace.length; i++) {
                                     logger.warn(item.stackTrace[i]);
                                 }
