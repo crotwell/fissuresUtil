@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,7 +20,6 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.exceptionHandler.DefaultExtractor;
-import edu.sc.seis.fissuresUtil.exceptionHandler.Extractor;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractHibernateDB {
@@ -36,7 +34,7 @@ public abstract class AbstractHibernateDB {
 
     private static void loadUnits(Session s) {
         Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
-        List result = q.list();
+        List<UnitImpl> result = q.list();
         getUnitCache().addAll(result);
         // check common units to make sure in db
         synchronized(AbstractHibernateDB.class) {
@@ -144,8 +142,7 @@ public abstract class AbstractHibernateDB {
                                 unit.getMultiFactor(),
                                 unit.getExponent());
         }
-        Session session = getSession();
-        Integer dbid = (Integer)session.save(unit);
+        getSession().save(unit);
         unitCache.add(unit);
         return unit;
     }
