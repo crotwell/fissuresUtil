@@ -26,7 +26,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractHibernateDB {
 
-    public static boolean DEBUG_SESSION_CREATION = true;
+    public static boolean DEBUG_SESSION_CREATION = false;
     
     public static int DEBUG_SESSION_CREATION_SECONDS = 300;
     
