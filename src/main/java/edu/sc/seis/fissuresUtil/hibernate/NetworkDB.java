@@ -1,15 +1,25 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.Instrumentation;
+import edu.iris.Fissures.IfNetwork.InstrumentationHelper;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -21,7 +31,6 @@ import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.LazyNetworkAccess;
 import edu.sc.seis.fissuresUtil.cache.ProxyNetworkDC;
-import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.database.NotFound;
 
 public class NetworkDB extends AbstractHibernateDB {
@@ -382,6 +391,29 @@ public class NetworkDB extends AbstractHibernateDB {
             throw new NotFound();
         }
         return (ChannelImpl)result.get(0);
+    }
+
+    public Instrumentation getInstrumentation(ChannelImpl chan) throws ChannelNotFound {
+        Query query = getSession().createQuery("from "+InstrumentationBlob.class.getName()+" where channel = :chan");
+        query.setEntity("chan", chan);
+        Iterator it = query.iterate();
+        if (it.hasNext()) {
+            InstrumentationBlob ib = (InstrumentationBlob)it.next();
+            if (ib.getInstrumentation() != null) {
+                return ib.getInstrumentation();
+            }
+            throw new ChannelNotFound();
+        }
+        return null;
+    }
+
+    public Sensitivity getSensitivity(ChannelImpl chan) throws ChannelNotFound {
+        return getInstrumentation(chan).the_response.the_sensitivity;
+    }
+    
+    public void putInstrumentation(ChannelImpl chan, Instrumentation inst) {
+        logger.debug("Put instrumentation: "+ChannelIdUtil.toStringNoDates(chan));
+        getSession().save(new InstrumentationBlob(chan, inst));
     }
 
     public void internUnit(Station sta) {

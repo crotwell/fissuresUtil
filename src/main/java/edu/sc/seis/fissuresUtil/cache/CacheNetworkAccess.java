@@ -115,6 +115,29 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         }
     }
 
+    @Override
+    public Channel retrieve_channel(ChannelId id) throws ChannelNotFound {
+        String staIdStr = NetworkIdUtil.toString(id.network_id)+NetworkIdUtil.DOT+id.station_code;
+        Iterator<String> it = channelMap.keySet().iterator();
+        while(it.hasNext()) {
+            String staId = it.next();
+            if (staId.startsWith(staIdStr)) {
+                SoftReference<Channel[]> sr = channelMap.get(staId);
+                Channel[] chans = sr != null ? sr.get() : null;
+                if (chans == null) {
+                    // lost to garbage collection, get from server
+                    return super.retrieve_channel(id);
+                }
+                for (int i = 0; i < chans.length; i++) {
+                    if (ChannelIdUtil.areEqual(id, chans[i].getId())) {
+                        return chans[i];
+                    }
+                }
+            }
+        }
+        return super.retrieve_channel(id);
+    }
+
     public Instrumentation retrieve_instrumentation(ChannelId id, Time the_time)
             throws ChannelNotFound {
         Instrumentation inst = getNetworkAccess().retrieve_instrumentation(id,
@@ -131,7 +154,7 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
                                              "Instrumentation has no stages, units cannot be determined.");
         }
         SensitivityHolder holder = extractExistingHolder(id, the_time);
-        List sensForChannel = extractSensForChannel(id);
+        List<SensitivityHolder> sensForChannel = extractSensForChannel(id);
         if(holder == null) {
             holder = new SensitivityHolder(inst);
             sensForChannel.add(holder);
@@ -153,11 +176,11 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
         return null;
     }
 
-    private List extractSensForChannel(ChannelId id) {
+    private List<SensitivityHolder> extractSensForChannel(ChannelId id) {
         String idString = ChannelIdUtil.toString(id);
-        List sensForChannel = (List)sensMap.get(idString);
+        List<SensitivityHolder> sensForChannel = (List)sensMap.get(idString);
         if(sensForChannel == null) {
-            sensForChannel = new ArrayList();
+            sensForChannel = new ArrayList<SensitivityHolder>();
             sensMap.put(idString, sensForChannel);
         }
         return sensForChannel;
@@ -218,8 +241,8 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     protected Station[] stations;
 
     private HashMap<String, SoftReference<Channel[]>> channelMap = new HashMap<String, SoftReference<Channel[]>>();
-
-    private HashMap sensMap = new HashMap();
+    
+    private HashMap<String, List<SensitivityHolder>> sensMap = new HashMap<String, List<SensitivityHolder>>();
 
     private static Logger logger = Logger.getLogger(CacheNetworkAccess.class);
 }
