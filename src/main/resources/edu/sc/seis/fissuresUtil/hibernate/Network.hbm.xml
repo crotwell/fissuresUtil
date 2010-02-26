@@ -211,6 +211,17 @@
 			class="edu.iris.Fissures.network.ChannelImpl" column="channel3"
 			foreign-key="FK_cg_channel3" unique-key="channelgroup_chan_key" />
 	</class>
+	
+	<class name="edu.sc.seis.fissuresUtil.hibernate.InstrumentationBlob"
+		table="instrumentation" lazy="false">
 		
+		<id name="dbid" type="integer">
+			<generator class="native" />
+		</id>
+		<many-to-one name="channel"
+			class="edu.iris.Fissures.network.ChannelImpl" column="channel"
+			foreign-key="FK_inst_channel" unique-key="inst_chan_key" index="inst_chan_idx" />
+		<property name="instrumentationAsBlob" type="binary" />
+	</class>
 
 </hibernate-mapping>
