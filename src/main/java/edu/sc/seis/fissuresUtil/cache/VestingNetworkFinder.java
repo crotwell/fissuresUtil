@@ -22,8 +22,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         this(netDC, new ClassicRetryStrategy(numRetry));
     }
 
-    public VestingNetworkFinder(ProxyNetworkDC netDC,
-                                RetryStrategy handler) {
+    public VestingNetworkFinder(ProxyNetworkDC netDC, RetryStrategy handler) {
         super(new CacheByIdNetworkFinder(new RetryNetworkFinder(new NSNetworkFinder(netDC), handler)));
         this.handler = handler;
     }
@@ -46,7 +45,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public NetworkAccess[] vest(NetworkAccess[] accesses) {
         CacheNetworkAccess[] vested = new CacheNetworkAccess[accesses.length];
-        for(int i = 0; i < accesses.length; i++) {
+        for (int i = 0; i < accesses.length; i++) {
             vested[i] = vest(accesses[i]);
         }
         return vested;
@@ -58,14 +57,10 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         return cache;
     }
 
-    private static CacheNetworkAccess vest(NetworkAccess na,
-                                           VestingNetworkFinder vnf,
-                                           RetryStrategy handler) {
+    private static CacheNetworkAccess vest(NetworkAccess na, VestingNetworkFinder vnf, RetryStrategy handler) {
         SynchronizedNetworkAccess synch = new SynchronizedNetworkAccess(na);
-        ProxyNetworkAccess justToHaveServerAndName = new JustToHaveServerAndName(synch,
-                                                                                 vnf);
-        RetryNetworkAccess retry = new RetryNetworkAccess(justToHaveServerAndName,
-                                                          handler);
+        ProxyNetworkAccess justToHaveServerAndName = new JustToHaveServerAndName(synch, vnf);
+        RetryNetworkAccess retry = new RetryNetworkAccess(justToHaveServerAndName, handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry);
         NetworkId id = cache.get_attributes().get_id();
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(synch, id, vnf);
@@ -76,29 +71,30 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     public CacheNetworkAccess vest(NetworkAttrImpl attr) throws NetworkNotFound {
         NetworkId id = attr.get_id();
-        logger.debug("(CacheById test) vest "+NetworkIdUtil.toString(id));
+        logger.debug("(CacheById test) vest " + NetworkIdUtil.toString(id));
         NSNetworkAccess nsNetworkAccess = new NSNetworkAccess(id, this);
-        RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess,
-                                                          handler);
+        RetryNetworkAccess retry = new RetryNetworkAccess(nsNetworkAccess, handler);
         CacheNetworkAccess cache = new CacheNetworkAccess(retry, attr);
         addKnownNetworkAccess(cache);
         return cache;
     }
-    
+
     private int numNetsAdded = 0;
-    
+
     void addKnownNetworkAccess(CacheNetworkAccess cache) {
         synchronized(SynchronizedNetworkAccess.class) {
             allKnownNetworkAccess.add(new SoftReference<CacheNetworkAccess>(cache));
         }
-        numNetsAdded+=1;
+        numNetsAdded += 1;
         if (numNetsAdded % 1000 == 0) {
-            // zap any soft references with null refs
-            Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccess.iterator();
-            while (it.hasNext()) {
-                SoftReference<CacheNetworkAccess> net = it.next();
-                if (net.get() == null) {
-                    it.remove();
+            synchronized(SynchronizedNetworkAccess.class) {
+                // zap any soft references with null refs
+                Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccess.iterator();
+                while (it.hasNext()) {
+                    SoftReference<CacheNetworkAccess> net = it.next();
+                    if (net.get() == null) {
+                        it.remove();
+                    }
                 }
             }
         }
@@ -113,7 +109,7 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
             // otherwise every network access tells the finder to reset, which
             // tells every network access
             // to rest...StackOverflow
-            if(!insideReset) {
+            if (!insideReset) {
                 insideReset = true;
                 Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccess.iterator();
                 while (it.hasNext()) {
@@ -142,13 +138,15 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
     private RetryStrategy handler;
 
-    /** map of all known networkAccesses from this finder in case we need to reset. */
+    /**
+     * map of all known networkAccesses from this finder in case we need to
+     * reset.
+     */
     private Set<SoftReference<CacheNetworkAccess>> allKnownNetworkAccess = new HashSet<SoftReference<CacheNetworkAccess>>();
-    
+
     static class JustToHaveServerAndName extends ProxyNetworkAccess {
 
-        public JustToHaveServerAndName(NetworkAccess net,
-                                       VestingNetworkFinder vnf) {
+        public JustToHaveServerAndName(NetworkAccess net, VestingNetworkFinder vnf) {
             super(net);
             this.vnf = vnf;
         }
@@ -178,6 +176,6 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
 
         private VestingNetworkFinder vnf;
     }
-    
+
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(VestingNetworkFinder.class);
 }
