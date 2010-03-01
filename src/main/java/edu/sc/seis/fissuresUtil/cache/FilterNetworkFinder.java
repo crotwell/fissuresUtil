@@ -1,7 +1,9 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import java.util.regex.Pattern;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 
@@ -10,7 +12,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
  */
 public class FilterNetworkFinder extends ProxyNetworkFinder {
 
-    public FilterNetworkFinder(VestingNetworkFinder nf, Pattern[] patterns) {
+    public FilterNetworkFinder(NetworkFinder nf, Pattern[] patterns) {
         super(nf);
         this.patterns = patterns;
     }

@@ -33,7 +33,7 @@ public class FilterNetworkDC extends VestingNetworkDC {
     }
 
     public NetworkFinder a_finder() {
-        return new FilterNetworkFinder((VestingNetworkFinder)super.a_finder(),
+        return new FilterNetworkFinder(super.a_finder(),
                                        patterns);
     }
 
