@@ -51,19 +51,27 @@ public class CacheEvent extends ProxyEventAccessOperations {
     }
 
     public EventAttr get_attributes() {
-        if(attr == null) {
+        if(attr == null && event != null) {
             this.attr = event.get_attributes();
-            if(attr == null) {
-                // remote doesn't implement
-                attr = EventAttrImpl.createEmpty();
-            }
+        }
+        if(attr == null) {
+            // remote doesn't implement
+            attr = EventAttrImpl.createEmpty();
         }
         return attr;
     }
 
     public Origin[] get_origins() {
-        if(origins == null) {
+        if(origins == null && event != null) {
             origins = event.get_origins();
+        }
+        if (origins == null) {
+            try {
+                origins = new OriginImpl[] {getPreferred()};
+            } catch(NoPreferredOrigin e) {
+                // shouldn't happen
+                origins = new Origin[0];
+            }
         }
         return origins;
     }
