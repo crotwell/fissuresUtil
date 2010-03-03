@@ -107,9 +107,15 @@ public class EventFinderQuery implements Tester {
     public String[] getCatalogs() {
         return catalogs;
     }
+    public void setCatalogs(String[] catalogs) {
+        this.catalogs = catalogs;
+    }
 
     public String[] getContributors() {
         return contributors;
+    }
+    public void setContributors(String[] contributors) {
+        this.contributors = contributors;
     }
 
     private AreaTester areaTester = new AreaTester();
@@ -125,4 +131,5 @@ public class EventFinderQuery implements Tester {
     private String[] catalogs = new String[0];
 
     private String[] contributors = new String[0];
+
 }
