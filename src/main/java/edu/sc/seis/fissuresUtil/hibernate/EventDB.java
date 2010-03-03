@@ -33,7 +33,7 @@ public class EventDB extends AbstractHibernateDB {
 				+ " e ORDER BY e.id desc";
 		finderQueryBase = "select distinct e FROM "
 				+ getEventClass().getName()
-				+ " e join e.preferred.magnitudeList m "
+				+ " e inner join e.preferred.magnitudeList m "
 				+ "WHERE e.preferred.location.latitude between :minLat AND :maxLat "
 				+ "AND m.value between :minMag AND :maxMag  "
 				+ "AND e.preferred.originTime.time between :minTime AND :maxTime  "
@@ -82,6 +82,19 @@ public class EventDB extends AbstractHibernateDB {
 		query.setDouble("maxDepth", q.getMaxDepth());
 		query.setFloat("minLon", ba.min_longitude);
 		query.setFloat("maxLon", ba.max_longitude);
+
+        logger.debug("query: "+query);
+		logger.debug("query.setFloat(\"minLat\", "+ba.min_latitude);
+		logger.debug("query.setFloat(\"maxLat\", "+ba.max_latitude);
+		logger.debug("query.setFloat(\"minMag\", "+q.getMinMag());
+		logger.debug("query.setFloat(\"maxMag\", "+q.getMaxMag());
+		logger.debug("query.setTimestamp(\"minTime\", "+q.getTime().getBeginTime().getTimestamp());
+		logger.debug("query.setTimestamp(\"maxTime\", "+q.getTime().getEndTime().getTimestamp());
+		logger.debug("query.setDouble(\"minDepth\", "+q.getMinDepth());
+		logger.debug("query.setDouble(\"maxDepth\", "+q.getMaxDepth());
+		logger.debug("query.setFloat(\"minLon\", "+ba.min_longitude);
+		logger.debug("query.setFloat(\"maxLon\", "+ba.max_longitude);
+        
 		return query.list();
 	}
 
@@ -247,5 +260,7 @@ public class EventDB extends AbstractHibernateDB {
 	public static final float INCONCEIVABLY_SMALL_DEPTH = -99.0f;
 	         
 	public static final float INCONCEIVABLY_LARGE_DEPTH = 7000.0f;
+	
+	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(EventDB.class);
 	
 }
