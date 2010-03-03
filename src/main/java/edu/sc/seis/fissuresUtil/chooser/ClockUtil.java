@@ -70,6 +70,18 @@ public class ClockUtil {
         return now().add(ONE_DAY);
     }
     
+    public static MicroSecondDate yesterday() {
+        return now().subtract(ONE_DAY);
+    }
+    
+    public static MicroSecondDate lastWeek() {
+        return now().subtract(ONE_WEEK);
+    }
+    
+    public static MicroSecondDate lastMonth() {
+        return now().subtract(ONE_MONTH);
+    }
+    
     public static MicroSecondDate wayPast() {
         return new MicroSecondDate(0);
     }
@@ -120,6 +132,8 @@ public class ClockUtil {
     private static MicroSecondDate OLD_DATE = new ISOTime("2009-02-14T00:00:00.000Z").getDate();
 
     private static TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
+    private static TimeInterval ONE_WEEK = new TimeInterval(7, UnitImpl.DAY);
+    private static TimeInterval ONE_MONTH = new TimeInterval(30, UnitImpl.DAY);
     
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ClockUtil.class);
 } // ClockUtil
