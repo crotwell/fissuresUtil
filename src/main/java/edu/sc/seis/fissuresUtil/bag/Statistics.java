@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 20906 2009-12-10 20:43:42Z crotwell $
+ * @version $Id: Statistics.java 21159 2010-03-10 21:05:09Z crotwell $
  */
 
 public class Statistics  {
@@ -26,6 +26,7 @@ public class Statistics  {
      * @param iSeries an <code>int[]</code> value
      */
     public Statistics(int[] iSeries) {
+        if (iSeries.length == 0) { throw new IllegalArgumentException("Data length is zero"); }
         this.iSeries = iSeries;
         beginIndex = 0;
         endIndex = iSeries.length;
@@ -37,6 +38,7 @@ public class Statistics  {
      * @param sSeries a <code>short[]</code> value
      */
     public Statistics(short[] sSeries) {
+        if (sSeries.length == 0) { throw new IllegalArgumentException("Data length is zero"); }
         this.sSeries = sSeries;
         beginIndex = 0;
         endIndex = sSeries.length;
@@ -48,6 +50,7 @@ public class Statistics  {
      * @param fSeries a <code>float[]</code> value
      */
     public Statistics(float[] fSeries) {
+        if (fSeries.length == 0) { throw new IllegalArgumentException("Data length is zero"); }
         this.fSeries = fSeries;
         beginIndex = 0;
         endIndex = fSeries.length;
@@ -59,6 +62,7 @@ public class Statistics  {
      * @param dSeries a <code>double[]</code> value
      */
     public Statistics(double[] dSeries) {
+        if (dSeries.length == 0) { throw new IllegalArgumentException("Data length is zero"); }
         this.dSeries = dSeries;
         beginIndex = 0;
         endIndex = dSeries.length;
@@ -70,6 +74,7 @@ public class Statistics  {
      * @param seismo a <code>LocalSeismogramImpl</code> value
      */
     public Statistics(LocalSeismogramImpl seismo) throws FissuresException {
+        if (seismo.getNumPoints() == 0) { throw new IllegalArgumentException("Data length is zero"); }
         if(seismo.can_convert_to_short()){
             sSeries = seismo.get_as_shorts();
             endIndex = sSeries.length;
@@ -91,6 +96,7 @@ public class Statistics  {
     }
     
     public Statistics(List<QuantityImpl> vals, UnitImpl unit) {
+        if (vals.size() == 0) { throw new IllegalArgumentException("Data length is zero"); }
         dSeries = new double[vals.size()];
         for (int i = 0; i < dSeries.length; i++) {
             QuantityImpl q = vals.get(i);
@@ -335,6 +341,7 @@ public class Statistics  {
     }
 
     private double[] calculateMinMaxMean(int beginIndex, int endIndex){
+        if (beginIndex == endIndex) {throw new RuntimeException("division by zero in mean");}
         double[] outMinMaxMean = new double[3];
         outMinMaxMean[0] = Double.POSITIVE_INFINITY;
         outMinMaxMean[1] = Double.NEGATIVE_INFINITY;
@@ -387,6 +394,7 @@ public class Statistics  {
      * 
      */
     public double var(double mean) {
+        if (getLength() == 1) { throw new RuntimeException("Data length is "+getLength()); }
         return binarySumDevSqr(0, getLength(), mean) /
         (getLength()-1);
     }
@@ -423,6 +431,8 @@ public class Statistics  {
     public double correlation(double[] other) {
         Statistics otherStat = new Statistics(other);
         double covar = covariance(otherStat);
+        if (stddev() == 0) {throw new RuntimeException("divide by zero if stddev == 0");}
+        if (otherStat.stddev() == 0) {throw new RuntimeException("divide by zero if other.stddev == 0");}
         return covar / otherStat.stddev() / stddev();
     }
 
