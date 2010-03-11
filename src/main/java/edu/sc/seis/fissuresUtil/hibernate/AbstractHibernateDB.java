@@ -13,6 +13,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 import edu.iris.Fissures.Location;
@@ -68,18 +69,8 @@ public abstract class AbstractHibernateDB {
         return cacheSession;
     }
 
-    public static Session getReadOnlySession() {
-        final Session s = createSession();
-        s.setFlushMode(FlushMode.MANUAL);
-        try {
-            s.connection().setReadOnly(true); // depriciated, not clear of how to do this from API
-            // hopefully hibernate will support read-only sessions at some point
-        } catch(HibernateException e) {
-            throw new RuntimeException("Should not happen", e);
-        } catch(SQLException e) {
-            throw new RuntimeException("Should not happen", e);
-        }
-        return s;
+    public static StatelessSession getReadOnlySession() {
+        return HibernateUtil.getSessionFactory().openStatelessSession();
     }
 
     public static Session getSession() {
