@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -63,6 +66,20 @@ public abstract class AbstractHibernateDB {
                                                     Thread.currentThread().getStackTrace()));
         }
         return cacheSession;
+    }
+
+    public static Session getReadOnlySession() {
+        final Session s = createSession();
+        s.setFlushMode(FlushMode.MANUAL);
+        try {
+            s.connection().setReadOnly(true); // depriciated, not clear of how to do this from API
+            // hopefully hibernate will support read-only sessions at some point
+        } catch(HibernateException e) {
+            throw new RuntimeException("Should not happen", e);
+        } catch(SQLException e) {
+            throw new RuntimeException("Should not happen", e);
+        }
+        return s;
     }
 
     public static Session getSession() {
