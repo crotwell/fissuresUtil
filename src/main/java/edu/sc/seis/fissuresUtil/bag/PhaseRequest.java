@@ -7,6 +7,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
+import edu.iris.Fissures.model.LocationUtil;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -87,17 +88,17 @@ public class PhaseRequest  {
     public RequestFilter generateRequest(EventAccessOperations event,
                                          Channel channel) throws Exception {
         Origin origin = EventUtil.extractOrigin(event);
-        if(prevRequestFilter != null
-                && origin.getLocation().equals(prevOriginLoc)
-                && channel.getSite().getLocation().equals(prevSiteLoc)) {
-            // don't need to do any work
-            return new RequestFilter(channel.get_id(),
-                                     prevRequestFilter.start_time,
-                                     prevRequestFilter.end_time);
+
+        synchronized(this) {
+            if(prevRequestFilter != null
+                    && LocationUtil.areEqual(origin.getLocation(), prevOriginLoc)
+                    && LocationUtil.areEqual(channel.getSite().getLocation(), prevSiteLoc)) {
+                // don't need to do any work
+                return new RequestFilter(channel.get_id(),
+                                         prevRequestFilter.start_time,
+                                         prevRequestFilter.end_time);
+            }
         }
-        prevOriginLoc = origin.getLocation();
-        prevSiteLoc = channel.getSite().getLocation();
-        prevRequestFilter = null;
         double begin = getArrivalTime(beginPhase, channel, origin);
         double end = getArrivalTime(endPhase, channel, origin);
         if(begin == -1 || end == -1) {
@@ -129,9 +130,13 @@ public class PhaseRequest  {
         }
         bDate = bDate.add(bInterval);
         eDate = eDate.add(eInterval);
-        prevRequestFilter = new RequestFilter(channel.get_id(),
-                                              bDate.getFissuresTime(),
-                                              eDate.getFissuresTime());
+        synchronized(this) {
+            prevOriginLoc = origin.getLocation();
+            prevSiteLoc = channel.getSite().getLocation();
+            prevRequestFilter = new RequestFilter(channel.get_id(),
+                                                  bDate.getFissuresTime(),
+                                                  eDate.getFissuresTime());
+        }
         logger.debug("Generated request from "
                 + bDate
                 + " to "
