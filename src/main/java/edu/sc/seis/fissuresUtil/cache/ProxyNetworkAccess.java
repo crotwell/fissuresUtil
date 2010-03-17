@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.cache;
 
+import org.omg.CORBA.NO_IMPLEMENT;
+
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
@@ -11,20 +13,25 @@ import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.ChannelIdIterHolder;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.ConcreteNetwork;
 import edu.iris.Fissures.IfNetwork.ConcreteNetworkAccess;
+import edu.iris.Fissures.IfNetwork.ConcreteNetworkAccessOperations;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.OrientationRange;
 import edu.iris.Fissures.IfNetwork.SamplingRange;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
+import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.SiteNotFound;
 import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.IfNetwork.StationNotFound;
 import edu.iris.Fissures.IfNetwork.TimeCorrection;
 import edu.iris.Fissures.IfNetwork.VirtualNetworkAccess;
 
-public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWrapper {
+public abstract class ProxyNetworkAccess implements NetworkAccess, ConcreteNetworkAccessOperations, CorbaServerWrapper {
 
     public ProxyNetworkAccess(NetworkAccess net) {
         setNetworkAccess(net);
@@ -171,5 +178,17 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, CorbaServerWr
         return net;
     }
     
+    public ConcreteNetwork a_writeable() {
+        throw new NO_IMPLEMENT();
+    }
+
+    public AuditElement[] get_audit_trail_for_site(SiteId id) throws SiteNotFound, NotImplemented {
+        throw new NotImplemented();
+    }
+
+    public AuditElement[] get_audit_trail_for_station(StationId id) throws StationNotFound, NotImplemented {
+        throw new NotImplemented();
+    }
+
     private NetworkAccess net;
 }
