@@ -16,6 +16,8 @@ public class NSNetworkDC implements ProxyNetworkDC {
     public NSNetworkDC(String serverDNS,
                        String serverName,
                        FissuresNamingService fissuresNamingService) {
+        if (serverDNS == null || serverDNS.equals("")) {throw new IllegalArgumentException("serverDNS cannot be null");}
+        if (serverName == null || serverName.equals("")) {throw new IllegalArgumentException("serverName cannot be null");}
         this.serverDNS = serverDNS;
         this.serverName = serverName;
         this.namingService = fissuresNamingService;
