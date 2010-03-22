@@ -84,7 +84,7 @@ public class SimplePhaseStoN {
                                     LocalSeismogramImpl seis) throws FissuresException, TauModelException, PhaseNonExistent {
         LocalSeismogramImpl shortSeis = shortCut.cut(stationLoc, origin, seis);
         LocalSeismogramImpl longSeis = longCut.cut(stationLoc, origin, seis);
-        if (shortSeis == null || longSeis == null) { return null; }
+        if (shortSeis == null || longSeis == null || shortSeis.getNumPoints() <= 1 || longSeis.getNumPoints() <= 1) { return null; }
 
         
         Statistics longStat = new Statistics(longSeis);
