@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.cache;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -111,7 +112,9 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
             // to rest...StackOverflow
             if (!insideReset) {
                 insideReset = true;
-                Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccess.iterator();
+                Set<SoftReference<CacheNetworkAccess>> allKnownNetworkAccessCopy = new HashSet<SoftReference<CacheNetworkAccess>>();
+                allKnownNetworkAccessCopy.addAll(allKnownNetworkAccess);
+                Iterator<SoftReference<CacheNetworkAccess>> it = allKnownNetworkAccessCopy.iterator();
                 while (it.hasNext()) {
                     SoftReference<CacheNetworkAccess> net = it.next();
                     CacheNetworkAccess cnet = net.get();
