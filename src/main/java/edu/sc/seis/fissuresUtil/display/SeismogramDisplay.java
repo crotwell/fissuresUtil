@@ -173,6 +173,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
     }
 
     public void outputToPDF(File f) throws IOException {
+        f.getParentFile().mkdirs();
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
         outputToPDF(bos);
         bos.close();
@@ -180,6 +181,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public void outputToPDF(File f, TitleBorder header)
             throws IOException {
+        f.getParentFile().mkdirs();
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(f));
         outputToPDF(bos,
                     true,
