@@ -5,6 +5,8 @@
  */
 package edu.sc.seis.fissuresUtil.display.registrar;
 
+import java.util.List;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Origin;
@@ -68,12 +70,12 @@ public class PhaseAlignedTimeConfig extends RelativeTimeConfig {
                                                   Location station)
             throws TauModelException {
         TauPUtil util = TauPUtil.getTauPUtil();
-        Arrival[] arrivals = util.calcTravelTimes(station,
+        List<Arrival> arrivals = util.calcTravelTimes(station,
                                                   origin,
                                                   new String[] {phaseName});
         MicroSecondDate out = new MicroSecondDate(origin.getOriginTime());
-        if(arrivals.length > 0) {
-            out = out.add(new TimeInterval(arrivals[0].getTime(),
+        if(arrivals.size() > 0) {
+            out = out.add(new TimeInterval(arrivals.get(0).getTime(),
                                            UnitImpl.SECOND));
         }
         return out;

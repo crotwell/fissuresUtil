@@ -151,7 +151,7 @@ public class Flag implements Drawable {
     public static TextTable getFlagData(DataSetSeismogram dss,
                                         EventAccessOperations event,
                                         String[] template) {
-        Arrival[] arrivals = null;
+        List<Arrival> arrivals = null;
         TauPUtil taup = TauPUtil.getTauPUtil();
         arrivals = getArrivals(taup, dss, event);
         String[] header = getFlagDataHeader(template);
@@ -213,13 +213,13 @@ public class Flag implements Drawable {
                         QuantityImpl backAz = DisplayUtils.calculateBackAzimuth(dss);
                         dataCells.add(twoDecimal.format(backAz.get_value()));
                     } else if(template[i].equals(TAUP_P)) {
-                        if(arrivals != null && arrivals.length > 0) {
+                        if(arrivals != null && arrivals.size() > 0) {
                             dataCells.add(twoDecimal.format(getFirstPWaveInSeconds(arrivals).get_value()));
                         } else {
                             dataCells.add("...");
                         }
                     } else if(template[i].equals(TIME_DIFF_ORIG_P)) {
-                        if(arrivals != null && arrivals.length > 0) {
+                        if(arrivals != null && arrivals.size() > 0) {
                             TimeInterval timeDiff = getTimeDifferenceFromOrigin(flag,
                                                                                 event);
                             TimeInterval timeDiffTauPDiff = timeDiff.subtract(getFirstPWaveInSeconds(arrivals));
@@ -238,14 +238,14 @@ public class Flag implements Drawable {
 
     static DecimalFormat twoDecimal = new DecimalFormat("0.00");
 
-    private static Arrival[] getArrivals(TauPUtil taup,
+    private static List<Arrival> getArrivals(TauPUtil taup,
                                          DataSetSeismogram dss,
                                          EventAccessOperations event) {
         Station station = dss.getDataSet()
                 .getChannel(dss.getRequestFilter().channel_id).getSite().getStation();
         Origin origin = EventUtil.extractOrigin(event);
         try {
-            Arrival[] arrivals = taup.calcTravelTimes(station,
+            List<Arrival> arrivals = taup.calcTravelTimes(station,
                                                       origin,
                                                       new String[] {"ttp"});
             return arrivals;
@@ -255,8 +255,8 @@ public class Flag implements Drawable {
         return null;
     }
 
-    private static TimeInterval getFirstPWaveInSeconds(Arrival[] arrivals) {
-        return new TimeInterval(arrivals[0].getTime(), UnitImpl.SECOND);
+    private static TimeInterval getFirstPWaveInSeconds(List<Arrival> arrivals) {
+        return new TimeInterval(arrivals.get(0).getTime(), UnitImpl.SECOND);
     }
 
     private static String formatTime(MicroSecondDate msd) {

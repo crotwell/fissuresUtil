@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import edu.iris.Fissures.Location;
@@ -152,14 +154,14 @@ public class PhaseRequest  {
             return 0;
         }
         String[] phases = {phase};
-        Arrival[] arrivals = util.calcTravelTimes(chan.getSite().getLocation(),
+        List<Arrival> arrivals = util.calcTravelTimes(chan.getSite().getLocation(),
                                                   origin,
                                                   phases);
-        if(arrivals.length == 0) {
+        if(arrivals.size() == 0) {
             return -1;
         }
         // round to milliseconds
-        return Math.rint(1000 * arrivals[0].getTime()) / 1000;
+        return Math.rint(1000 * arrivals.get(0).getTime()) / 1000;
     }
 
     public static TimeInterval getTimeIntervalFromRatio(MicroSecondDate startPhaseTime,

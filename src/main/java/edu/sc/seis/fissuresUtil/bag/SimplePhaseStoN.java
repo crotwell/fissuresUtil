@@ -6,6 +6,8 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.List;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.Origin;
@@ -98,11 +100,11 @@ public class SimplePhaseStoN {
         // long term
         double numerator = Math.sqrt(shortStat.var(longStat.mean()));
         
-        Arrival[] arrivals = taup.calcTravelTimes(stationLoc, origin, new String[] {phase});
+        List<Arrival> arrivals = taup.calcTravelTimes(stationLoc, origin, new String[] {phase});
         MicroSecondDate phaseTime = null;
         MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
-        if (arrivals.length != 0) {
-            phaseTime = originTime.add(new TimeInterval(arrivals[0].getTime(),
+        if (arrivals.size() != 0) {
+            phaseTime = originTime.add(new TimeInterval(arrivals.get(0).getTime(),
                                                         UnitImpl.SECOND));
         }
 
