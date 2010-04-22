@@ -6,6 +6,8 @@
 
 package edu.sc.seis.fissuresUtil.bag;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
@@ -41,14 +43,14 @@ public class PhaseCut {
                                    Origin origin,
                                    LocalSeismogramImpl seis)
         throws TauModelException, PhaseNonExistent, FissuresException  {
-        Arrival[] beginArrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {beginPhase});
-        Arrival[] endArrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {endPhase});
+        List<Arrival> beginArrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {beginPhase});
+        List<Arrival> endArrivals = timeCalc.calcTravelTimes(stationLoc, origin, new String[] {endPhase});
 
         MicroSecondDate beginTime = null;
         MicroSecondDate endTime = null;
         MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
-        if (beginArrivals.length != 0) {
-            beginTime = originTime.add(new TimeInterval(beginArrivals[0].getTime(),
+        if (beginArrivals.size() != 0) {
+            beginTime = originTime.add(new TimeInterval(beginArrivals.get(0).getTime(),
                                                         UnitImpl.SECOND));
             beginTime = beginTime.add(beginOffset);
         } else {
@@ -58,8 +60,8 @@ public class PhaseCut {
                                            distAz.getDelta()+" degrees");
         }
 
-        if (endArrivals.length != 0) {
-            endTime = originTime.add(new TimeInterval(endArrivals[0].getTime(),
+        if (endArrivals.size() != 0) {
+            endTime = originTime.add(new TimeInterval(endArrivals.get(0).getTime(),
                                                         UnitImpl.SECOND));
             endTime = endTime.add(endOffset);
         } else {

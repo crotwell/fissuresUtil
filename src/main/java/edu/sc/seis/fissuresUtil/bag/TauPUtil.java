@@ -7,6 +7,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.Origin;
@@ -24,25 +25,25 @@ public class TauPUtil {
         taup_time = new TauP_Time(modelName);
     }
 
-    public Arrival[] calcTravelTimes(Station station, Origin origin, String[] phaseNames) throws TauModelException {
+    public List<Arrival> calcTravelTimes(Station station, Origin origin, String[] phaseNames) throws TauModelException {
         return calcTravelTimes(station.getLocation(), origin, phaseNames);
     }
 
-    public synchronized Arrival[] calcTravelTimes(Location stationLoc, Origin origin, String[] phaseNames) throws TauModelException {
+    public synchronized List<Arrival> calcTravelTimes(Location stationLoc, Origin origin, String[] phaseNames) throws TauModelException {
         QuantityImpl depth = (QuantityImpl)origin.getLocation().depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
         DistAz distAz = new DistAz(stationLoc, origin.getLocation());
         return calcTravelTimes(distAz.getDelta(), depth.getValue(), phaseNames);
     }
 
-    public synchronized Arrival[] calcTravelTimes(double distDeg, double depthKm, String[] phaseNames) throws TauModelException {
+    public synchronized List<Arrival> calcTravelTimes(double distDeg, double depthKm, String[] phaseNames) throws TauModelException {
         taup_time.setSourceDepth(depthKm);
         taup_time.clearPhaseNames();
         for (int i = 0; i < phaseNames.length; i++) {
             taup_time.appendPhaseName(phaseNames[i]);
         }
         taup_time.calculate(distDeg);
-        Arrival[] arrivals = taup_time.getArrivals();
+        List<Arrival> arrivals = taup_time.getArrivals();
         return arrivals;
     }
 
@@ -65,7 +66,7 @@ public class TauPUtil {
         return (TauPUtil)taupUtilMap.get(modelName);
     }
 
-    static Map taupUtilMap = new HashMap();
+    static Map<String, TauPUtil> taupUtilMap = new HashMap<String, TauPUtil>();
 
     TauP_Time taup_time;
 }

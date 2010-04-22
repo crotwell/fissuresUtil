@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -59,13 +60,13 @@ public class PhasePhilter {
         private String[] replacements = new String[0];
     }
 
-    public static Arrival[] filter(Arrival[] arrivals, TimeInterval offset) {
-        LinkedList list = new LinkedList();
-        for(int i = 0; i < arrivals.length; i++) {
-            list.add(arrivals[i]);
+    public static List<Arrival> filter(List<Arrival> arrivals, TimeInterval offset) {
+        LinkedList<Arrival> list = new LinkedList<Arrival>();
+        for (Arrival a : arrivals) {
+            list.add(a);
         }
         for(int i = 0; i < list.size(); i++) {
-            ListIterator it = list.listIterator(i);
+            ListIterator<Arrival> it = list.listIterator(i);
             Arrival a = (Arrival)it.next(); // get first arrival for comparison
             while(it.hasNext()) {
                 Arrival b = (Arrival)it.next();
@@ -75,33 +76,33 @@ public class PhasePhilter {
                 }
             }
         }
-        return (Arrival[])list.toArray(new Arrival[list.size()]);
+        return list;
     }
 
     /**
      * @returns an arrival array containing only first p, first s and all other
      *          arrival from the input arrivals
      */
-    public static Arrival[] mindPsAndSs(Arrival[] arrivals) {
-        List pPhases = TauP_Time.getPhaseNames("ttp");
-        List sPhases = TauP_Time.getPhaseNames("tts");
+    public static List<Arrival> mindPsAndSs(List<Arrival> arrivals) {
+        List<String> pPhases = TauP_Time.getPhaseNames("ttp");
+        List<String> sPhases = TauP_Time.getPhaseNames("tts");
         boolean foundP = false, foundS = false;
-        List resultantArrivals = new ArrayList();
-        for(int i = 0; i < arrivals.length; i++) {
-            if(pPhases.contains(arrivals[i].getName())) {
+        List<Arrival> resultantArrivals = new ArrayList<Arrival>();
+        for (Arrival arrival : arrivals) {
+            if(pPhases.contains(arrival.getName())) {
                 if(!foundP) {
-                    resultantArrivals.add(arrivals[i]);
+                    resultantArrivals.add(arrival);
                     foundP = true;
                 }
-            } else if(sPhases.contains(arrivals[i].getName())) {
+            } else if(sPhases.contains(arrival.getName())) {
                 if(!foundS) {
-                    resultantArrivals.add(arrivals[i]);
+                    resultantArrivals.add(arrival);
                     foundS = true;
                 }
             } else {
-                resultantArrivals.add(arrivals[i]);
+                resultantArrivals.add(arrival);
             }
         }
-        return (Arrival[])resultantArrivals.toArray(new Arrival[0]);
+        return resultantArrivals;
     }
 }

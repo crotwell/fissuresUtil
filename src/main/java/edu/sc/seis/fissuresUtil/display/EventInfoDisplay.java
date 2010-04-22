@@ -2,10 +2,14 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.TimeZone;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
 import org.apache.log4j.Logger;
+
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.Magnitude;
@@ -19,6 +23,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.NoSuchLayerException;
 import edu.sc.seis.TauP.NoSuchMatPropException;
+import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.VelocityModel;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
@@ -31,7 +36,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 19826 2008-06-17 14:48:33Z crotwell $
+ * @version $Id: EventInfoDisplay.java 21241 2010-04-22 17:02:49Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
@@ -136,27 +141,27 @@ public class EventInfoDisplay extends TextInfoDisplay{
             try {
                 if ( event != null) {
                     Origin origin = event.get_preferred_origin();
-                    dist = sph.distance(origin.getLocation().latitude,
+                    dist = SphericalCoords.distance(origin.getLocation().latitude,
                                         origin.getLocation().longitude,
                                         station[i].getLocation().latitude,
                                         station[i].getLocation().longitude);
-                    baz = sph.azimuth(station[i].getLocation().latitude,
+                    baz = SphericalCoords.azimuth(station[i].getLocation().latitude,
                                       station[i].getLocation().longitude,
                                       origin.getLocation().latitude,
                                       origin.getLocation().longitude);
-                    az = sph.azimuth(origin.getLocation().latitude,
+                    az = SphericalCoords.azimuth(origin.getLocation().latitude,
                                      origin.getLocation().longitude,
                                      station[i].getLocation().latitude,
                                      station[i].getLocation().longitude);
                     String firstPTakeoff = "";
                     String firstPRayParam = "";
                     try {
-                        Arrival[] a = taup.calcTravelTimes(station[i], origin, new String[] { "ttp" } );
-                        if (a.length > 0) {
-                            firstPRayParam = twoDecimal.format((a[0].getRayParam()*Math.PI/180));
+                        List<Arrival> a = taup.calcTravelTimes(station[i], origin, new String[] { "ttp" } );
+                        if (a.size() > 0) {
+                            firstPRayParam = twoDecimal.format((a.get(0).getRayParam()*Math.PI/180));
                             double originDepth = QuantityImpl.createQuantityImpl(origin.getLocation().depth).convertTo(UnitImpl.KILOMETER).get_value();
                             VelocityModel vmod = taup.getTauModel().getVelocityModel();
-                            firstPTakeoff = twoDecimal.format((180/Math.PI)*Math.asin((a[0].getRayParam()*vmod.evaluateBelow(originDepth, 'P'))/(vmod.getRadiusOfEarth()-originDepth)));
+                            firstPTakeoff = twoDecimal.format((180/Math.PI)*Math.asin((a.get(0).getRayParam()*vmod.evaluateBelow(originDepth, 'P'))/(vmod.getRadiusOfEarth()-originDepth)));
                         }
                     } catch (TauModelException e) {
                         // oh well, just use blank strings
