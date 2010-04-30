@@ -189,6 +189,10 @@ public abstract class ProxyNetworkAccess implements NetworkAccess, ConcreteNetwo
     public AuditElement[] get_audit_trail_for_station(StationId id) throws StationNotFound, NotImplemented {
         throw new NotImplemented();
     }
+    
+    public String toString() {
+        return getClass().getSimpleName()+"("+getNetworkAccess().toString()+")";
+    }
 
     private NetworkAccess net;
 }
