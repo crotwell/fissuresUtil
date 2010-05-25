@@ -1,5 +1,12 @@
 package edu.sc.seis.fissuresUtil.sac;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 
 import edu.iris.Fissures.FissuresException;
@@ -47,6 +54,24 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
 public class SacToFissures {
 
     public SacToFissures() {}
+    
+    public static LocalSeismogramImpl getSeismogram(File sacFile) throws FileNotFoundException, IOException, FissuresException {
+        SacTimeSeries sac = new SacTimeSeries();
+        sac.read(sacFile);
+        return getSeismogram(sac);
+    }
+    
+    public static LocalSeismogramImpl getSeismogram(InputStream in) throws IOException, FissuresException {
+        DataInputStream dis;
+        if (in instanceof DataInputStream) {
+            dis = (DataInputStream)in;
+        } else {
+            dis = new DataInputStream(in);
+        }
+        SacTimeSeries sac = new SacTimeSeries();
+        sac.read(dis);
+        return getSeismogram(sac);
+    }
 
     /**
      * Gets a LocalSeismogram. The data comes from the sac file, while the
