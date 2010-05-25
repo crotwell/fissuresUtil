@@ -25,9 +25,13 @@ public class RangeTool {
 
     public static boolean areContiguous(LocalSeismogramImpl one,
                                         LocalSeismogramImpl two) {
-        return areContiguous(new MicroSecondTimeRange(one),
+        MicroSecondTimeRange oneRange = new MicroSecondTimeRange(one);
+        // make one end time 1/2 sample later, so areContiguous will check that first
+        // sample of second is within 1/2 sample period of time of next data point
+        return areContiguous(new MicroSecondTimeRange(oneRange.getBeginTime(), 
+                                                      oneRange.getEndTime().add((TimeInterval)one.getSampling().getPeriod().multiplyBy(0.5))),
                              new MicroSecondTimeRange(two),
-                             one.getSampling().getPeriod());
+                             (TimeInterval)one.getSampling().getPeriod());
     }
 
     public static boolean areContiguous(RequestFilter one, RequestFilter two) {
