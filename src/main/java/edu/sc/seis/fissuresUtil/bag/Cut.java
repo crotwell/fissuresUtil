@@ -22,7 +22,7 @@ import edu.sc.seis.fissuresUtil.time.ReduceTool;
  * Created: Tue Oct 1 21:23:44 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Cut.java 21029 2010-02-09 16:58:40Z crotwell $
+ * @version $Id: Cut.java 21318 2010-05-26 16:41:04Z crotwell $
  */
 public class Cut implements LocalSeismogramFunction {
 
@@ -58,6 +58,9 @@ public class Cut implements LocalSeismogramFunction {
 
     public static LocalSeismogramImpl cut(LocalSeismogramImpl seis, int beginIndex, int endIndex) throws FissuresException {
         LocalSeismogramImpl outSeis;
+        if (beginIndex < 0) {beginIndex = 0;}
+        if (endIndex > seis.getNumPoints()) {endIndex = seis.getNumPoints();}
+        seis = cutEncoded(seis, beginIndex, endIndex); // fast coarse cut if encoded
         if(seis.can_convert_to_short()) {
             short[] outS = new short[endIndex - beginIndex+1];
             short[] inS = seis.get_as_shorts();
@@ -186,6 +189,14 @@ public class Cut implements LocalSeismogramFunction {
         }
         int beginIndex = getBeginIndex(seis);
         int endIndex = getEndIndex(seis);
+        return cutEncoded(seis, beginIndex, endIndex);
+    }
+    
+    public static LocalSeismogramImpl cutEncoded(LocalSeismogramImpl seis, int beginIndex, int endIndex)
+            throws FissuresException {
+        if(!seis.is_encoded()) {
+            return seis;
+        }
         List<EncodedData> outData = new ArrayList<EncodedData>();
         EncodedData[] ed = seis.get_as_encoded();
         int currentPoint = 0;
