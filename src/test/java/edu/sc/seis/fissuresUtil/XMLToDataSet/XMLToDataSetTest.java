@@ -3,9 +3,13 @@ package edu.sc.seis.fissuresUtil.XMLToDataSet;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.xml.parsers.ParserConfigurationException;
+
+import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
-import edu.sc.seis.fissuresUtil.database.JDBCTearDown;
+
 import edu.sc.seis.fissuresUtil.xml.DataSet;
 import edu.sc.seis.fissuresUtil.xml.DataSetToXML;
 import edu.sc.seis.fissuresUtil.xml.IncomprehensibleDSMLException;
@@ -14,7 +18,7 @@ import edu.sc.seis.fissuresUtil.xml.UnsupportedFileTypeException;
 /**
  * @author fenner Created on Jun 14, 2005
  */
-public class XMLToDataSetTest extends JDBCTearDown {
+public class XMLToDataSetTest  extends TestCase {
 
     public XMLToDataSetTest() {
         BasicConfigurator.configure();
