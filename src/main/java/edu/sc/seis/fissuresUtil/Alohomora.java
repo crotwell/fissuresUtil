@@ -23,9 +23,14 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
         ORBInitializer {
 
     public Alohomora() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        getPasswordProps().store(out, "darkMagic passwords");
-        propBytes = out.toByteArray();
+        Properties props = getPasswordProps();
+        if (props.size() != 0) {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            props.store(out, "darkMagic passwords");
+            propBytes = out.toByteArray();
+        } else {
+            propBytes = new byte[0];
+        }
     }
 
     /** ORBInitializer Impl */
@@ -34,8 +39,12 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
     public void pre_init(ORBInitInfo info) {
         try {
             logger.debug("Alohomora pre_init");
-            info.add_client_request_interceptor(this);
-            logger.debug("Alohomora registered with orb");
+            if (propBytes != null && propBytes.length != 0) {
+                info.add_client_request_interceptor(this);
+                logger.debug("Alohomora registered with orb");
+            } else {
+                logger.debug("Alohomora NOT registered with orb as no passwords specified. Set properties of the form darkMagic.XA2005=myBigPassWord in either System properties or "+DARK_MAGIC_PASSWORD_FILE);
+            }
         } catch(Throwable t) {
             logger.error("Exception adding Alohomora to orb", t);
         }
@@ -87,12 +96,21 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
         }
         return props;
     }
+    
+    public static void insertOrbProp(Properties props) {
+        if ( ! props.containsKey(ALOHOMORA_ORB_PROP_NAME)) {
+            props.put(ALOHOMORA_ORB_PROP_NAME, ALOHOMORA_ORB_PROP_VALUE);
+        }
+    }
 
     private byte[] propBytes;
 
     public static final int ID = 3948;
 
     private static final String DARK_MAGIC_PASSWORD_FILE = "darkMagic.passwordFile";
+    
+    public static final String ALOHOMORA_ORB_PROP_NAME = "org.omg.PortableInterceptor.ORBInitializerClass.edu.sc.seis.fissuresUtil.Alohomora";
+    public static final String ALOHOMORA_ORB_PROP_VALUE = "edu.sc.seis.fissuresUtil.Alohomora";
 
     private static final Logger logger = Logger.getLogger(Alohomora.class);
 }
