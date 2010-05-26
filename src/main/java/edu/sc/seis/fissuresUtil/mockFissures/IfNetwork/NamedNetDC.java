@@ -13,6 +13,8 @@ public class NamedNetDC {
     public static final String SINGLE_CHANNEL = "SingleChannel";
 
     public static final String DODGY = "Dodgy";
+    
+    public static final String EVERYBODY = "Everbody";
 
     public static NetworkDC create(String name) {
         if(name.equals(SINGLE_CHANNEL)) {
@@ -21,6 +23,8 @@ public class NamedNetDC {
             return new Vector();
         }else if(name.equals(DODGY)){
             return new Dodgy();
+        }else if(name.equals(EVERYBODY)){
+            return new Everybody();
         }
         throw new RuntimeException("No mock net dc by the name of " + name
                 + " known");
@@ -61,6 +65,16 @@ public class NamedNetDC {
                 int numcalls = 0;
             };
             ((MockNetworkFinder)finder).nets = new NetworkAccess[] {net};
+        }
+    }
+
+    public static class Everybody extends MockNetworkDC {
+
+        public Everybody() {
+            ((MockNetworkFinder)finder).nets = new NetworkAccess[] {MockNetworkAccess.createNetworkAccess(),
+                                                                    MockNetworkAccess.createOtherNetworkAccess(),
+                                                                    MockNetworkAccess.createManySplendoredNetworkAccess()
+                                                                    };
         }
     }
 }
