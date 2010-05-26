@@ -12,6 +12,7 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.SeismicPhase;
 import edu.sc.seis.TauP.TauModel;
+import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
@@ -84,30 +85,27 @@ public class EventBoxesTest extends TestCase {
 
     private static int defaultPlottableDisplayWidth = new PlottableDisplay().getRowWidth();
 
-    private static EventBoxes createBox(double hoursDisplayOffsetFromOriginTime,
-                                        double arrivalTimeInSeconds) {
-        CacheEvent ev = MockEventAccessOperations.createEvent();
-        PlottableDisplay disp = new PlottableDisplay();
-        Arrival arr = new Arrival(new SeismicPhase("3kmps", TauPUtil.getTauPUtil().getTauModel()),
-                                  arrivalTimeInSeconds,
-                                  1d,
-                                  1d,
-                                  1,
-                                  "3kmps",
-                                  "HOO-AH",
-                                  1d);
-        Arrival[][] arrivals = new Arrival[1][];
-        arrivals[0] = new Arrival[] {arr};
-        TimeInterval shift = new TimeInterval(hoursDisplayOffsetFromOriginTime,
-                                              UnitImpl.HOUR);
-        MicroSecondDate plottableStartTime = new MicroSecondDate(ev.getOrigin().origin_time).subtract(shift);
-        disp.setPlottable(new Plottable[0],
-                          "test",
-                          "NORTH",
-                          plottableStartTime,
-                          null,
-                          new EventAccessOperations[] {ev},
-                          arrivals);
-        return new EventBoxes(disp, ev, arrivals[0]);
+    private static EventBoxes createBox(double hoursDisplayOffsetFromOriginTime, double arrivalTimeInSeconds) {
+        try {
+            CacheEvent ev = MockEventAccessOperations.createEvent();
+            PlottableDisplay disp = new PlottableDisplay();
+            SeismicPhase sp;
+            sp = new SeismicPhase("3kmps", TauPUtil.getTauPUtil().getTauModel());
+            Arrival arr = new Arrival(sp, arrivalTimeInSeconds, 1d, 1d, 1, "3kmps", "HOO-AH", 1d, 1d, 1d);
+            Arrival[][] arrivals = new Arrival[1][];
+            arrivals[0] = new Arrival[] {arr};
+            TimeInterval shift = new TimeInterval(hoursDisplayOffsetFromOriginTime, UnitImpl.HOUR);
+            MicroSecondDate plottableStartTime = new MicroSecondDate(ev.getOrigin().getOriginTime()).subtract(shift);
+            disp.setPlottable(new Plottable[0],
+                              "test",
+                              "NORTH",
+                              plottableStartTime,
+                              null,
+                              new EventAccessOperations[] {ev},
+                              arrivals);
+            return new EventBoxes(disp, ev, arrivals[0]);
+        } catch(TauModelException e) {
+            throw new RuntimeException("Should not happen.", e);
+        }
     }
 }
