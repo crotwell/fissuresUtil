@@ -71,7 +71,7 @@ public class CalculusTest
 		diffSeis.data.flt_values(diff);
 		diffSeis.num_points = diff.length;
 		diffSeis.sampling_info = new SamplingImpl(1, new TimeInterval(1, UnitImpl.SECOND));
-		LocalSeismogramImpl intSeis = calculus.integrate(diffSeis);
+		LocalSeismogramImpl intSeis = Calculus.integrate(diffSeis);
 		float[] intData = intSeis.get_as_floats();
 		for (int i = 1; i < diff.length; i++) {
 			assertEquals(""+i, i,intData[i], 0.001f);
@@ -84,8 +84,8 @@ public class CalculusTest
 		}
 		LocalSeismogramImpl diffSeis = SimplePlotUtil.createTestData("est", diff);
 		diffSeis.sampling_info = new SamplingImpl(1, new TimeInterval(1, UnitImpl.SECOND));
-		LocalSeismogramImpl intSeis = calculus.integrate(diffSeis);
-		int[] intData = intSeis.get_as_longs();
+		LocalSeismogramImpl intSeis = Calculus.integrate(diffSeis);
+		float[] intData = intSeis.get_as_floats();
 		for (int i = 1; i < diff.length; i++) {
 			assertEquals(""+i, i,intData[i]);
 		}
