@@ -1,5 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import org.junit.Test;
+
 import junit.framework.TestCase;
 // JUnitDoclet end import
 
@@ -240,8 +242,9 @@ public class StatisticsTest
         //    System.out.println("pacf "+i+" = "+testPACF[i]);
         }
     }
-    
-    public void testCorrelation() {
+
+    @Test(expected=ArithmeticException.class)
+    public void testCorrelationNoVariance() {
         Statistics stat;
         double[] testData = new double[10];
         double[] otherData = new double[10];
@@ -252,6 +255,11 @@ public class StatisticsTest
         }
         stat = new Statistics(testData);
         assertEquals("no variation, so no correlation", 0, stat.correlation(otherData), 0.00001);
+    }
+    public void testCorrelation() {
+        Statistics stat;
+        double[] testData = new double[10];
+        double[] otherData = new double[10];
         
         for(int i = 0; i < otherData.length; i++) {
             otherData[i] = i;
