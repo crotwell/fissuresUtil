@@ -15,7 +15,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Wed Apr  4 22:27:52 2001
  *
  * @author Philip Crotwell
- * @version $Id: Statistics.java 21159 2010-03-10 21:05:09Z crotwell $
+ * @version $Id: Statistics.java 21339 2010-05-27 14:57:12Z crotwell $
  */
 
 public class Statistics  {
@@ -431,8 +431,8 @@ public class Statistics  {
     public double correlation(double[] other) {
         Statistics otherStat = new Statistics(other);
         double covar = covariance(otherStat);
-        if (stddev() == 0) {throw new RuntimeException("divide by zero if stddev == 0");}
-        if (otherStat.stddev() == 0) {throw new RuntimeException("divide by zero if other.stddev == 0");}
+        if (stddev() == 0) {throw new ArithmeticException("divide by zero if stddev == 0");}
+        if (otherStat.stddev() == 0) {throw new ArithmeticException("divide by zero if other.stddev == 0");}
         return covar / otherStat.stddev() / stddev();
     }
 
