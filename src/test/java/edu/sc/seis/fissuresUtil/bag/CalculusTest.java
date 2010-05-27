@@ -87,7 +87,7 @@ public class CalculusTest
 		LocalSeismogramImpl intSeis = Calculus.integrate(diffSeis);
 		float[] intData = intSeis.get_as_floats();
 		for (int i = 1; i < diff.length; i++) {
-			assertEquals(""+i, i,intData[i]);
+			assertEquals(""+i, (float)i,intData[i]);
 		}
 	}
 
