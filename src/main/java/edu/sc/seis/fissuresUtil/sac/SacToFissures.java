@@ -35,6 +35,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.NetworkAttrImpl;
@@ -43,6 +44,7 @@ import edu.iris.Fissures.network.StationImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
@@ -119,11 +121,6 @@ public class SacToFissures {
     
     public static SeismogramAttrImpl getSeismogramAttr(SacTimeSeries sac)
     throws FissuresException {
-        ISOTime isoTime = new ISOTime(sac.nzyear,
-                                      sac.nzjday,
-                                      sac.nzhour,
-                                      sac.nzmin,
-                                      sac.nzsec + sac.nzmsec / 1000f);
         MicroSecondDate beginTime = getSeismogramBeginTime(sac);
         edu.iris.Fissures.Time time = beginTime.getFissuresTime();
         ChannelId chanId = getChannelId(sac);
@@ -247,9 +244,17 @@ public class SacToFissures {
 
     /**
      * calculates the reference (NZ) time from the sac headers NZYEAR, NZJDAY,
-     * NZHOUR, NZMIN, NZSEC, NZMSEC.
+     * NZHOUR, NZMIN, NZSEC, NZMSEC. If any of these are UNDEF (-12345), then ClockUtil.wayPast
      */
     public static MicroSecondDate getNZTime(SacTimeSeries sac) {
+        if (sac.nzyear == SacTimeSeries.INT_UNDEF ||
+            sac.nzjday == SacTimeSeries.INT_UNDEF ||
+            sac.nzhour == SacTimeSeries.INT_UNDEF ||
+            sac.nzmin == SacTimeSeries.INT_UNDEF ||
+            sac.nzsec == SacTimeSeries.INT_UNDEF ||
+            sac.nzmsec == SacTimeSeries.INT_UNDEF) {
+            return ClockUtil.wayPast();
+        }
         ISOTime isoTime = new ISOTime(sac.nzyear,
                                       sac.nzjday,
                                       sac.nzhour,
