@@ -203,8 +203,8 @@ public class XMLUtil {
                 break;
             case XMLStreamConstants.START_ELEMENT:
                 buf.append('<');
-                if(reader.getPrefix() != null) {
-                    buf.append(reader.getPrefix() + ':');
+                if(reader.getPrefix() != null && reader.getPrefix() != "") {
+                    buf.append(reader.getPrefix() + ":");
                 }
                 buf.append(reader.getLocalName());
                 for(int i = 0; i < reader.getNamespaceCount(); i++) {
@@ -213,8 +213,8 @@ public class XMLUtil {
                 }
                 for(int i = 0; i < reader.getAttributeCount(); i++) {
                     buf.append(' ');
-                    if(reader.getAttributePrefix(i) != null) {
-                        buf.append(reader.getAttributePrefix(i) + ':');
+                    if(reader.getAttributePrefix(i) != null && reader.getAttributePrefix(i) != "") {
+                        buf.append(reader.getAttributePrefix(i) + ":");
                     }
                     buf.append(reader.getAttributeLocalName(i) + "=\""
                             + reader.getAttributeValue(i) + '\"');
@@ -223,8 +223,8 @@ public class XMLUtil {
                 break;
             case XMLStreamConstants.END_ELEMENT:
                 buf.append("</");
-                if(reader.getPrefix() != null) {
-                    buf.append(reader.getPrefix() + ':');
+                if(reader.getPrefix() != null && reader.getPrefix() != "") {
+                    buf.append(reader.getPrefix() + ":");
                 }
                 buf.append(reader.getLocalName() + '>');
                 break;
