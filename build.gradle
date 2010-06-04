@@ -53,4 +53,5 @@ task makeScript(dependsOn: copyToLib) << { task ->
     dExtras = getDExtras()
     ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
     ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', task.project, dExtras:dExtras)
+    ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', task.project, dExtras:dExtras)
 }
