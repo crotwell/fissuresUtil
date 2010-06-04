@@ -24,10 +24,12 @@ public abstract class Initializer {
                     System.err.println("Using props as the props file can't be loaded: "
                             + e.getMessage());
                 }
-                /** Configure log4j, not required for DHI, but is useful. */
-                // BasicConfigurator.configure();
-                PropertyConfigurator.configure(props);
-                logger.info("Logging configured");
+                if (props != null && props.containsKey("log4j.rootCategory")) {
+                    /** Configure log4j, not required for DHI, but is useful. */
+                    // BasicConfigurator.configure();
+                    PropertyConfigurator.configure(props);
+                    logger.info("Logging configured");
+                }
                 /*
                  * Initialize the ORB. This must be done before the corba system
                  * can be used. Parameters passed in via the args and props
