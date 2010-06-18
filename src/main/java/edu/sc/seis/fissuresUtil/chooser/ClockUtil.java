@@ -45,7 +45,8 @@ public class ClockUtil {
         warnServerFail = true;
         // oh well, can't get to server, use CPU time, so
         // offset is zero, check for really bad clocks first
-        logger.warn("Unable to make a connection to "+SEIS_SC_EDU_URL+" to verify system clock.", e);
+        logger.debug("Unable to make a connection to "+SEIS_SC_EDU_URL+" to verify system clock, assuming offset is zero.", e);
+        logger.warn("Unable to make a connection to "+SEIS_SC_EDU_URL+" to verify system clock, assuming offset is zero.");
         MicroSecondDate localNow = new MicroSecondDate();
         if(!warnBadBadClock && OLD_DATE.after(localNow)) {
             warnBadBadClock = true;
