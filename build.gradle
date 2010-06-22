@@ -19,12 +19,15 @@ dependencies {
     compile "hsqldb:hsqldb:1.8.0.10"
     compile "postgresql:postgresql:8.3-604.jdbc3"
     compile "mysql:mysql-connector-java:5.1.9"
-    compile "xerces:xercesImpl:2.9.1"
+    compile "xerces:xercesImpl:2.10.0"
+    compile "xerces:xml-apis:2.10.0"
+    compile "xml-resolver:xml-resolver:1.2"
     compile "xalan:xalan:2.7.1"
+    compile "xalan:serializer:2.7.1"
     compile "openmap:openmap:4.6.2"
     compile "itext:itext:2.0.7"
-    compile "staxUSC:stax-api:1.0"
-    compile group: 'staxUSC', name: 'stax', version: '1.1.1-dev', transitive: false
+//    compile "staxUSC:stax-api:1.0"
+//    compile group: 'staxUSC', name: 'stax', version: '1.1.1-dev', transitive: false
     compile "org.apache.velocity:velocity:1.6.4"
     compile "commons-collections:commons-collections:3.1"
     compile "commons-lang:commons-lang:2.4"
