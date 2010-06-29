@@ -108,10 +108,11 @@ public class PhaseRequest  {
             return null;
         }
         MicroSecondDate originDate = new MicroSecondDate(origin.getOriginTime());
-        TimeInterval bInterval = new TimeInterval(begin, UnitImpl.SECOND);
-        TimeInterval eInterval = new TimeInterval(end, UnitImpl.SECOND);
-        MicroSecondDate bDate = originDate.add(bInterval);
-        MicroSecondDate eDate = originDate.add(eInterval);
+        MicroSecondDate bDate = originDate.add(new TimeInterval(begin, UnitImpl.SECOND));
+        MicroSecondDate eDate = originDate.add(new TimeInterval(end, UnitImpl.SECOND));
+
+        TimeInterval bInterval;
+        TimeInterval eInterval;
         if(beginOffset != null) {
             bInterval = beginOffset;
         } else {
