@@ -15,12 +15,16 @@ public abstract class BaseRetryStrategy implements RetryStrategy {
     protected boolean basicShouldRetry(SystemException exc,
                                        CorbaServerWrapper server,
                                        int tryCount) {
-        BulletproofVestFactory.retrySleep(tryCount);
-        // do a reset every other time
-        if (tryCount % 2 == 0) {
-            server.reset();
+        if (numRetries == -1 || tryCount <= numRetries) {
+            // do a reset every other time
+            if (tryCount % 2 == 0) {
+                server.reset();
+            }
+            BulletproofVestFactory.retrySleep(tryCount);
+            return true;
+        } else {
+            return false;
         }
-        return numRetries == -1 || tryCount <= numRetries;
     }
     
     public void serverRecovered(CorbaServerWrapper server){}
