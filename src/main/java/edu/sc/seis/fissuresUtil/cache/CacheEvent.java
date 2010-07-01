@@ -61,6 +61,10 @@ public class CacheEvent extends ProxyEventAccessOperations {
         return attr;
     }
 
+    public EventAttrImpl getAttributes() {
+        return (EventAttrImpl)get_attributes();
+    }
+
     public Origin[] get_origins() {
         if(origins == null && event != null) {
             origins = event.get_origins();
