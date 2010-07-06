@@ -12,7 +12,9 @@ import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.SiteIdUtil;
+import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.bag.Rotate;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 
@@ -203,12 +205,12 @@ public class ChannelGroup {
         return getChannels()[2];
     }
     
-    public Station getStation() {
-        return getChannel1().getSite().getStation();
+    public StationImpl getStation() {
+        return getChannel1().getStationImpl();
     }
     
-    public NetworkAttr getNetworkAttr() {
-        return getStation().getNetworkAttr();
+    public NetworkAttrImpl getNetworkAttr() {
+        return getStation().getNetworkAttrImpl();
     }
     
     public boolean areEqual(ChannelGroup other) {
