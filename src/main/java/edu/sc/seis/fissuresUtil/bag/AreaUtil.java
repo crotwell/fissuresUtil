@@ -56,7 +56,7 @@ public class AreaUtil {
     }
 
     public static List<ChannelImpl> inArea(Area area, List<ChannelImpl> channels) {
-        List out = new ArrayList<ChannelImpl>();
+        List<ChannelImpl> out = new ArrayList<ChannelImpl>();
         for(ChannelImpl chan : channels) {
             if(inArea(area, chan.getSite().getLocation())) {
                 out.add(chan);
@@ -66,22 +66,26 @@ public class AreaUtil {
     }
 
     public static boolean inArea(Area area, Location point) {
+        return inArea(area, point.latitude, point.longitude);
+    }
+        
+    public static boolean inArea(Area area, double latitude, double longitude) {
         if(area instanceof GlobalArea) {
             return true;
         } else if(area instanceof BoxArea) {
-            return inBox(point, (BoxArea)area);
+            return inBox((BoxArea)area, latitude, longitude);
         } else if(area instanceof PointDistanceArea) {
-            return inDonut((PointDistanceArea)area, point);
+            return inDonut((PointDistanceArea)area, latitude, longitude);
         }
         throw new RuntimeException("Unknown Area type: "
                 + area.getClass().getName());
     }
 
-    private static boolean inDonut(PointDistanceArea a, Location p) {
+    private static boolean inDonut(PointDistanceArea a, double latitude, double longitude) {
         DistAz distAz = new DistAz(a.latitude,
                                    a.longitude,
-                                   p.latitude,
-                                   p.longitude);
+                                   latitude,
+                                   longitude);
         double minDegree = distanceToDegrees(a.min_distance);
         double maxDegree = distanceToDegrees(a.max_distance);
         return (distAz.getDelta() >= minDegree && distAz.getDelta() <= maxDegree);
@@ -94,10 +98,10 @@ public class AreaUtil {
         return DistAz.kilometersToDegrees(((QuantityImpl)minDist).getValue(UnitImpl.KILOMETER));
     }
 
-    private static boolean inBox(Location point, BoxArea box) {
-        return (point.latitude >= box.min_latitude
-                && point.latitude <= box.max_latitude
-                && point.longitude % 360 >= box.min_longitude % 360 && point.longitude % 360 <= box.max_longitude % 360);
+    private static boolean inBox(BoxArea box, double latitude, double longitude) {
+        return (latitude >= box.min_latitude
+                && latitude <= box.max_latitude
+                && longitude % 360 >= box.min_longitude % 360 && longitude % 360 <= box.max_longitude % 360);
     }
 
     public static boolean inArea(Location[] bounds, Location point) {
