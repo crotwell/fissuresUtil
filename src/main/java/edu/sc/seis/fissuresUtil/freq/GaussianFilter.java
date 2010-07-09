@@ -29,7 +29,6 @@ package edu.sc.seis.fissuresUtil.freq;
 
 public class GaussianFilter implements FrequencyDomainProcess {
 
-	private SeisGramText localeText;
 	public double centFreq;
 	public double alpha;
 
@@ -44,9 +43,8 @@ public class GaussianFilter implements FrequencyDomainProcess {
 
 	/** constructor */
 
-	public GaussianFilter(SeisGramText localeText, double centFreq, 
+	public GaussianFilter(double centFreq, 
 							double alpha) {
-		this.localeText = localeText;
 		this.centFreq = centFreq;
 		this.alpha = alpha;
 		this.errorMessage = " ";
@@ -58,8 +56,7 @@ public class GaussianFilter implements FrequencyDomainProcess {
 	public void setCentFreq(double freqValue) 
 									throws FilterException {
 		if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
-			throw new FilterException(
-				localeText.invalid_center_frequency);
+			throw new FilterException("invalid_center_frequency");
 		}
 
 		centFreq = freqValue;
@@ -76,8 +73,7 @@ public class GaussianFilter implements FrequencyDomainProcess {
 		try {
 			freqValue = Double.valueOf(str).doubleValue();
 		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_center_frequency);
+			throw new FilterException("invalid_center_frequency");
 		}
 
 		setCentFreq(freqValue);
@@ -89,8 +85,7 @@ public class GaussianFilter implements FrequencyDomainProcess {
 	public void setAlpha(double alphaValue)
 									throws FilterException {
 		if (alphaValue < ALPHA_MIN || alphaValue > ALPHA_MAX) {
-			throw new FilterException(
-				localeText.invalid_alpha_value);
+			throw new FilterException("invalid_alpha_value");
 		}
 
 		alpha = alphaValue;
@@ -107,8 +102,7 @@ public class GaussianFilter implements FrequencyDomainProcess {
 		try {
 			alphaValue = Double.valueOf(str).doubleValue();
 		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_alpha_value);
+			throw new FilterException("invalid_alpha_value");
 		}
 
 		setAlpha(alphaValue);
@@ -124,12 +118,12 @@ public class GaussianFilter implements FrequencyDomainProcess {
 		int badSettings = 0;
 
 		if (centFreq < FREQ_MIN || centFreq > FREQ_MAX) {
-			errMessage += ": " + localeText.invalid_center_frequency;
+			errMessage += ": invalid_center_frequency";
 			badSettings++;
 		}
 
 		if (alpha < ALPHA_MIN || alpha > ALPHA_MAX) {
-			errMessage += ": " + localeText.invalid_alpha_value;
+			errMessage += ": invalid_alpha_value";
 			badSettings++;
 		}
 

@@ -30,7 +30,6 @@ package edu.sc.seis.fissuresUtil.freq;
 
 public class ButterworthFilter implements FrequencyDomainProcess {
 
-	private SeisGramText localeText;
 	public double highFreqCorner;
 	public double lowFreqCorner;
 	public int numPoles;
@@ -53,19 +52,16 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 
 	/** constructor */
 
-    public ButterworthFilter(SeisGramText localeText, 
-                             double lowFreqCorner, 
+    public ButterworthFilter(double lowFreqCorner, 
                              double highFreqCorner, 
 			     int numPoles) {
-           this(localeText, lowFreqCorner, highFreqCorner, numPoles, CAUSAL);
+           this(lowFreqCorner, highFreqCorner, numPoles, CAUSAL);
 	   }
 
-    public ButterworthFilter(SeisGramText localeText, 
-                             double lowFreqCorner, 
+    public ButterworthFilter(double lowFreqCorner, 
                              double highFreqCorner, 
 			     int numPoles,
 			     int filterType) {
-		this.localeText = localeText;
 		this.highFreqCorner = highFreqCorner;
 		this.lowFreqCorner = lowFreqCorner;
 		this.numPoles = numPoles;
@@ -79,8 +75,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 	public void setHighFreqCorner(double freqValue) 
 									throws FilterException {
 		if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
-			throw new FilterException(
-				localeText.invalid_high_frequency_corner);
+			throw new FilterException("invalid_high_frequency_corner");
 		}
 
 		highFreqCorner = freqValue;
@@ -97,8 +92,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 		try {
 			freqValue = Double.valueOf(str).doubleValue();
 		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_high_frequency_corner);
+			throw new FilterException("invalid_high_frequency_corner");
 		}
 
 		setHighFreqCorner(freqValue);
@@ -110,8 +104,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 	public void setLowFreqCorner(double freqValue)
 									throws FilterException {
 		if (freqValue < FREQ_MIN || freqValue > FREQ_MAX) {
-			throw new FilterException(
-				localeText.invalid_low_frequency_corner);
+			throw new FilterException("invalid_low_frequency_corner");
 		}
 
 		lowFreqCorner = freqValue;
@@ -128,8 +121,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 		try {
 			freqValue = Double.valueOf(str).doubleValue();
 		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_low_frequency_corner);
+			throw new FilterException("invalid_low_frequency_corner");
 		}
 
 		setLowFreqCorner(freqValue);
@@ -143,8 +135,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 
 		if (nPoles < NUM_POLES_MIN || nPoles > NUM_POLES_MAX
 				|| nPoles % 2 != 0) {
-			throw new FilterException(
-				localeText.invalid_number_of_poles);
+			throw new FilterException("invalid_number_of_poles");
 		}
 
 		numPoles = nPoles;
@@ -161,8 +152,7 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 		try {
 			nPoles = Integer.parseInt(str);
 		} catch (NumberFormatException e) {
-			throw new FilterException(
-				localeText.invalid_number_of_poles);
+			throw new FilterException("invalid_number_of_poles");
 		}
 
 		setNumPoles(nPoles);
@@ -178,24 +168,24 @@ public class ButterworthFilter implements FrequencyDomainProcess {
 		int badSettings = 0;
 
 		if (highFreqCorner < FREQ_MIN || highFreqCorner > FREQ_MAX) {
-			errMessage += ": " + localeText.invalid_high_frequency_corner;
+			errMessage += ": invalid_high_frequency_corner";
 			badSettings++;
 		}
 
 		if (lowFreqCorner < FREQ_MIN || lowFreqCorner > FREQ_MAX) {
-			errMessage += ": " + localeText.invalid_low_frequency_corner;
+			errMessage += ": invalid_low_frequency_corner";
 			badSettings++;
 		}
 
 		if (lowFreqCorner >= highFreqCorner) {
 			errMessage += 
-				": " + localeText.low_corner_greater_than_high_corner;
+				": low_corner_greater_than_high_corner";
 			badSettings++;
 		}
 
 		if (numPoles < NUM_POLES_MIN || numPoles > NUM_POLES_MAX
 				|| numPoles % 2 != 0) {
-			errMessage += ": " + localeText.invalid_number_of_poles;
+			errMessage += ": invalid_number_of_poles";
 			badSettings++;
 		}
 

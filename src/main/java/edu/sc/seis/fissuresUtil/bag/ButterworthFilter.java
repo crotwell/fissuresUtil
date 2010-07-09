@@ -11,7 +11,6 @@ import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.fissuresUtil.freq.SeisGramText;
 
 public class ButterworthFilter
     extends edu.sc.seis.fissuresUtil.freq.ButterworthFilter
@@ -20,14 +19,14 @@ public class ButterworthFilter
     public ButterworthFilter(double lowFreqCorner,
                              double highFreqCorner,
                              int numPoles){
-        super(new SeisGramText(), lowFreqCorner, highFreqCorner, numPoles);
+        super(lowFreqCorner, highFreqCorner, numPoles);
     }
 
     public ButterworthFilter(double lowFreqCorner,
                              double highFreqCorner,
                              int numPoles,
                              int filterType){
-        super(new SeisGramText(), lowFreqCorner, highFreqCorner, numPoles, filterType);
+        super(lowFreqCorner, highFreqCorner, numPoles, filterType);
     }
 
     /** Applys the cut to the seismogram. Returns null if no data is within

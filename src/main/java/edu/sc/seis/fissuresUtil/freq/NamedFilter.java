@@ -12,14 +12,14 @@ package edu.sc.seis.fissuresUtil.freq;
  */
 
 public class NamedFilter extends ButterworthFilter{
-    public NamedFilter (SeisGramText localeText, double lowFreqCorner, double highFreqCorner,
+    public NamedFilter (double lowFreqCorner, double highFreqCorner,
                         int numPoles, int filterType){
-        this(localeText, lowFreqCorner, highFreqCorner, numPoles, filterType, "Unnamed Filter");
+        this(lowFreqCorner, highFreqCorner, numPoles, filterType, "Unnamed Filter");
     }
 
-    public NamedFilter (SeisGramText localeText, double lowFreqCorner, double highFreqCorner,
+    public NamedFilter (double lowFreqCorner, double highFreqCorner,
                         int numPoles, int filterType, String name){
-        super(localeText, lowFreqCorner, highFreqCorner, numPoles, filterType);
+        super(lowFreqCorner, highFreqCorner, numPoles, filterType);
         this.name = name;
     }
 
