@@ -52,9 +52,7 @@ public class FilterTest  {
 	    
 
 	    Cmplx[] fftdata = Cmplx.fft(fdata);
-	    SeisGramText localeText = new SeisGramText(null);
-	    ButterworthFilter filter = new ButterworthFilter(localeText,
-							     .1,
+	    ButterworthFilter filter = new ButterworthFilter(.1,
 							     8.0,
 							     2, ButterworthFilter.TWOPASS);
 	    double dt = seis.getSampling().getPeriod().convertTo(UnitImpl.SECOND).getValue();
