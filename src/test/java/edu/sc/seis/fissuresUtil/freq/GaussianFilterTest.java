@@ -34,7 +34,7 @@ public class GaussianFilterTest extends TestCase {
 	public void testApplyNarrow() {
 		
 		GaussianFilter gloFil = 
-			new GaussianFilter( new SeisGramText(), 14.0, 2.0);
+			new GaussianFilter( 14.0, 2.0);
 		Cmplx[] fftdata = Cmplx.fft(vals);
 		double dt = 1.0/n;
 		Cmplx[] copyData = new Cmplx[fftdata.length];
@@ -53,7 +53,7 @@ public class GaussianFilterTest extends TestCase {
 	public void testApplyWide() {
 		
 		GaussianFilter gloFil = 
-			new GaussianFilter( new SeisGramText(), 40.0, 2.0);
+			new GaussianFilter( 40.0, 2.0);
 		Cmplx[] fftdata = Cmplx.fft(vals);
 		double dt = 1.0/n;
 		Cmplx[] copyData = new Cmplx[fftdata.length];

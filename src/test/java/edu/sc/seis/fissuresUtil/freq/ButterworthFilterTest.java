@@ -31,7 +31,7 @@ public class ButterworthFilterTest extends TestCase {
 	public void testApplyHigh() {
 		
 		ButterworthFilter hiFil = 
-			new ButterworthFilter( new SeisGramText(), 20, 100, 8);
+			new ButterworthFilter( 20, 100, 8);
 		Cmplx[] fftdata = Cmplx.fft(vals);
 		double dt = 1.0/n;
 		Cmplx[] copyData = new Cmplx[fftdata.length];
@@ -49,7 +49,7 @@ public class ButterworthFilterTest extends TestCase {
 	public void testApplyLo() {
 		
 		ButterworthFilter loFil = 
-			new ButterworthFilter( new SeisGramText(), 0.1, 20, 8);
+			new ButterworthFilter( 0.1, 20, 8);
 		Cmplx[] fftdata = Cmplx.fft(vals);
 		double dt = 1.0/n;
 		Cmplx[] copyData = new Cmplx[fftdata.length];
