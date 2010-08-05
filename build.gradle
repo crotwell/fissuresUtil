@@ -15,7 +15,7 @@ dependencies {
     compile ("org.hibernate:hibernate-core:3.3.2.GA")
     compile "javassist:javassist:3.9.0.GA"
     compile "isti:isti.util:1.0.3USC"
-    compile "edu.sc.seis.mapData:etopo10:1.0"
+//    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
     compile "postgresql:postgresql:8.3-604.jdbc3"
     compile "mysql:mysql-connector-java:5.1.9"
