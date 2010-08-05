@@ -80,6 +80,14 @@ public class MicroSecondTimeRange {
         return endTime.after(time.getBeginTime())
                 && beginTime.before(time.getEndTime());
     }
+    
+    public MicroSecondTimeRange intersection(MicroSecondTimeRange time) {
+        if (intersects(time)) {
+            return new MicroSecondTimeRange(beginTime.after(time.getBeginTime())?beginTime:time.getBeginTime(),
+                    endTime.before(time.getEndTime())?endTime:time.getEndTime());
+        }
+        return null;
+    }
 
     public MicroSecondTimeRange shale(double shift, double scale) {
         if(shift == 0 && scale == 1) {
