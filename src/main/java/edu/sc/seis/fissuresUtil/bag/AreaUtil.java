@@ -161,9 +161,12 @@ public class AreaUtil {
     }
 
     public static Location[] loadPolygon(BufferedReader in) throws IOException {
-        ArrayList out = new ArrayList();
+        ArrayList<Location> out = new ArrayList<Location>();
         String line;
-        while((line = in.readLine()) != null && line.length() > 2) {
+        while((line = in.readLine().trim()) != null && line.length() > 2) {
+            if (line.startsWith("#")) {
+                continue;
+            }
             StringTokenizer tokenizer = new StringTokenizer(line);
             float lon = BoxAreaImpl.sanitize(Float.parseFloat(tokenizer.nextToken()));
             float lat = Float.parseFloat(tokenizer.nextToken());
