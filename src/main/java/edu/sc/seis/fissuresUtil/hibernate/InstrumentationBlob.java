@@ -7,6 +7,9 @@ import edu.iris.Fissures.network.ChannelImpl;
 
 public class InstrumentationBlob {
     
+    /** for hibernate. */
+    protected InstrumentationBlob() {}
+    
     public InstrumentationBlob(ChannelImpl chan, Instrumentation inst) {
         this.chan = chan;
         this.inst = inst;
