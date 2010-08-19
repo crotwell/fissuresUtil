@@ -1,8 +1,12 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import org.omg.CORBA_2_5.ORB;
+
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.InstrumentationHelper;
+import edu.iris.Fissures.model.AllVTFactory;
 import edu.iris.Fissures.network.ChannelImpl;
+import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 
 public class InstrumentationBlob {
@@ -16,15 +20,14 @@ public class InstrumentationBlob {
     }
     
     public byte[] getInstrumentationAsBlob() {
-        org.jacorb.orb.CDROutputStream cdrOut = new org.jacorb.orb.CDROutputStream();
+        org.jacorb.orb.CDROutputStream cdrOut = new org.jacorb.orb.CDROutputStream(Initializer.getORB());
         InstrumentationHelper.write(cdrOut, inst);
         return cdrOut.getBufferCopy();
     }
-
     
     protected void setInstrumentationAsBlob(byte[] instBytes) {
         if (instBytes.length > 0) {
-            org.jacorb.orb.CDRInputStream cdrIn = new org.jacorb.orb.CDRInputStream(instBytes);
+            org.jacorb.orb.CDRInputStream cdrIn = new org.jacorb.orb.CDRInputStream(Initializer.getORB(), instBytes);
             inst = InstrumentationHelper.read(cdrIn);
         } else {
             inst = null;
