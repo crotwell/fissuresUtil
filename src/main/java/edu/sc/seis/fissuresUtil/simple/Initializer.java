@@ -35,7 +35,14 @@ public abstract class Initializer {
                  * can be used. Parameters passed in via the args and props
                  * configure the ORB. Consult the docummentation for your orb
                  * for more information.
+                 * 
+                 * If no orb preference configured, use JacOrb
                  */
+                if ( ! props.containsKey("org.omg.CORBA.ORBSingletonClass") &&
+                        ! props.containsKey("org.omg.CORBA.ORBClass")) {
+                    props.put("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORBSingleton");
+                    props.put("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+                }
                 orb = (org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init(args, props);
                 logger.info("orb initialized, class="
                         + orb.getClass().getName());
