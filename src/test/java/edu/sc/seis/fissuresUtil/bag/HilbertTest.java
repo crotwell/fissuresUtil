@@ -4,9 +4,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import junit.framework.TestCase;
 
@@ -19,7 +19,7 @@ public class HilbertTest extends TestCase {
 
     public void testImpluseResponse() throws Exception {
         Hilbert hilbert = new Hilbert();
-        LocalSeismogramImpl testSeis = SimplePlotUtil.createDelta();
+        LocalSeismogramImpl testSeis = MockSeismogram.createDelta();
         LocalSeismogramImpl hilbertSeis = hilbert.apply(testSeis);
         
         Cmplx[] c = Cmplx.fft(testSeis.get_as_floats());
@@ -32,7 +32,7 @@ public class HilbertTest extends TestCase {
     
     public void testAnalyticSignal() throws FissuresException {
         Hilbert hilbert = new Hilbert();
-        LocalSeismogramImpl testSeis = SimplePlotUtil.createDelta();
+        LocalSeismogramImpl testSeis = MockSeismogram.createDelta();
         Cmplx[] c = Cmplx.fft(testSeis.get_as_floats());
         Cmplx[] a = hilbert.analyticSignal(testSeis);
         for(int i = 0; i < a.length; i++) {

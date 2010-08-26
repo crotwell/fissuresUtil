@@ -9,6 +9,8 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 /**
  * @author groves Created on Nov 4, 2004
@@ -24,11 +26,11 @@ public class SimplePlotUtilTest extends TestCase {
     //same as testMakePlottable except the seismogram is missing its first
     // sample which also happens to be a spike
     public void testMakePlottableOnRaggedStart() throws CodecException {
-        LocalSeismogramImpl seis = SimplePlotUtil.createRaggedSpike(START_DATE,
+        LocalSeismogramImpl seis = MockSeismogram.createRaggedSpike(START_DATE,
                                                                     ONE_HOUR,
                                                                     SSPS * 60,
                                                                     1,
-                                                                    SimplePlotUtil.makeChanId(START_TIME));
+                                                                    MockChannelId.makeChanId(START_TIME));
         makeFakePlottAndTest(seis, 31, HALF_SECONDS_IN_HOUR - 1);
     }
 
@@ -68,10 +70,10 @@ public class SimplePlotUtilTest extends TestCase {
 
     private static LocalSeismogramImpl makeSeis(MicroSecondDate startDate,
                                                 TimeInterval length) {
-        return SimplePlotUtil.createSpike(startDate,
+        return MockSeismogram.createSpike(startDate,
                                           length,
                                           SSPS * 60,
-                                          SimplePlotUtil.makeChanId(START_TIME));
+                                          MockChannelId.makeChanId(START_TIME));
     }
 
     private static Plottable makeFakePlottAndTest(LocalSeismogramImpl seis,
@@ -121,5 +123,5 @@ public class SimplePlotUtilTest extends TestCase {
 
     private static final int HALF_SECONDS_SPD = HALF_SECONDS_IN_HOUR * 24;
 
-    private static int SSPS = SimplePlotUtil.SPIKE_SAMPLES_PER_SECOND;
+    private static int SSPS = MockSeismogram.SPIKE_SAMPLES_PER_SECOND;
 }

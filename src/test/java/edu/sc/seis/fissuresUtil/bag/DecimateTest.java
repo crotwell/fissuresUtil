@@ -6,14 +6,14 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 public class DecimateTest extends TestCase {
 
     public void testSimpleDecimate() throws Exception {
         int factor = 5;
-        LocalSeismogramImpl seis = SimplePlotUtil.createTestData("test",
+        LocalSeismogramImpl seis = MockSeismogram.createTestData("test",
                                                                            new int[100],
                                                                            ClockUtil.now().getFissuresTime(),
                                                                            MockChannelId.createVerticalChanId(),

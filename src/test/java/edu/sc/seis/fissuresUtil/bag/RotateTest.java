@@ -6,9 +6,9 @@ import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.Defaults;
 // JUnitDoclet end import
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 // JUnitDoclet end import
 /**
@@ -72,8 +72,8 @@ public class RotateTest extends TestCase {
     public void testRotateGCP() throws Exception {
         MicroSecondDate now = new MicroSecondDate();
         // both spikes are same, so 45 degree part motion e and n
-        LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
-        LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
+        LocalSeismogramImpl xSeis = MockSeismogram.createSpike(now);
+        LocalSeismogramImpl ySeis = MockSeismogram.createSpike(now);
         Location staLoc = new Location(55.3f,
                                        -3.2f,
                                        Defaults.ZERO_K,
@@ -101,9 +101,9 @@ public class RotateTest extends TestCase {
     public void testRotateGCPWithOrientation() throws Exception {
         MicroSecondDate now = new MicroSecondDate();
         // both spikes are same, so 45 degree part motion e and n
-        LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
+        LocalSeismogramImpl xSeis = MockSeismogram.createSpike(now);
         Orientation xOrient = new Orientation(135, 0);
-        LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
+        LocalSeismogramImpl ySeis = MockSeismogram.createSpike(now);
         Orientation yOrient = new Orientation(45, 0);
         Location staLoc = new Location(0f,
                                        0f,
@@ -141,8 +141,8 @@ public class RotateTest extends TestCase {
     public void testRotateGCPXAxis() throws Exception {
         MicroSecondDate now = new MicroSecondDate();
         // both spikes are same, so 45 degree part motion e and n
-        LocalSeismogramImpl xSeis = SimplePlotUtil.createSpike(now);
-        LocalSeismogramImpl ySeis = SimplePlotUtil.createSpike(now);
+        LocalSeismogramImpl xSeis = MockSeismogram.createSpike(now);
+        LocalSeismogramImpl ySeis = MockSeismogram.createSpike(now);
         Location staLoc = new Location(0f,
                                        0f,
                                        Defaults.ZERO_K,
