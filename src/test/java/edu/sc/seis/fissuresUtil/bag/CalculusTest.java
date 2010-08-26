@@ -4,7 +4,7 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import junit.framework.TestCase;
 
 // JUnitDoclet end import
@@ -67,7 +67,7 @@ public class CalculusTest
 		for (int i = 0; i < diff.length; i++) {
 			diff[i] = 1;
 		}
-		LocalSeismogramImpl diffSeis = SimplePlotUtil.createTestData("est", new int[0]);
+		LocalSeismogramImpl diffSeis = MockSeismogram.createTestData("est", new int[0]);
 		diffSeis.data.flt_values(diff);
 		diffSeis.num_points = diff.length;
 		diffSeis.sampling_info = new SamplingImpl(1, new TimeInterval(1, UnitImpl.SECOND));
@@ -82,7 +82,7 @@ public class CalculusTest
 		for (int i = 0; i < diff.length; i++) {
 			diff[i] = 1;
 		}
-		LocalSeismogramImpl diffSeis = SimplePlotUtil.createTestData("est", diff);
+		LocalSeismogramImpl diffSeis = MockSeismogram.createTestData("est", diff);
 		diffSeis.sampling_info = new SamplingImpl(1, new TimeInterval(1, UnitImpl.SECOND));
 		LocalSeismogramImpl intSeis = Calculus.integrate(diffSeis);
 		float[] intData = intSeis.get_as_floats();

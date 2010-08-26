@@ -27,4 +27,11 @@ public class MockChannelId{
         chanId.begin_time = site.getStation().getEffectiveTime().start_time;
         return chanId;
     }
+
+    public static ChannelId makeChanId(edu.iris.Fissures.Time time) {
+        ChannelId chanId =  createVerticalChanId();
+        chanId.begin_time = time;
+        chanId.network_id.begin_time = time;
+        return chanId;
+    }
 }

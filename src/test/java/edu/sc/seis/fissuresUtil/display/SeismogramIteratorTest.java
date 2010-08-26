@@ -6,6 +6,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.TestUtils;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
     public SeismogramIteratorTest(String name){
@@ -53,8 +54,8 @@ public class SeismogramIteratorTest extends EqualsHashCodeTestCase{
     }
 
     public void testNextOnGappySeismograms(){
-        LocalSeismogramImpl one = SimplePlotUtil.createSpike(new MicroSecondDate(0));
-        LocalSeismogramImpl two = SimplePlotUtil.createSpike(new MicroSecondDate(60000000));
+        LocalSeismogramImpl one = MockSeismogram.createSpike(new MicroSecondDate(0));
+        LocalSeismogramImpl two = MockSeismogram.createSpike(new MicroSecondDate(60000000));
         TimeInterval difference = two.getBeginTime().difference(one.getEndTime());
         TimeInterval sampling = (TimeInterval)two.getSampling().getPeriod().convertTo(UnitImpl.MICROSECOND);
         double gapPoints = difference.divideBy(sampling).getValue();

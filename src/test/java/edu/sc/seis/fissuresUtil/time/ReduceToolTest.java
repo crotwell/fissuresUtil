@@ -10,8 +10,8 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 public class ReduceToolTest extends TestCase {
 
@@ -32,25 +32,25 @@ public class ReduceToolTest extends TestCase {
     }
 
     public static LocalSeismogramImpl[] createContiguous() {
-        LocalSeismogramImpl first = SimplePlotUtil.createSpike();
+        LocalSeismogramImpl first = MockSeismogram.createSpike();
         return new LocalSeismogramImpl[] {first, createContiguous(first)};
     }
 
     public static LocalSeismogramImpl[] createEqual() {
-        return new LocalSeismogramImpl[] {SimplePlotUtil.createSpike(start),
-                                          SimplePlotUtil.createSpike(start)};
+        return new LocalSeismogramImpl[] {MockSeismogram.createSpike(start),
+                                          MockSeismogram.createSpike(start)};
     }
 
     public static LocalSeismogramImpl[] createOverlapping() {
-        LocalSeismogramImpl first = SimplePlotUtil.createSpike(start);
+        LocalSeismogramImpl first = MockSeismogram.createSpike(start);
         return new LocalSeismogramImpl[] {first,
-                                          SimplePlotUtil.createSpike(first.getBeginTime()
+                                          MockSeismogram.createSpike(first.getBeginTime()
                                                   .add((TimeInterval)first.getTimeInterval()
                                                           .divideBy(2)))};
     }
 
     private static LocalSeismogramImpl createContiguous(LocalSeismogramImpl first) {
-        return SimplePlotUtil.createSpike(first.getEndTime()
+        return MockSeismogram.createSpike(first.getEndTime()
                 .add(first.getSampling().getPeriod()));
     }
 
@@ -72,7 +72,7 @@ public class ReduceToolTest extends TestCase {
         assertEquals(2,
                      ReduceTool.merge(new LocalSeismogramImpl[] {overlapping[0],
                                                                  overlapping[1],
-                                                                 SimplePlotUtil.createSpike(start),
+                                                                 MockSeismogram.createSpike(start),
                                                                  createContiguous(overlapping[0])}).length);
     }
 

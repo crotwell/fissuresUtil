@@ -6,7 +6,7 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 // JUnitDoclet end import
 /**
@@ -40,7 +40,7 @@ public class CutTest extends TestCase {
                 data[i] = 1;
             } // end of if ()
         } // end of for ()
-        seis = SimplePlotUtil.createTestData("est", data, time);
+        seis = MockSeismogram.createTestData("est", data, time);
     }
 
     protected void tearDown() throws Exception {

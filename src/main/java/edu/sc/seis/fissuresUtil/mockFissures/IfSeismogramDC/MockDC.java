@@ -18,7 +18,6 @@ import edu.iris.Fissures.IfSeismogramDC.DataCenterPOA;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 
 /**
  * @author groves Created on Nov 9, 2004
@@ -42,7 +41,7 @@ public class MockDC extends DataCenterPOA implements DataCenter{
         for(int i = 0; i < seis.length; i++) {
             RequestFilter rf = a_filterseq[i];
             MicroSecondTimeRange tr = new MicroSecondTimeRange(rf);
-            seis[i] = SimplePlotUtil.createSpike(tr.getBeginTime(),
+            seis[i] = MockSeismogram.createSpike(tr.getBeginTime(),
                                                  tr.getInterval(),
                                                  100,
                                                  rf.channel_id);

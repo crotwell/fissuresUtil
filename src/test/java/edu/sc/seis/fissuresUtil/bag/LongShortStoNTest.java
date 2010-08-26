@@ -15,8 +15,8 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 
@@ -29,7 +29,7 @@ public class LongShortStoNTest extends TestCase {
         int[] datadata = { 1, 2, 1, 2, 1, 1, 19, -6, 6, -2, 1, 3, 5, -3, -1, 1 };
         int[] data = new int[1000];
         System.arraycopy(datadata, 0, data, 800, datadata.length);
-        LocalSeismogramImpl seis = SimplePlotUtil.createTestData("est", data);
+        LocalSeismogramImpl seis = MockSeismogram.createTestData("est", data);
         seis.sampling_info = new SamplingImpl(1, new TimeInterval(1, UnitImpl.SECOND));
         LongShortTrigger[] triggers = ston.calcTriggers(seis);
         //  System.out.println("Found "+triggers.length+" triggers");
@@ -50,7 +50,7 @@ public class LongShortStoNTest extends TestCase {
                 data[i] = i%2;
             }
         }
-        LocalSeismogramImpl seis = SimplePlotUtil.createTestData("est", data);
+        LocalSeismogramImpl seis = MockSeismogram.createTestData("est", data);
         seis.sampling_info = new SamplingImpl(1, new TimeInterval(.1f, UnitImpl.SECOND));
         LongShortTrigger[] triggers = ston.calcTriggers(seis);
         //System.out.println("Found "+triggers.length+" triggers");

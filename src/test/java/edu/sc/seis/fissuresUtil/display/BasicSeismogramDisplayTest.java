@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
 
 public class BasicSeismogramDisplayTest extends TestCase {
@@ -37,7 +38,7 @@ public class BasicSeismogramDisplayTest extends TestCase {
     public void setUp() {
         System.setProperty("java.awt.headless", "true");
         System.setProperty("swing.volatileImageBufferEnabled", "false");
-        LocalSeismogramImpl lsi = SimplePlotUtil.createTestData();
+        LocalSeismogramImpl lsi = MockSeismogram.createTestData();
         MemoryDataSetSeismogram memDSS = new MemoryDataSetSeismogram(lsi);
         // sd = SeismogramDisplayConfigurationTest.create("arrayMon")
         // .createDisplay();
