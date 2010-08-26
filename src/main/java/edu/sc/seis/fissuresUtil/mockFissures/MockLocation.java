@@ -6,18 +6,6 @@ import edu.iris.Fissures.Quantity;
 
 public class MockLocation {
 
-    /**
-     * @deprecated - use create()  instead of sharing fields in case
-     *             someone changes the internals
-     */
-    public static final Location SIMPLE = create();
-
-    /**
-     * @deprecated - use createBerlin() instead of sharing fields in case
-     *             someone changes the internals
-     */
-    public static final Location BERLIN = createBerlin();
-
     public static Location create() {
         return create(0f, 0f);
     }

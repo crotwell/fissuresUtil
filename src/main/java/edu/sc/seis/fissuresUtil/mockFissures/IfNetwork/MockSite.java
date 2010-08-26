@@ -25,7 +25,7 @@ public class MockSite {
 
     public static Site createOtherSiteSameStation() {
         return new SiteImpl(MockSiteId.createOtherSiteIdSameStation(),
-                            MockLocation.SIMPLE,
+                            MockLocation.create(),
                             MockStation.createStation(),
                             "this is another site.  Isn't it grander?");
     }
