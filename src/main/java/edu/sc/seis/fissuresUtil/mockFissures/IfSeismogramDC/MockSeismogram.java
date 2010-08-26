@@ -16,6 +16,8 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
 public class MockSeismogram {
 
     public static final int SPIKE_SAMPLES_PER_SECOND = 20;
+    
+    public static final TimeInterval DEFAULT_TRACE_LENGTH = new TimeInterval(50, UnitImpl.SECOND);
 
     public static int[] createRandomDataBits(int length) {
         int[] dataBits = new int[length];
@@ -221,8 +223,7 @@ public class MockSeismogram {
 
     public static LocalSeismogramImpl createDelta() {
         MicroSecondDate now = ClockUtil.now();
-        TimeInterval traceLength = new TimeInterval(50, UnitImpl.SECOND);
-        double traceSecs = traceLength.getValue(UnitImpl.SECOND);
+        double traceSecs = DEFAULT_TRACE_LENGTH.getValue(UnitImpl.SECOND);
         int[] dataBits = new int[(int)(SPIKE_SAMPLES_PER_SECOND * traceSecs)];
         dataBits[0] = 1;
         return createTestData("kronecker delta at 0",
@@ -235,8 +236,12 @@ public class MockSeismogram {
         return createSpike(ClockUtil.now());
     }
 
+    public static LocalSeismogramImpl createSpike(ChannelId chanId) {
+        return createSpike(ClockUtil.now(), DEFAULT_TRACE_LENGTH, 20, chanId);
+    }
+
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime) {
-        return createSpike(spikeTime, new TimeInterval(50, UnitImpl.SECOND));
+        return createSpike(spikeTime, DEFAULT_TRACE_LENGTH);
     }
 
     public static LocalSeismogramImpl createSpike(MicroSecondDate spikeTime,
@@ -292,4 +297,5 @@ public class MockSeismogram {
                               new SamplingImpl(dataBits.length,
                                                new TimeInterval(traceSecs,
                                                                 UnitImpl.SECOND)));
-    }}
+    }
+}
