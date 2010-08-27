@@ -93,7 +93,7 @@ public class XMLUtil {
     public static XMLStreamReader getXMLStreamReader(File file)
             throws XMLStreamException, FileNotFoundException {
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-        return staxInputFactory.createXMLStreamReader(inputStream);
+        return getStaxInputFactory().createXMLStreamReader(inputStream);
     }
 
     /**
@@ -261,11 +261,32 @@ public class XMLUtil {
         }
     }
 
-    public static XMLOutputFactory staxOutputFactory = XMLOutputFactory.newInstance();
+    public static XMLOutputFactory getStaxOutputFactory() {
+        if (staxOutputFactory == null) {
+            staxOutputFactory = XMLOutputFactory.newInstance();
+        }
+        return staxOutputFactory;
+    }
 
-    public static XMLInputFactory staxInputFactory = XMLInputFactory.newInstance();
+    public static XMLInputFactory getStaxInputFactory() {
+        if (staxInputFactory == null) {
+            staxInputFactory = XMLInputFactory.newInstance();
+        }
+        return staxInputFactory;
+    }
 
-    public static XMLEventFactory staxEventFactory = XMLEventFactory.newInstance();
+    public static XMLEventFactory getStaxEventFactory() {
+        if (staxEventFactory == null) {
+            staxEventFactory = XMLEventFactory.newInstance();
+        }
+        return staxEventFactory;
+    }
+    
+    private static XMLOutputFactory staxOutputFactory;
+
+    private static XMLInputFactory staxInputFactory;
+
+    private static XMLEventFactory staxEventFactory;
 
     public static QName emptyName = new QName("",
                                               "thisisareallyuglynameforatagthathopefullynoonewilleveruse");
