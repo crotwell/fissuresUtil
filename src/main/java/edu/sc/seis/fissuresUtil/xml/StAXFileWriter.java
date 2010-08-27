@@ -28,7 +28,7 @@ public class StAXFileWriter {
             tempFile = outFile;
         }
         fileWriter = new BufferedOutputStream(new FileOutputStream(tempFile));
-        xmlWriter = XMLUtil.staxOutputFactory.createXMLStreamWriter(fileWriter,
+        xmlWriter = XMLUtil.getStaxOutputFactory().createXMLStreamWriter(fileWriter,
                                                                     "UTF-8");
     }
 
