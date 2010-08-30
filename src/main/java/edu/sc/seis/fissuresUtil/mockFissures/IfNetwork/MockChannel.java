@@ -57,9 +57,20 @@ public class MockChannel {
     }
 
     public static ChannelImpl createChannel(Location location) {
-        Site s = MockSite.createSite(location);
+        return createChannel( MockSite.createSite(location));
+    }
+
+    public static ChannelImpl createChannel(Site site) {
+        return createChannel(MockChannelId.createChanId("BHZ", site),
+                             "fake chan",
+                             site,
+                             VERTICAL);
+    }
+    
+    public static ChannelImpl createChannel(Station station) {
+        Site s = MockSite.createSite(station);
         return createChannel(MockChannelId.createChanId("BHZ", s),
-                             location.toString(),
+                             "fake chan",
                              s,
                              VERTICAL);
     }
