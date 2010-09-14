@@ -23,8 +23,8 @@ dependencies {
     compile "xalan:xalan:2.7.1"
     compile "openmap:openmap:4.6.2"
     compile "itext:itext:2.0.7"
-    compile "staxUSC:stax-api:1.0"
-    compile group: 'staxUSC', name: 'stax', version: '1.1.1-dev', transitive: false
+//    runtime "stax:stax-api:1.0.1"
+//    runtime group: 'stax', name: 'stax', version: '1.2.0', transitive: false
     compile "org.apache.velocity:velocity:1.6.4"
     compile "jfreechart:jcommon:1.0.0"
     compile "jfreechart:jfreechart:1.0.1"
