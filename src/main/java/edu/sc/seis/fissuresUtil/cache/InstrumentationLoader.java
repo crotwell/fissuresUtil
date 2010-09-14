@@ -127,6 +127,18 @@ public class InstrumentationLoader extends Thread
     public static boolean isValid(Response resp) {
         return resp.stages.length != 0 && isValid(resp.the_sensitivity);
     }
+    
+    public static void checkResponse(Response resp) throws InvalidResponse {
+        if (!InstrumentationLoader.isValid(resp)) {
+            if (resp.stages.length == 0) {
+                throw new InvalidResponse("response is not valid, zero stages");
+            } else if (resp.the_sensitivity.frequency < 0) {
+                throw new InvalidResponse("response is not valid, sensitivity frequency negative");
+            } else if (resp.the_sensitivity.sensitivity_factor == -1) {
+                throw new InvalidResponse("response is not valid, sensitivity factor = -1");
+            }
+        }
+    }
 
     private LinkedList queue = new LinkedList();
 

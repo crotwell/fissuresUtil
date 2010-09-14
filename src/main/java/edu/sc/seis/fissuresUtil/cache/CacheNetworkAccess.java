@@ -31,6 +31,7 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
+import edu.sc.seis.fissuresUtil.sac.InvalidResponse;
 
 public class CacheNetworkAccess extends ProxyNetworkAccess {
 
@@ -142,26 +143,19 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             throws ChannelNotFound {
         Instrumentation inst = getNetworkAccess().retrieve_instrumentation(id,
                                                                            the_time);
-        updateHolder(id, the_time, inst);
-        return inst;
-    }
-
-    private SensitivityHolder updateHolder(ChannelId id,
-                                           Time the_time,
-                                           Instrumentation inst) {
-        if(inst.the_response.stages.length == 0) {
-            throw new InstrumentationInvalid(id,
-                                             "Instrumentation has no stages, units cannot be determined.");
-        }
-        SensitivityHolder holder = extractExistingHolder(id, the_time);
-        List<SensitivityHolder> sensForChannel = extractSensForChannel(id);
-        if(holder == null) {
-            holder = new SensitivityHolder(inst);
-            sensForChannel.add(holder);
+        if(inst.the_response.stages.length != 0) {
+            SensitivityHolder holder = extractExistingHolder(id, the_time);
+            List<SensitivityHolder> sensForChannel = extractSensForChannel(id);
+            if(holder == null) {
+                holder = new SensitivityHolder(inst);
+                sensForChannel.add(holder);
+            } else {
+                holder.updateHoldings(inst);
+            }
         } else {
-            holder.updateHoldings(inst);
+            logger.warn("Instrumentation has no stages, units cannot be determined, sensitivity cache not updated.");
         }
-        return holder;
+        return inst;
     }
 
     private SensitivityHolder extractExistingHolder(ChannelId id, Time time) {

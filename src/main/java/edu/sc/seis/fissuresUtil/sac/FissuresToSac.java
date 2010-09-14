@@ -240,9 +240,7 @@ public class FissuresToSac {
 	public static SacPoleZero getPoleZero(Response response)
 			throws InvalidResponse {
 		InstrumentationLoader.repairResponse(response);
-		if (!InstrumentationLoader.isValid(response)) {
-			throw new IllegalArgumentException("response is not valid");
-		}
+		InstrumentationLoader.checkResponse(response);
 		Stage stage = response.stages[0];
 		Filter filter = stage.filters[0];
 		if (filter.discriminator().value() != FilterType._POLEZERO) {
