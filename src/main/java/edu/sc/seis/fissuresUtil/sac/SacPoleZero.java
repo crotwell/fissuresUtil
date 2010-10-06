@@ -61,7 +61,7 @@ public class SacPoleZero {
     }
 
     public static SacPoleZero read(BufferedReader in) throws IOException {
-        ArrayList lines = new ArrayList();
+        ArrayList<String> lines = new ArrayList<String>();
         String s;
         while((s = in.readLine()) != null) {
             lines.add(s.trim());
@@ -69,7 +69,7 @@ public class SacPoleZero {
         Cmplx[] poles = new Cmplx[0];
         Cmplx[] zeros = new Cmplx[0];
         float constant = 1;
-        Iterator it = lines.iterator();
+        Iterator<String> it = lines.iterator();
         String line = nextLine(it);
         while(!line.equals("")) {
             if(line.startsWith(POLES)) {
