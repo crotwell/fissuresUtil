@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
@@ -47,6 +48,23 @@ public class HibernateUtil {
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
 
     public static void setUpFromConnMgr(Properties props, URL ehcacheConfig) {
+        if ( ! props.containsKey("ehcache.disk.store.dir")) {
+            String dirname = "hibernate_ehcache";
+            File f;
+            try {
+                f = File.createTempFile(dirname, ".cache");
+                f.delete();
+                if (f.mkdir()) {
+                    dirname = f.getCanonicalPath();
+                } else {
+                    dirname = dirname+"_"+Math.random();
+                }
+            } catch(IOException e) {
+                // oops
+                dirname = dirname+"_"+Math.random();
+            }
+            props.put("ehcache.disk.store.dir", dirname);
+        }
     	setUpEHCache(ehcacheConfig);
         setUpFromConnMgr(props);
     }
