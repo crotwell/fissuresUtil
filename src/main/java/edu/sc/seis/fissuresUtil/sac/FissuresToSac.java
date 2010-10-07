@@ -22,7 +22,8 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
-import edu.sc.seis.fissuresUtil.freq.Cmplx;
+import edu.sc.seis.seisFile.sac.Complex;
+import edu.sc.seis.seisFile.sac.SacPoleZero;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
@@ -268,14 +269,14 @@ public class FissuresToSac {
 		if (stage.type == TransferType.ANALOG) {
 			mulFactor = 2 * Math.PI;
 		}
-		Cmplx[] zeros = SacPoleZero.initCmplx(num_zeros);
+		Complex[] zeros = SacPoleZero.initCmplx(num_zeros);
 		for (int i = 0; i < pz.zeros.length; i++) {
-			zeros[i] = new Cmplx(pz.zeros[i].real * mulFactor,
+			zeros[i] = new Complex(pz.zeros[i].real * mulFactor,
 					pz.zeros[i].imaginary * mulFactor);
 		}
-		Cmplx[] poles = SacPoleZero.initCmplx(pz.poles.length);
+		Complex[] poles = SacPoleZero.initCmplx(pz.poles.length);
 		for (int i = 0; i < pz.poles.length; i++) {
-			poles[i] = new Cmplx(pz.poles[i].real * mulFactor,
+			poles[i] = new Complex(pz.poles[i].real * mulFactor,
 					pz.poles[i].imaginary * mulFactor);
 		}
 		float constant = stage.the_normalization[0].ao_normalization_factor;
@@ -297,23 +298,23 @@ public class FissuresToSac {
 		return new SacPoleZero(poles, zeros, constant);
 	}
 	
-	private static double calc_A0(Cmplx[] poles, Cmplx[] zeros, double ref_freq) {
+	private static double calc_A0(Complex[] poles, Complex[] zeros, double ref_freq) {
 		int i;
-		Cmplx numer = ONE;
-		Cmplx denom = ONE;
-		Cmplx f0;
+		Complex numer = ONE;
+		Complex denom = ONE;
+		Complex f0;
 		double a0;
-		f0 = new Cmplx(0, 2 * Math.PI * ref_freq);
+		f0 = new Complex(0, 2 * Math.PI * ref_freq);
 		for (i = 0; i < zeros.length; i++) {
-			denom = Cmplx.mul(denom, Cmplx.sub(f0, zeros[i]));
+			denom = Complex.mul(denom, Complex.sub(f0, zeros[i]));
 		}
 		for (i = 0; i < poles.length; i++) {
-			numer = Cmplx.mul(numer, Cmplx.sub(f0, poles[i]));
+			numer = Complex.mul(numer, Complex.sub(f0, poles[i]));
 		}
-		a0 = Cmplx.div(numer, denom).mag();
+		a0 = Complex.div(numer, denom).mag();
 		return a0;
 	}
 
-	private static Cmplx ONE = new Cmplx(1,0);
+	private static Complex ONE = new Complex(1,0);
 
 }// FissuresToSac
