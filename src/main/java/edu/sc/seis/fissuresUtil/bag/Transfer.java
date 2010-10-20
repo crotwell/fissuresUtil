@@ -4,7 +4,8 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.fissuresUtil.sac.SacPoleZero;
+import edu.sc.seis.seisFile.sac.Complex;
+import edu.sc.seis.seisFile.sac.SacPoleZero;
 
 /**
  * <pre>
@@ -73,12 +74,12 @@ import edu.sc.seis.fissuresUtil.sac.SacPoleZero;
 public class Transfer {
 
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis,
-                                     SacPoleZero poleZero,
+                                     SacPoleZero sacPoleZero,
                                      float lowCut,
                                      float lowPass,
                                      float highPass,
                                      float highCut) throws FissuresException {
-        
+        PoleZeroTranslator poleZero = new PoleZeroTranslator(sacPoleZero);
         double sampFreq = seis.getSampling()
         .getFrequency()
         .getValue(UnitImpl.HERTZ);
@@ -106,7 +107,7 @@ public class Transfer {
     }
     
     
-    static Cmplx[] combine(Cmplx[] freqValues, double sampFreq, SacPoleZero poleZero, float lowCut,
+    static Cmplx[] combine(Cmplx[] freqValues, double sampFreq, PoleZeroTranslator poleZero, float lowCut,
                     float lowPass,
                     float highPass,
                     float highCut) {
@@ -145,7 +146,7 @@ public class Transfer {
      * 1/(pz(s) to avoid divide by zero issues. If there is a divide by zero
      * situation, then the response is set to be 0+0i.
      */
-    public static Cmplx evalPoleZeroInverse(SacPoleZero pz, double freq) {
+    public static Cmplx evalPoleZeroInverse(PoleZeroTranslator pz, double freq) {
         Cmplx s = new Cmplx(0, 2 * Math.PI * freq);
         Cmplx zeroOut = new Cmplx(1, 0);
         Cmplx poleOut = new Cmplx(1, 0);
@@ -188,4 +189,45 @@ public class Transfer {
     }
 
     static final Cmplx ZERO = new Cmplx(0, 0);
+}
+
+/** 
+ * This is to translate from a SacPoleZero file, which uses the seisFile.sac.Complex class into
+ * something that uses the Cmplx class. Dumb, dumb, dumb. Why didn't java come with a stupid
+ * complex number class!!!
+ * 
+ * @author crotwell
+ * 
+ * Created on Oct 20, 2010
+ */
+class PoleZeroTranslator {
+    PoleZeroTranslator(SacPoleZero spz) {
+        this.constant = spz.getConstant();
+        this.poles = transArray(spz.getPoles());
+        this.zeros = transArray(spz.getZeros());
+    }
+    
+    static Cmplx[] transArray(Complex[] c) {
+        Cmplx[] out = new Cmplx[c.length];
+        for (int i = 0; i < c.length; i++) {
+            out[i] = new Cmplx(c[i].getReal(), c[i].getImaginary());
+        }
+        return out;
+    }
+ 
+    Cmplx[] getPoles() {
+        return poles;
+    }
+    
+    Cmplx[] getZeros() {
+        return zeros;
+    }
+    
+    float getConstant() {
+        return constant;
+    }
+    
+    Cmplx[] poles;
+    Cmplx[] zeros;
+    float constant;
 }
