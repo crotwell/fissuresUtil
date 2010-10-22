@@ -19,8 +19,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -31,8 +33,8 @@ import edu.sc.seis.fissuresUtil.rt130.RT130FileHandlerFlag;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 import edu.sc.seis.seisFile.mseed.DataRecord;
-import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
+import edu.sc.seis.seisFile.mseed.SeedRecord;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 public class RT130ReportGenerator {
@@ -256,16 +258,9 @@ public class RT130ReportGenerator {
 
     private static boolean processMSeed(String fileLoc, String fileName)
             throws IOException, SeedFormatException, FissuresException {
-        MiniSeedRead mseedRead = null;
+        DataInputStream dis = null;
         try {
-            mseedRead = new MiniSeedRead(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
-        } catch(EOFException e) {
-            report.addFileFormatException(fileLoc, fileName
-                    + " seems to be an invalid mseed file." + "\n"
-                    + e.getMessage());
-            logger.error(fileName + " seems to be an invalid mseed file."
-                    + "\n" + e.getMessage());
-            return false;
+            dis = new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc)));
         } catch(FileNotFoundException e) {
             report.addFileFormatException(fileLoc, "Unable to find file "
                     + fileName + "\n" + e.getMessage());
@@ -273,14 +268,16 @@ public class RT130ReportGenerator {
                     + e.getMessage());
             return false;
         }
-        LinkedList list = new LinkedList();
+        LinkedList<DataRecord> list = new LinkedList<DataRecord>();
         try {
-            DataRecord dr = mseedRead.getNextRecord();
-            list.add(dr);
+            SeedRecord dr = SeedRecord.read(dis);
+            if (dr instanceof DataRecord) {
+            list.add((DataRecord)dr);
+            }
         } catch(EOFException e) {
             // must be all
         }
-        LocalSeismogramImpl seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]));
+        LocalSeismogramImpl seis = FissuresConvert.toFissures(list.toArray(new DataRecord[0]));
         report.addMSeedSeismogram(seis.channel_id,
                                   seis.getBeginTime(),
                                   seis.getEndTime());
