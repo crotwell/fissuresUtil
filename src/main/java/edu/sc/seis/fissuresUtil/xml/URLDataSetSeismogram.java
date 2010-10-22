@@ -447,7 +447,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     dis.close();
                 }
             }
-            seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new SeedRecord[0]), (byte)B1000Types.STEIM1, (byte)1);
+            seis = FissuresConvert.toFissures(list.toArray(new DataRecord[0]), (byte)B1000Types.STEIM1, (byte)1);
         } else if(isSac(seisNum)) {
             SacTimeSeries sacTime = new SacTimeSeries();
             DataInputStream dis = null;
