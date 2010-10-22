@@ -16,6 +16,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.SeedRecord;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.seisFile.mseed.MiniSeedRead;
@@ -62,11 +63,13 @@ public class LongShortStoNTest extends TestCase {
     public void testVsRefTrigMseed() throws Exception {
         DataInputStream in =
             new DataInputStream(this.getClass().getClassLoader().getResourceAsStream("edu/sc/seis/fissuresUtil/bag/03.141.18.40.32.0551.6.m"));
-        MiniSeedRead m = new MiniSeedRead(in);
-        LinkedList drList = new LinkedList();
+        LinkedList<DataRecord> drList = new LinkedList<DataRecord>();
         try {
             while (true) {
-                drList.add(m.getNextRecord());
+                SeedRecord sr = SeedRecord.read(in);
+                if (sr instanceof DataRecord) {
+                    drList.add((DataRecord)sr);
+                }
             }
         } catch (EOFException e) {
         }
