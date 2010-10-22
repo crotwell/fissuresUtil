@@ -43,6 +43,7 @@ import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 import edu.sc.seis.seisFile.mseed.MissingBlockette1000;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
+import edu.sc.seis.seisFile.mseed.SeedRecord;
 
 /**
  * FissuresConvert.java
@@ -64,7 +65,7 @@ public class FissuresConvert {
 
     public static DataRecord[] toMSeed(LocalSeismogram seis, int seqStart)
             throws SeedFormatException {
-        LinkedList outRecords = new LinkedList();
+        LinkedList<DataRecord> outRecords = new LinkedList<DataRecord>();
         MicroSecondDate start = new MicroSecondDate(seis.begin_time);
         if(seis.data.discriminator().equals(TimeSeriesType.TYPE_ENCODED)) {
             // encoded data
@@ -133,12 +134,12 @@ public class FissuresConvert {
             // DataRecord dr = new DataRecord(header);
             // } // end of while ()
         }
-        return (DataRecord[])outRecords.toArray(new DataRecord[0]);
+        return outRecords.toArray(new DataRecord[0]);
     }
 
     public static DataRecord[] toMSeed(DataChunk chunk)
             throws SeedFormatException {
-        LinkedList outRecords;
+        LinkedList<DataRecord> outRecords;
         if(chunk.data.discriminator().equals(TimeSeriesType.TYPE_ENCODED)) {
             outRecords = toMSeed(chunk.data.encoded_values(),
                                  chunk.channel,
@@ -148,15 +149,15 @@ public class FissuresConvert {
         } else {
             throw new SeedFormatException("Can only handle EncodedData now");
         }
-        return (DataRecord[])outRecords.toArray(new DataRecord[0]);
+        return outRecords.toArray(new DataRecord[0]);
     }
 
-    public static LinkedList toMSeed(EncodedData[] eData,
+    public static LinkedList<DataRecord> toMSeed(EncodedData[] eData,
                                      ChannelId channel_id,
                                      MicroSecondDate start,
                                      SamplingImpl sampling_info,
                                      int seqStart) throws SeedFormatException {
-        LinkedList list = new LinkedList();
+        LinkedList<DataRecord> list = new LinkedList<DataRecord>();
         DataHeader header;
         Blockette1000 b1000;
         Blockette100 b100;
@@ -504,43 +505,4 @@ public class FissuresConvert {
         }
     }
     
-    public static void main(String[] args) {
-
-        DataInputStream ls = null;
-        try {
-            System.out.println("open socket");
-            if(args.length == 0) {
-                Socket lissConnect = new Socket("anmo.iu.liss.org", 4000);
-                ls = new DataInputStream(new BufferedInputStream(lissConnect.getInputStream(),
-                                                                 1024));
-            } else {
-                ls = new DataInputStream(new BufferedInputStream(new FileInputStream(args[0]), 4096));
-            }
-            MiniSeedRead rf = new MiniSeedRead(ls);
-            DataRecord[] sr = new DataRecord[11];
-            for(int i = 0; i < 11; i++) {
-                try {
-                    sr[i] = rf.getNextRecord();
-                } catch(MissingBlockette1000 e) {
-                    System.out.println("Missing Blockette1000, trying with record size of 4096");
-                    // try with 4096 as default
-                    sr[i] = rf.getNextRecord(4096);
-                }
-                System.out.println(sr[i]);
-                if(sr[i] instanceof DataRecord) {
-                    DataRecord dr = (DataRecord)sr[i];
-                    byte[] data = dr.getData();
-                }
-            }
-            LocalSeismogramImpl seis = FissuresConvert.toFissures(sr, (byte)B1000Types.STEIM1, (byte)1);
-        } catch(Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        } finally {
-            try {
-                if(ls != null)
-                    ls.close();
-            } catch(Exception ee) {}
-        }
-    }
 } // FissuresConvert

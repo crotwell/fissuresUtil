@@ -17,14 +17,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
@@ -48,8 +51,8 @@ import edu.sc.seis.fissuresUtil.psn.PSNToFissures;
 import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
 import edu.sc.seis.seisFile.mseed.DataRecord;
-import edu.sc.seis.seisFile.mseed.MiniSeedRead;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
+import edu.sc.seis.seisFile.mseed.SeedRecord;
 import edu.sc.seis.seisFile.psn.PSNDataFile;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
@@ -428,12 +431,14 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             seis = PSNToFissures.getSeismograms(psnDataFile)[evRecIndex];
         } else if(isMSeed(seisNum)) {
             DataInputStream dis = null;
-            List list = new ArrayList();
+            List<DataRecord> list = new ArrayList<DataRecord>();
             try {
                 dis = new DataInputStream(new BufferedInputStream(seisURL.openStream()));
-                MiniSeedRead mseedRead = new MiniSeedRead(dis);
                 while(true) {
-                    list.add(mseedRead.getNextRecord(4096));
+                    SeedRecord sr = SeedRecord.read(dis, 4096);
+                    if (sr instanceof DataRecord) {
+                        list.add((DataRecord)sr);
+                    }
                 }
             } catch(EOFException e) {
                 // must be all
@@ -442,7 +447,7 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
                     dis.close();
                 }
             }
-            seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new DataRecord[0]), (byte)B1000Types.STEIM1, (byte)1);
+            seis = FissuresConvert.toFissures((DataRecord[])list.toArray(new SeedRecord[0]), (byte)B1000Types.STEIM1, (byte)1);
         } else if(isSac(seisNum)) {
             SacTimeSeries sacTime = new SacTimeSeries();
             DataInputStream dis = null;
