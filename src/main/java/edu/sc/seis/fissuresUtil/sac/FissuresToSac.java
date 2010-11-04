@@ -95,12 +95,7 @@ public class FissuresToSac {
 
 		sac.knetwk = seis.channel_id.network_id.network_code;
 		sac.kstnm = seis.channel_id.station_code;
-		if (!seis.channel_id.site_code.equals("  ")) {
-			sac.kcmpnm = seis.channel_id.site_code
-					+ seis.channel_id.channel_code;
-		} else {
-			sac.kcmpnm = seis.channel_id.channel_code;
-		} // end of else
+		sac.kcmpnm = seis.channel_id.channel_code;
 		sac.khole = seis.channel_id.site_code;
 
 		return sac;
