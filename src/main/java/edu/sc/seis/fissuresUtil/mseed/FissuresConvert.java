@@ -3,14 +3,17 @@ package edu.sc.seis.fissuresUtil.mseed;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.TimeZone;
 
 import edu.iris.Fissures.FissuresException;
@@ -40,8 +43,6 @@ import edu.sc.seis.seisFile.mseed.Blockette1000;
 import edu.sc.seis.seisFile.mseed.Btime;
 import edu.sc.seis.seisFile.mseed.DataHeader;
 import edu.sc.seis.seisFile.mseed.DataRecord;
-import edu.sc.seis.seisFile.mseed.MiniSeedRead;
-import edu.sc.seis.seisFile.mseed.MissingBlockette1000;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import edu.sc.seis.seisFile.mseed.SeedRecord;
 
@@ -237,6 +238,21 @@ public class FissuresConvert {
             int divisor = (int)Math.round(-1 * factor * sps);
             return new short[] {(short)factor, (short)divisor};
         }
+    }
+    
+    public static LocalSeismogramImpl toFissures(String filename) throws SeedFormatException, IOException, FissuresException {
+        List<DataRecord> data = new ArrayList<DataRecord>();
+        DataInput dis = new DataInputStream(new BufferedInputStream(new FileInputStream(filename)));
+        try {
+            while (true) {
+                SeedRecord sr = SeedRecord.read(dis, 4096);
+                if (sr instanceof DataRecord) {
+                    data.add( (DataRecord)sr);
+                }
+            }
+        } catch (EOFException e) {
+        }
+        return toFissures(data.toArray(new DataRecord[0]));
     }
 
     /**
