@@ -285,10 +285,8 @@ public class MockSeismogram {
         String name = "spike at " + time.toString();
         double traceSecs = traceLength.convertTo(UnitImpl.SECOND).getValue();
         int[] dataBits = new int[(int)Math.round((samplesPerSecond * traceSecs))];
-        for(int i = 0; i < dataBits.length; i++) {
-            if((i + missingSamples) % samplesPerSpike == 0) {
-                dataBits[i] = 100;
-            }
+        for(int i = missingSamples; i < dataBits.length; i+= samplesPerSpike) {
+            dataBits[i] = 100;
         }
         return createTestData(name,
                               dataBits,
