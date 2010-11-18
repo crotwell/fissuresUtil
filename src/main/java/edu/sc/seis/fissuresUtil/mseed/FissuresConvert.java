@@ -70,6 +70,33 @@ public class FissuresConvert {
             // encoded data
             EncodedData[] eData = seis.data.encoded_values();
             outRecords = toMSeed(eData, seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
+        } else if (seis.data.discriminator().equals(TimeSeriesType.TYPE_LONG)) {
+            try {
+                // for int (corba calls this a long), 64 bytes = 4 bytes * 16 samples, so each edata
+                // holds 62*16 samples
+                EncodedData[] eData = new EncodedData[(int)Math.ceil(seis.num_points * 4.0f / (62 * 64))];
+                int[] data = seis.get_as_longs();
+                for (int i = 0; i < eData.length; i++) {
+                    byte[] dataBytes = new byte[62 * 64];
+                    int j;
+                    for (j = 0; j + (62 * 16 * i) < data.length && j < 62 * 16; j++) {
+                        int val = data[j + (62 * 16 * i)];
+                        dataBytes[4 * j] = (byte)((val & 0xff000000) >> 24);
+                        dataBytes[4 * j + 1] = (byte)((val & 0x00ff0000) >> 16);
+                        dataBytes[4 * j + 2] = (byte)((val & 0x0000ff00) >> 8);
+                        dataBytes[4 * j + 3] = (byte)((val & 0x000000ff));
+                    }
+                    if (j == 0) {
+                        throw new SeedFormatException("try to put 0 int samples into an encodedData object j=" + j
+                                + " i=" + i + " seis.num_ppoints=" + seis.num_points);
+                    }
+                    eData[i] = new EncodedData((short)B1000Types.INTEGER, dataBytes, j, false);
+                }
+                outRecords = toMSeed(eData, seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
+            } catch(FissuresException e) {
+                // this shouldn't ever happen as we already checked the type
+                throw new SeedFormatException("Problem getting integer data", e);
+            }
         } else if (seis.data.discriminator().equals(TimeSeriesType.TYPE_FLOAT)) {
             try {
                 // for float, 64 bytes = 4 bytes * 16 samples, so each edata
@@ -142,17 +169,40 @@ public class FissuresConvert {
         DataHeader header;
         Blockette1000 b1000;
         Blockette100 b100;
+        int recordSize = RECORD_SIZE_4096;
+        int recordSizePower = RECORD_SIZE_4096_POWER;
+        int minRecordSize = 0;   
         for (int i = 0; i < eData.length; i++) {
             header = new DataHeader(seqStart++, 'D', false);
             b1000 = new Blockette1000();
             b100 = new Blockette100();
-            if (eData[i].values.length + header.getSize() + b1000.getSize() + b100.getSize() < RECORD_SIZE) {
+            if ( minRecordSize < eData[i].values.length + header.getSize() + b1000.getSize()) {
+                minRecordSize = eData[i].values.length + header.getSize() + b1000.getSize();
+            }
+        }
+        if (minRecordSize < RECORD_SIZE_4096) {
+            recordSize = RECORD_SIZE_4096;
+            recordSizePower = RECORD_SIZE_4096_POWER;
+        }
+        if (minRecordSize < RECORD_SIZE_1024) {
+            recordSize = RECORD_SIZE_1024;
+            recordSizePower = RECORD_SIZE_1024_POWER;
+        }
+        if (minRecordSize < RECORD_SIZE_512) {
+            recordSize = RECORD_SIZE_512;
+            recordSizePower = RECORD_SIZE_512_POWER;
+        }
+        for (int i = 0; i < eData.length; i++) {
+            header = new DataHeader(seqStart++, 'D', false);
+            b1000 = new Blockette1000();
+            b100 = new Blockette100();
+            if (eData[i].values.length + header.getSize() + b1000.getSize() + b100.getSize() < recordSize) {
                 // ok to use Blockette100 for sampling
-            } else if (eData[i].values.length + header.getSize() + b1000.getSize() < RECORD_SIZE) {
+            } else if (eData[i].values.length + header.getSize() + b1000.getSize() < recordSize) {
                 // will fit without Blockette100
                 b100 = null;
             } else {
-                throw new SeedFormatException("Can't fit data into record "
+                throw new SeedFormatException("Can't fit data into record of size "+recordSize+" "+
                         + (eData[i].values.length + header.getSize() + b1000.getSize() + b100.getSize()) + " "
                         + eData[i].values.length + " " + (header.getSize() + b1000.getSize() + b100.getSize()));
             } // end of else
@@ -175,7 +225,7 @@ public class FissuresConvert {
             } else {
                 b1000.setWordOrder((byte)1);
             } // end of else
-            b1000.setDataRecordLength(RECORD_SIZE_POWER);
+            b1000.setDataRecordLength((byte)recordSizePower);
             DataRecord dr = new DataRecord(header);
             dr.addBlockette(b1000);
             QuantityImpl hertz = sampling_info.getFrequency().convertTo(UnitImpl.HERTZ);
@@ -442,9 +492,17 @@ public class FissuresConvert {
         return btime;
     }
 
-    static final byte RECORD_SIZE_POWER = 12;
+    static final byte RECORD_SIZE_4096_POWER = 12;
 
-    static int RECORD_SIZE = (int)Math.pow(2, RECORD_SIZE_POWER);
+    static int RECORD_SIZE_4096 = (int)Math.pow(2, RECORD_SIZE_4096_POWER);
+
+    static final byte RECORD_SIZE_1024_POWER = 10;
+
+    static int RECORD_SIZE_1024 = (int)Math.pow(2, RECORD_SIZE_1024_POWER);
+    
+    static final byte RECORD_SIZE_512_POWER = 9;
+
+    static int RECORD_SIZE_512 = (int)Math.pow(2, RECORD_SIZE_512_POWER);
 
     /**
      * Turns a UnitImpl into a byte array using Java serialization
