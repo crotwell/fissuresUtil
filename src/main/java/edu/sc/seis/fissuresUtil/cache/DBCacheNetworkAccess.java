@@ -21,8 +21,8 @@ public class DBCacheNetworkAccess extends CacheNetworkAccess {
     public DBCacheNetworkAccess(NetworkAttrImpl attr, FissuresNamingService fisName) {
         super(new LazyNetworkAccess(attr, getNetDC(attr, fisName)), attr);
     }
-    public DBCacheNetworkAccess(NetworkAccess netAccess) {
-        super(netAccess);
+    public DBCacheNetworkAccess(NetworkAccess netAccess, NetworkAttrImpl attr) {
+        super(netAccess, attr);
     }
 
     @Override
