@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,8 +8,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.hibernate.FlushMode;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -66,6 +63,7 @@ public abstract class AbstractHibernateDB {
             knownSessions.add(new SessionStackTrace(cacheSession, 
                                                     Thread.currentThread().getStackTrace()));
         }
+        loadUnits(cacheSession);
         return cacheSession;
     }
 
