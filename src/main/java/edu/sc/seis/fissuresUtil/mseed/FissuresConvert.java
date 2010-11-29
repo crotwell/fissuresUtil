@@ -124,6 +124,33 @@ public class FissuresConvert {
                 // this shouldn't ever happen as we already checked the type
                 throw new SeedFormatException("Problem getting float data", e);
             }
+        } else if (seis.data.discriminator().equals(TimeSeriesType.TYPE_LONG)) {
+            try {
+                // for int, 64 bytes = 4 bytes * 16 samples, so each edata
+                // holds 62*16 samples
+                EncodedData[] eData = new EncodedData[(int)Math.ceil(seis.num_points * 4.0f / (62 * 64))];
+                int[] data = seis.get_as_longs();
+                for (int i = 0; i < eData.length; i++) {
+                    byte[] dataBytes = new byte[62 * 64];
+                    int j;
+                    for (j = 0; j + (62 * 16 * i) < data.length && j < 62 * 16; j++) {
+                        int val = data[j + (62 * 16 * i)];
+                        dataBytes[4 * j] = (byte)((val & 0xff000000) >> 24);
+                        dataBytes[4 * j + 1] = (byte)((val & 0x00ff0000) >> 16);
+                        dataBytes[4 * j + 2] = (byte)((val & 0x0000ff00) >> 8);
+                        dataBytes[4 * j + 3] = (byte)((val & 0x000000ff));
+                    }
+                    if (j == 0) {
+                        throw new SeedFormatException("try to put 0 int samples into an encodedData object j=" + j
+                                + " i=" + i + " seis.num_ppoints=" + seis.num_points);
+                    }
+                    eData[i] = new EncodedData((short)B1000Types.INTEGER, dataBytes, j, false);
+                }
+                outRecords = toMSeed(eData, seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
+            } catch(FissuresException e) {
+                // this shouldn't ever happen as we already checked the type
+                throw new SeedFormatException("Problem getting float data", e);
+            }
         } else {
             // not encoded
             throw new SeedFormatException("Can only handle EncodedData now, type=" + seis.data.discriminator().value());
@@ -469,7 +496,7 @@ public class FissuresConvert {
      * 
      * @return the value of start time in MicroSecondDate format
      */
-    public MicroSecondDate getMicroSecondTime(Btime startStruct) {
+    public static MicroSecondDate getMicroSecondTime(Btime startStruct) {
         ISOTime iso = new ISOTime(startStruct.year,
                                   startStruct.jday,
                                   startStruct.hour,
