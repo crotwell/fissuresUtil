@@ -35,7 +35,7 @@ public class WorkerThreadPool {
     public synchronized void invokeLater(Runnable runnable) {
         while (queue.size() > maxQueueSize) {
             try {
-                Thread.sleep(100);
+                wait();
             } catch(InterruptedException e) {}
         }
         if(!queue.contains(runnable)) {
@@ -67,7 +67,9 @@ public class WorkerThreadPool {
             wait();
         }
         idle.remove(Thread.currentThread());
-        return (Runnable)queue.removeLast();
+        Runnable r = (Runnable)queue.removeLast();
+        notifyAll();
+        return r;
     }
 
     public synchronized int getNumWaiting() {
