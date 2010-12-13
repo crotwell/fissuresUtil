@@ -14,7 +14,7 @@ public class Decimate implements LocalSeismogramFunction {
     public LocalSeismogramImpl apply(LocalSeismogramImpl seis) throws Exception {
         LocalSeismogramImpl outSeis;
         TimeSeriesDataSel outData = new TimeSeriesDataSel();
-        int numPts = seis.num_points / factor;
+        int numPts = (int)Math.ceil(1.0f*seis.num_points / factor);
         if(seis.can_convert_to_short()) {
             short[] inS = seis.get_as_shorts();
             short[] outS = new short[numPts];
