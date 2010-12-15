@@ -25,13 +25,22 @@ public class RangeTool {
 
     public static boolean areContiguous(LocalSeismogramImpl one,
                                         LocalSeismogramImpl two) {
-        MicroSecondTimeRange oneRange = new MicroSecondTimeRange(one);
+        LocalSeismogramImpl first;
+        LocalSeismogramImpl second;
+        if (one.getBeginTime().before(two.getBeginTime())) {
+            first = one;
+            second = two;
+        } else {
+            first = two;
+            second = one;
+        }
+        MicroSecondTimeRange firstRange = new MicroSecondTimeRange(first);
         // make one end time 1/2 sample later, so areContiguous will check that first
         // sample of second is within 1/2 sample period of time of next data point
-        return areContiguous(new MicroSecondTimeRange(oneRange.getBeginTime(), 
-                                                      oneRange.getEndTime().add((TimeInterval)one.getSampling().getPeriod().multiplyBy(0.5))),
-                             new MicroSecondTimeRange(two),
-                             (TimeInterval)one.getSampling().getPeriod());
+        return areContiguous(new MicroSecondTimeRange(firstRange.getBeginTime(), 
+                                                      firstRange.getEndTime().add((TimeInterval)one.getSampling().getPeriod().multiplyBy(0.5))),
+                             new MicroSecondTimeRange(second),
+                             (TimeInterval)first.getSampling().getPeriod());
     }
 
     public static boolean areContiguous(RequestFilter one, RequestFilter two) {
@@ -49,9 +58,8 @@ public class RangeTool {
                         .add(littleMoreThanInterval)
                         .after(two.getBeginTime());
             }
-            return two.getEndTime()
-                    .add(littleMoreThanInterval)
-                    .after(one.getBeginTime());
+            return two.getEndTime().before(one.getBeginTime()) &&
+            two.getEndTime().add(littleMoreThanInterval).after(one.getBeginTime());
         }
         return false;
     }
