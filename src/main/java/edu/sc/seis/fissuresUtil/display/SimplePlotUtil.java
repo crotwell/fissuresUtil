@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Dimension;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import edu.iris.Fissures.Plottable;
@@ -14,12 +17,13 @@ import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
 
 /**
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 21636 2010-08-26 15:53:48Z crotwell $
+ * @version $Id: SimplePlotUtil.java 21929 2010-12-15 19:18:44Z crotwell $
  */
 public class SimplePlotUtil {
 
@@ -414,5 +418,32 @@ public class SimplePlotUtil {
     public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SimplePlotUtil.class);
+
+    public static List<PlottableChunk> makePlottables(LocalSeismogram[] seis, int pixelsPerDay)
+            throws CodecException, IOException {
+        List<PlottableChunk> chunks = new ArrayList<PlottableChunk>();
+        for (int i = 0; i < seis.length; i++) {
+            LocalSeismogramImpl curSeis = (LocalSeismogramImpl)seis[i];
+            if (curSeis.getNumPoints() > 0 && canMakeAtLeastOnePixel(seis[i], pixelsPerDay)) {
+                Plottable plott = makePlottable(curSeis, pixelsPerDay);
+                if (plott.x_coor.length > 0) {
+                    MicroSecondDate plotStartTime = getBeginningOfDay(curSeis.getBeginTime());
+                    PlottableChunk chunk = new PlottableChunk(plott,
+                                                              getDayPixelRange(seis[i],
+                                                                                              pixelsPerDay,
+                                                                                              plotStartTime)
+                                                                      .getMin(),
+                                                              plotStartTime,
+                                                              pixelsPerDay,
+                                                              curSeis.channel_id.network_id.network_code,
+                                                              curSeis.channel_id.station_code,
+                                                              curSeis.channel_id.site_code,
+                                                              curSeis.channel_id.channel_code);
+                    chunks.add(chunk);
+                }
+            }
+        }
+        return chunks;
+    }
     
 } // SimplePlotUtil
