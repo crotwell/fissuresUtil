@@ -9,8 +9,9 @@ import junit.framework.TestCase;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.fissuresUtil.sac.SacPoleZero;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
+import edu.sc.seis.seisFile.sac.Complex;
+import edu.sc.seis.seisFile.sac.SacPoleZero;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
@@ -137,15 +138,15 @@ public class TransferTest extends TestCase {
                                             {9.99939, 2.35369e+10, 1.17822e+10},
                                             {10, 2.35375e+10, 1.17818e+10}};
         // IU.HRV.BHE response
-        Cmplx[] zeros = new Cmplx[] {new Cmplx(0, 0),
-                                     new Cmplx(0, 0),
-                                     new Cmplx(0, 0)};
-        Cmplx[] poles = new Cmplx[] {new Cmplx(-0.0139, 0.0100),
-                                     new Cmplx(-0.0139, -0.0100),
-                                     new Cmplx(-31.4160, 0.0000)};
+        Complex[] zeros = new Complex[] {new Complex(0, 0),
+                                     new Complex(0, 0),
+                                     new Complex(0, 0)};
+        Complex[] poles = new Complex[] {new Complex(-0.0139, 0.0100),
+                                     new Complex(-0.0139, -0.0100),
+                                     new Complex(-31.4160, 0.0000)};
         SacPoleZero pz = new SacPoleZero(poles, zeros, 2.94283674E10f);
         for(int i = 1; i < sacout.length; i++) {
-            Cmplx dhi = Transfer.evalPoleZeroInverse(pz, (float)sacout[i][0]);
+            Cmplx dhi = Transfer.evalPoleZeroInverse(new PoleZeroTranslator(pz), (float)sacout[i][0]);
             dhi = Cmplx.div(new Cmplx(1, 0), dhi);
             assertEquals("real " + i, 1, sacout[i][1] / dhi.real(), 0.00001);
             // sac fft is opposite sign in imag, so want ratio to be -1
@@ -165,7 +166,7 @@ public class TransferTest extends TestCase {
             data[i] /= samprate;
         }
         Cmplx[] out = Cmplx.fft(data);
-        SacPoleZero poleZero = SacPoleZero.read(new BufferedReader(new InputStreamReader(this.getClass()
+        SacPoleZero poleZero = new SacPoleZero(new BufferedReader(new InputStreamReader(this.getClass()
                 .getClassLoader()
                 .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/hrv.bhe.sacpz"))));
         double[][] sacout = {  {0, 0, 0},
@@ -198,7 +199,7 @@ public class TransferTest extends TestCase {
         for(int i = 0; i < sacout.length; i++) {
             freq = i * deltaF;
             assertEquals("deltaF "+i, sacout[i][0], freq, 0.00001);
-            respAtS = Transfer.evalPoleZeroInverse(poleZero, freq);
+            respAtS = Transfer.evalPoleZeroInverse(new PoleZeroTranslator(poleZero), freq);
             respAtS = Cmplx.mul(respAtS, deltaF*Transfer.freqTaper(freq,
                                                    lowCut,
                                                    lowPass,
@@ -292,7 +293,7 @@ public class TransferTest extends TestCase {
         double samprate = seis.getSampling()
                 .getFrequency()
                 .getValue(UnitImpl.HERTZ);
-        SacPoleZero pz = SacPoleZero.read(new BufferedReader(new InputStreamReader(this.getClass()
+        SacPoleZero pz = new SacPoleZero(new BufferedReader(new InputStreamReader(this.getClass()
                 .getClassLoader()
                 .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/hrv.bhe.sacpz"))));
         float[] data = seis.get_as_floats();
@@ -304,7 +305,7 @@ public class TransferTest extends TestCase {
         Cmplx[] out = Cmplx.fft(data);
         assertEquals("nfft", 32768, out.length);
         assertEquals("delfrq ", 0.000610352, samprate/out.length, 0.00001);
-        out = Transfer.combine(out, samprate, pz, 0.005f, 0.01f, 1e5f, 1e6f);
+        out = Transfer.combine(out, samprate, new PoleZeroTranslator(pz), 0.005f, 0.01f, 1e5f, 1e6f);
         double[][] sacout = { {0, 0},
                              {0, -0},
                              {0, 0},
@@ -364,7 +365,7 @@ public class TransferTest extends TestCase {
                 .getClassLoader()
                 .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/IU.HRV.__.BHE.SAC"))));
         LocalSeismogramImpl orig = SacToFissures.getSeismogram(sac);
-        SacPoleZero pz = SacPoleZero.read(new BufferedReader(new InputStreamReader(this.getClass()
+        SacPoleZero pz = new SacPoleZero(new BufferedReader(new InputStreamReader(this.getClass()
                 .getClassLoader()
                 .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/hrv.bhe.sacpz"))));
         LocalSeismogramImpl bagtfr = new Transfer().apply(orig,

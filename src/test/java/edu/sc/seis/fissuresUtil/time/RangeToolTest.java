@@ -25,8 +25,9 @@ public class RangeToolTest extends TestCase {
 
     public void testAreContiguous() {
         LocalSeismogramImpl first = MockSeismogram.createSpike(new MicroSecondDate(0));
-        LocalSeismogramImpl second = MockSeismogram.createSpike(first.getEndTime());
-        assertTrue("Touching end times should be contiguous",
+        TimeInterval halfSample = (TimeInterval)first.getSampling().getPeriod().divideBy(1.9); // do little more than 1/2 sample so within 1/2 sample
+        LocalSeismogramImpl second = MockSeismogram.createSpike(first.getEndTime().add(halfSample));
+        assertTrue("Touching end times should be contiguous "+first.getEndTime()+"  "+second.getBeginTime()+"  "+first.getSampling().getPeriod(),
                    RangeTool.areContiguous(first, second));
         assertTrue("Touching end times should be contiguous",
                    RangeTool.areContiguous(second, first));
