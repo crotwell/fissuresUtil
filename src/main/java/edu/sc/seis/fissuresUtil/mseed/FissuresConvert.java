@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -37,6 +38,9 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.iris.dmc.seedcodec.B1000Types;
 import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
+import edu.sc.seis.fissuresUtil.display.IntRange;
+import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
 import edu.sc.seis.seisFile.mseed.Blockette;
 import edu.sc.seis.seisFile.mseed.Blockette100;
 import edu.sc.seis.seisFile.mseed.Blockette1000;
@@ -72,27 +76,8 @@ public class FissuresConvert {
             outRecords = toMSeed(eData, seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
         } else if (seis.data.discriminator().equals(TimeSeriesType.TYPE_LONG)) {
             try {
-                // for int (corba calls this a long), 64 bytes = 4 bytes * 16 samples, so each edata
-                // holds 62*16 samples
-                EncodedData[] eData = new EncodedData[(int)Math.ceil(seis.num_points * 4.0f / (62 * 64))];
-                int[] data = seis.get_as_longs();
-                for (int i = 0; i < eData.length; i++) {
-                    byte[] dataBytes = new byte[62 * 64];
-                    int j;
-                    for (j = 0; j + (62 * 16 * i) < data.length && j < 62 * 16; j++) {
-                        int val = data[j + (62 * 16 * i)];
-                        dataBytes[4 * j] = (byte)((val & 0xff000000) >> 24);
-                        dataBytes[4 * j + 1] = (byte)((val & 0x00ff0000) >> 16);
-                        dataBytes[4 * j + 2] = (byte)((val & 0x0000ff00) >> 8);
-                        dataBytes[4 * j + 3] = (byte)((val & 0x000000ff));
-                    }
-                    if (j == 0) {
-                        throw new SeedFormatException("try to put 0 int samples into an encodedData object j=" + j
-                                + " i=" + i + " seis.num_ppoints=" + seis.num_points);
-                    }
-                    eData[i] = new EncodedData((short)B1000Types.INTEGER, dataBytes, j, false);
-                }
-                outRecords = toMSeed(eData, seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
+                outRecords = toMSeed(toEncodedData(seis.get_as_longs()),
+                                     seis.channel_id, start, (SamplingImpl)seis.sampling_info, seqStart);
             } catch(FissuresException e) {
                 // this shouldn't ever happen as we already checked the type
                 throw new SeedFormatException("Problem getting integer data", e);
@@ -192,6 +177,15 @@ public class FissuresConvert {
                                                  MicroSecondDate start,
                                                  SamplingImpl sampling_info,
                                                  int seqStart) throws SeedFormatException {
+        return toMSeed(eData, channel_id, start, sampling_info, seqStart, 'M');
+    }
+
+    public static LinkedList<DataRecord> toMSeed(EncodedData[] eData,
+                                                 ChannelId channel_id,
+                                                 MicroSecondDate start,
+                                                 SamplingImpl sampling_info,
+                                                 int seqStart,
+                                                 char typeCode) throws SeedFormatException {
         LinkedList<DataRecord> list = new LinkedList<DataRecord>();
         DataHeader header;
         Blockette1000 b1000;
@@ -200,7 +194,7 @@ public class FissuresConvert {
         int recordSizePower = RECORD_SIZE_4096_POWER;
         int minRecordSize = 0;   
         for (int i = 0; i < eData.length; i++) {
-            header = new DataHeader(seqStart++, 'D', false);
+            header = new DataHeader(seqStart++, typeCode, false);
             b1000 = new Blockette1000();
             b100 = new Blockette100();
             if ( minRecordSize < eData[i].values.length + header.getSize() + b1000.getSize()) {
@@ -416,6 +410,53 @@ public class FissuresConvert {
                                        new SamplingImpl[0],
                                        bits);
     }
+    
+    public static List<DataRecord> toMSeed(List<PlottableChunk> chunkList, ChannelId chan) throws SeedFormatException {
+        List<DataRecord> out = new ArrayList<DataRecord>();
+        int seqStart = 0;
+        for (PlottableChunk chunk : chunkList) {
+            List<DataRecord> drList = toMSeed(toEncodedData(chunk.getYData()),
+                                                            chan,
+                                                            chunk.getBeginTime(),
+                                                            new SamplingImpl(chunk.getPixelsPerDay()*2, DAY),
+                                                            seqStart);
+            out.addAll(drList);
+            seqStart += drList.size();
+        }
+        return out;
+    }
+    
+    /** Exctract plottables stored in miniseed. Assume all datarecords are in order
+     * and from the same channel.
+     * @throws FissuresException 
+     * @throws SeedFormatException 
+     */
+    public static List<PlottableChunk> toPlottable(List<DataRecord> drList) throws SeedFormatException, FissuresException {
+        List<PlottableChunk> out = new ArrayList<PlottableChunk>();
+        for (DataRecord dr : drList) {
+            LocalSeismogramImpl seis = toFissures(new DataRecord[] {dr});
+            int[] yData = seis.get_as_longs();
+            int[] xData = new int[yData.length];
+            for (int i = 0; i < xData.length; i++) {
+                xData[i] = i/2;
+            }
+            Plottable pData = new Plottable(xData, yData);
+            int pixelsPerDay = Math.round((float)(DAY.divideBy(seis.getSampling().getPeriod()).getValue(UnitImpl.DIMENSIONLESS)/2));
+            IntRange seisPixelRange = SimplePlotUtil.getDayPixelRange(seis,
+                                                       pixelsPerDay,
+                                                       seis.getBeginTime());
+            PlottableChunk chunk = new PlottableChunk(pData,
+                                                      seisPixelRange.getMin(),
+                                                      seis.getBeginTime(), 
+                                                      pixelsPerDay,
+                                                      seis.getChannelID().network_id.network_code,
+                                                      seis.getChannelID().station_code,
+                                                      seis.getChannelID().site_code,
+                                                      seis.getChannelID().channel_code);
+            out.add(chunk);
+        }
+        return out;
+    }
 
     public static SamplingImpl convertSampleRate(DataRecord seed) {
         SamplingImpl sampling;
@@ -470,6 +511,28 @@ public class FissuresConvert {
         TimeSeriesDataSel bits = new TimeSeriesDataSel();
         bits.encoded_values(eArray);
         return bits;
+    }
+    
+    public static EncodedData[] toEncodedData(int[] data) throws SeedFormatException {
+        // for int (corba calls this a long), 64 bytes = 4 bytes * 16 samples, so each edata
+        // holds 62*16 samples
+        if (data.length == 0) {
+            throw new SeedFormatException("Can't put zero length array into encodedData");
+        }
+        EncodedData[] eData = new EncodedData[(int)Math.ceil(data.length * 4.0f / (62 * 64))];
+        for (int i = 0; i < eData.length; i++) {
+            byte[] dataBytes = new byte[62 * 64];
+            int j;
+            for (j = 0; j + (62 * 16 * i) < data.length && j < 62 * 16; j++) {
+                int val = data[j + (62 * 16 * i)];
+                dataBytes[4 * j] = (byte)((val & 0xff000000) >> 24);
+                dataBytes[4 * j + 1] = (byte)((val & 0x00ff0000) >> 16);
+                dataBytes[4 * j + 2] = (byte)((val & 0x0000ff00) >> 8);
+                dataBytes[4 * j + 3] = (byte)((val & 0x000000ff));
+            }
+            eData[i] = new EncodedData((short)B1000Types.INTEGER, dataBytes, j, false);
+        }
+        return eData;
     }
 
     public static SeismogramAttrImpl convertAttributes(DataRecord seed) throws SeedFormatException {
@@ -531,6 +594,8 @@ public class FissuresConvert {
 
     static int RECORD_SIZE_512 = (int)Math.pow(2, RECORD_SIZE_512_POWER);
 
+    public static final TimeInterval DAY = new TimeInterval(1, UnitImpl.DAY);
+    
     /**
      * Turns a UnitImpl into a byte array using Java serialization
      */
