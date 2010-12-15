@@ -1,8 +1,19 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
+import java.io.IOException;
+import java.util.List;
+
+import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.iris.dmc.seedcodec.CodecException;
+import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
+import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
+import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.SeedFormatException;
 import junit.framework.TestCase;
 
 public class TestFissuresConvert extends TestCase {
@@ -46,5 +57,16 @@ public class TestFissuresConvert extends TestCase {
                      samp.getPeriod().getValue(UnitImpl.SECOND),
                      converted.getPeriod().getValue(UnitImpl.SECOND),
                      0.00001);
+    }
+    
+    public void testPlottableToMSeed() throws CodecException, IOException, SeedFormatException, FissuresException {
+        LocalSeismogramImpl[] seis = new LocalSeismogramImpl[] {MockSeismogram.createDelta()};
+        List<PlottableChunk> chunk = SimplePlotUtil.makePlottables(seis, 6000);
+        List<DataRecord> drList = FissuresConvert.toMSeed(chunk, seis[0].getChannelID());
+        List<PlottableChunk> outChunk = FissuresConvert.toPlottable(drList);
+        assertEquals(chunk.get(0).getBeginPixel(), outChunk.get(0).getBeginPixel());
+        PlottableChunk lastChunk = chunk.get(chunk.size()-1);
+        PlottableChunk lastOutChunk = outChunk.get(outChunk.size()-1);
+        assertEquals(lastChunk.getBeginPixel()+lastChunk.getNumPixels(), lastOutChunk.getBeginPixel()+lastOutChunk.getNumPixels());
     }
 }
