@@ -86,6 +86,8 @@ public class SeismogramFileTypes {
     public static final SeismogramFileTypes PSN = new SeismogramFileTypes("psn", 3);
     
     public static final SeismogramFileTypes RT_130 = new SeismogramFileTypes("rt130", 4);
+    
+    public static final SeismogramFileTypes SIMPLE_ASCII = new SeismogramFileTypes("simple_ascii", 5);
 
     public static final String URL_PREFIX = "http://www.seis.sc.edu/xml/SeismogramFileTypes/";
 
