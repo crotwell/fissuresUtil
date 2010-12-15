@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -41,6 +42,11 @@ public class LocTypeAccess implements PropertyAccessor {
 
             public Class getReturnType() {
                 return Integer.class;
+            }
+            
+            /** this is new in hibernate 3.5 I think, not sure what the right impl is. */
+            public Member getMember() {
+                return getMethod();
             }
         };
     }
