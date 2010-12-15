@@ -64,9 +64,29 @@ public class TestFissuresConvert extends TestCase {
         List<PlottableChunk> chunk = SimplePlotUtil.makePlottables(seis, 6000);
         List<DataRecord> drList = FissuresConvert.toMSeed(chunk, seis[0].getChannelID());
         List<PlottableChunk> outChunk = FissuresConvert.toPlottable(drList);
-        assertEquals(chunk.get(0).getBeginPixel(), outChunk.get(0).getBeginPixel());
-        PlottableChunk lastChunk = chunk.get(chunk.size()-1);
-        PlottableChunk lastOutChunk = outChunk.get(outChunk.size()-1);
-        assertEquals(lastChunk.getBeginPixel()+lastChunk.getNumPixels(), lastOutChunk.getBeginPixel()+lastOutChunk.getNumPixels());
+        int numOut = 0;
+        int numIn = 0;
+        for (PlottableChunk c : chunk) {
+            numIn += c.getData().y_coor.length;
+        }
+        for (PlottableChunk c : outChunk) {
+            numOut+= c.getData().y_coor.length;
+        }
+        assertEquals("num plottable data", numIn, numOut);
+        int[] inY = new int[numIn];
+        int[] outY = new int[numOut];
+        int i=0;
+        for (PlottableChunk c : chunk) {
+            for (int j = 0; j < c.getData().y_coor.length; j++) {
+                inY[i] = c.getData().y_coor[j];
+            }
+        }
+        i=0;
+        for (PlottableChunk c : outChunk) {
+            for (int j = 0; j < c.getData().y_coor.length; j++) {
+                outY[i] = c.getData().y_coor[j];
+                assertEquals(""+i, inY[i], outY[i]);
+            }
+        }
     }
 }
