@@ -11,17 +11,19 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
-    compile "org.hibernate:hibernate-ehcache:3.3.2.GA"
-    compile ("org.hibernate:hibernate-core:3.3.2.GA")
+    compile "org.hibernate:hibernate-ehcache:3.5.1-Final"
+    compile "org.hibernate:hibernate-parent:3.6.0.Final"
     compile "javassist:javassist:3.9.0.GA"
     compile "isti:isti.util:1.0.3USC"
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
+//    compile "org.hsqldb:hsqldb:2.0.0"
     compile "postgresql:postgresql:8.3-604.jdbc3"
     compile "mysql:mysql-connector-java:5.1.9"
     compile "xerces:xercesImpl:2.10.0"
     compile "xalan:xalan:2.7.1"
     compile "openmap:openmap:4.6.2"
+//    compile "com.itextpdf:itextpdf:5.0.4"
     compile "itext:itext:2.0.7"
 //    runtime "stax:stax-api:1.0.1"
 //    runtime group: 'stax', name: 'stax', version: '1.2.0', transitive: false
@@ -33,6 +35,65 @@ dependencies {
     testCompile "junit:junit:3.8.2"
     testCompile "junit-addons:junit-addons:1.4"
 }
+
+binDistFiles = copySpec {
+    from('build/output') {
+        fileMode=0755
+        include('bin/**')
+    }
+    from('build/output') {
+        include('lib/**')
+    }
+}
+
+distFiles = copySpec {
+    with(binDistFiles)
+    from('build/docs') {
+        include('javadoc/**')
+    }
+    from('build') {
+        include('build.gradle')
+        include('settings.gradle')
+    }
+    from('.') {
+        include('gpl-3.0.txt')
+        include('README.txt')
+        include('doc/**')
+        include('src/**')
+        include('gradleWrapper/**')
+        include('gradlew.bat')
+        exclude('**/*.svn')
+    }
+    from('.') {
+        fileMode=0755
+        include('gradlew')
+    }
+    from('build') {
+        include('build.gradle')
+    }
+}
+
+
+task explodeBin(type: Sync, dependsOn: ['makeScript' ]) {
+    group = 'dist'
+    with binDistFiles
+    into file("$buildDir/explode")
+}
+task explodeDist(type: Sync, dependsOn: ['makeScript', 'javadoc', 'wrapper', 'createBuildScript']) {
+    group = 'dist'
+    with distFiles
+    into file("$buildDir/explode")
+}
+
+
+task tarDist(type: Tar, dependsOn: ['makeScript', 'javadoc', 'wrapper', 'createBuildScript']) {
+    dirName = project.name+'-'+version
+    compression = Compression.GZIP
+    into(dirName) {
+        with distFiles
+    }
+}
+
 
 def getDExtras() {
     return [ 'seis.name':'sod-3.0.0alpha.sod',
@@ -48,7 +109,8 @@ def getDExtras() {
 
 task makeScript(dependsOn: copyToLib) << { task ->
     dExtras = getDExtras()
-    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
+//    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
     ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', task.project, dExtras:dExtras)
     ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', task.project, dExtras:dExtras)
+    ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', task.project, dExtras:dExtras)
 }
