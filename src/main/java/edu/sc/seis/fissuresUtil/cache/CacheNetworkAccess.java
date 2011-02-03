@@ -78,10 +78,6 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
             if(stations == null) {
                 stations = getNetworkAccess().retrieve_stations();
                 for(int i = 0; i < stations.length; i++) {
-                    if(stations[i].get_code().equals("CMB")) {
-                        logger.debug("Station From Server: "
-                                + StationIdUtil.toStringFormatDates(stations[i]));
-                    }
                     stations[i] = Station.intern(stations[i]);
                 }
             }
