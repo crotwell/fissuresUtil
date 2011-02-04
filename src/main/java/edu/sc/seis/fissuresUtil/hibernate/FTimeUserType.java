@@ -7,11 +7,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
+import org.hibernate.type.StandardBasicTypes;
 
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -57,11 +57,11 @@ public class FTimeUserType implements CompositeUserType {
     public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
     throws HibernateException, SQLException { 
 
-        Timestamp first = (Timestamp) Hibernate.TIMESTAMP.nullSafeGet(rs, names[0]);
+        Timestamp first = (Timestamp) StandardBasicTypes.TIMESTAMP.nullSafeGet(rs, names[0]);
         if ( first==null ) {System.out.println("WARNING: timestamp in FTimeUserType is null!");return null ;}
-        int second = ((Integer)Hibernate.INTEGER.nullSafeGet(rs, names[1])).intValue();
+        int second = ((Integer)StandardBasicTypes.INTEGER.nullSafeGet(rs, names[1])).intValue();
         first.setNanos(second);
-        int third = ((Integer)Hibernate.INTEGER.nullSafeGet(rs, names[2])).intValue();
+        int third = ((Integer)StandardBasicTypes.INTEGER.nullSafeGet(rs, names[2])).intValue();
         MicroSecondDate out = new MicroSecondDate(first, third);
         return  out.getFissuresTime();
     }
@@ -69,13 +69,13 @@ public class FTimeUserType implements CompositeUserType {
     public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
     throws HibernateException, SQLException {
         if (value == null) {System.out.println("WARNING: value in FTimeUserType.nullSafeSet is null!");
-            Hibernate.TIMESTAMP.nullSafeSet(st, null, index);
-            Hibernate.INTEGER.nullSafeSet(st, null, index+1);
-            Hibernate.INTEGER.nullSafeSet(st, null, index+2);
+        StandardBasicTypes.TIMESTAMP.nullSafeSet(st, null, index);
+        StandardBasicTypes.INTEGER.nullSafeSet(st, null, index+1);
+        StandardBasicTypes.INTEGER.nullSafeSet(st, null, index+2);
         } else {
-            Hibernate.TIMESTAMP.nullSafeSet(st, new MicroSecondDate((Time)value).getTimestamp(), index);
-            Hibernate.INTEGER.nullSafeSet(st, new Integer(new MicroSecondDate((Time)value).getTimestamp().getNanos()), index+1);
-            Hibernate.INTEGER.nullSafeSet(st, new Integer(((Time)value).leap_seconds_version), index+2);
+            StandardBasicTypes.TIMESTAMP.nullSafeSet(st, new MicroSecondDate((Time)value).getTimestamp(), index);
+            StandardBasicTypes.INTEGER.nullSafeSet(st, new Integer(new MicroSecondDate((Time)value).getTimestamp().getNanos()), index+1);
+            StandardBasicTypes.INTEGER.nullSafeSet(st, new Integer(((Time)value).leap_seconds_version), index+2);
         }
     }
 
@@ -84,7 +84,7 @@ public class FTimeUserType implements CompositeUserType {
     }
 
     public Type[] getPropertyTypes() {
-        return new Type[] { Hibernate.TIMESTAMP, Hibernate.INTEGER, Hibernate.INTEGER };
+        return new Type[] { StandardBasicTypes.TIMESTAMP, StandardBasicTypes.INTEGER, StandardBasicTypes.INTEGER };
     }
 
     public Object getPropertyValue(Object component, int property) {
