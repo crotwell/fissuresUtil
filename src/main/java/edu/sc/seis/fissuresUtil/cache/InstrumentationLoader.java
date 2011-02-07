@@ -18,6 +18,7 @@ import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.Stage;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sac.InvalidResponse;
@@ -116,6 +117,10 @@ public class InstrumentationLoader extends Thread
         addToQueue(new WorkUnit(seis, net));
     }
 
+    public static boolean isValidSensitivity(QuantityImpl sens) {
+        return sens.getValue() != -1;
+    }
+    
     public static boolean isValid(Sensitivity sens) {
         return sens.frequency >= 0 && sens.sensitivity_factor != -1;
     }
