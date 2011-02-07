@@ -35,6 +35,13 @@ public class ResponseGain {
                                             Sensitivity sensitivity,
                                             Unit initialUnits)
             throws FissuresException {
+        return apply(seis, sensitivity.sensitivity_factor, initialUnits);
+    }
+
+    public static LocalSeismogramImpl apply(LocalSeismogramImpl seis,
+                                            float sensitivity_factor,
+                                            Unit initialUnits)
+            throws FissuresException {
         // Sensitivity is COUNTs per Ground Motion, so should divide in order to
         // convert COUNT seismogram into Ground Motion.
         LocalSeismogramImpl outSeis;
@@ -43,14 +50,14 @@ public class ResponseGain {
             float[] fSeries = seis.get_as_floats();
             float[] out = new float[fSeries.length];
             for(int i = 0; i < fSeries.length; i++) {
-                out[i] = fSeries[i] / sensitivity.sensitivity_factor;
+                out[i] = fSeries[i] / sensitivity_factor;
             }
             outSeis = new LocalSeismogramImpl(seis, out);
         } else {
             double[] dSeries = seis.get_as_doubles();
             double[] out = new double[dSeries.length];
             for(int i = 0; i < dSeries.length; i++) {
-                out[i] = dSeries[i] / sensitivity.sensitivity_factor;
+                out[i] = dSeries[i] / sensitivity_factor;
             }
             outSeis = new LocalSeismogramImpl(seis, out);
         } // end of else
