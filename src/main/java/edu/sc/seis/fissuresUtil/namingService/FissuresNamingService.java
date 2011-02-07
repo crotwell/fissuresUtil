@@ -6,7 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Category;
+
+import org.omg.CORBA.SystemException;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.UserException;
 import org.omg.CosNaming.Binding;
@@ -26,6 +27,7 @@ import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.CosNaming.NamingContextPackage.NotFoundReason;
 import org.omg.PortableServer.Servant;
+
 import edu.iris.Fissures.IfEvent.EventDC;
 import edu.iris.Fissures.IfEvent.EventDCHelper;
 import edu.iris.Fissures.IfNetwork.NetworkDC;
@@ -245,19 +247,50 @@ public class FissuresNamingService {
                        org.omg.CORBA.Object obj,
                        String interfacename) throws NotFound, CannotProceed,
             InvalidName {
-        rebind(dns, objectname, obj, getNameService(), interfacename);
-        Iterator it = otherNS.iterator();
+        String corbaloc = getNameServiceCorbaLoc();
+        try {
+            rebind(dns, objectname, obj, getNameServiceCorbaLoc(), interfacename);
+        } catch (org.omg.CORBA.SystemException e) {
+            logger.warn("Unable to register with : "+corbaloc, e);
+        }
+        Iterator<String> it = otherNS.iterator();
         while(it.hasNext()) {
-            String corbaloc = (String)it.next();
-            org.omg.CORBA.Object ncObj = orb.string_to_object(corbaloc);
+            try {
+            corbaloc = (String)it.next();
+            rebind(dns, objectname, obj, interfacename, corbaloc);
+            } catch (org.omg.CORBA.SystemException e) {
+                logger.warn("Unable to register with : "+corbaloc, e);
+            }
+        }
+    }
+    
+    public void rebind(String dns,
+                       String objectname,
+                       org.omg.CORBA.Object obj,
+                       String interfacename,
+                       String corbaLoc) throws NotFound,
+            CannotProceed, InvalidName {
+        // try 3 times
+        int retries = 3;
+        SystemException lastException = null;
+        while(retries > 0) {
+            try {
+            org.omg.CORBA.Object ncObj = orb.string_to_object(corbaLoc);
             if(ncObj != null) {
                 NamingContextExt nc = NamingContextExtHelper.narrow(ncObj);
                 rebind(dns, objectname, obj, nc, interfacename);
+                return;
             } else {
-                throw new InvalidName("Can't narrow NameContext for "
-                        + corbaloc);
+                throw new InvalidName("Can't string_to_object for "
+                                      + corbaLoc);
+            }
+            } catch (SystemException e) {
+                retries--;
+                logger.warn("Problem registering with: "+corbaLoc+" retries="+retries, e);
+                lastException = e;
             }
         }
+        throw lastException;
     }
 
     /**
@@ -801,9 +834,9 @@ public class FissuresNamingService {
 
     private NamingContextExt rootNamingContext;
 
-    protected List otherNS = new LinkedList();
+    protected List<String> otherNS = new LinkedList<String>();
 
-    static Category logger = Category.getInstance(FissuresNamingService.class.getName());
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(FissuresNamingService.class);
 
     public static boolean isMock(String dns, String name) {
         return dns.equals("edu/sc/seis")
