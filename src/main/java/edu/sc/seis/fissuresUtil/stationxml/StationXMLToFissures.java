@@ -160,16 +160,32 @@ public class StationXMLToFissures {
                                                                           LocationType.GEOGRAPHIC),
                                                              chanTimeRange,
                                                              station, UNKNOWN));
-            QuantityImpl sensitivity = new QuantityImpl(chanEpoch.getInstrumentSensitivity().getSensitivityValue(),
-                                                        convertUnit(chanEpoch.getInstrumentSensitivity().getSensitivityUnits()) );
+            QuantityImpl sensitivity = null;
+            if ( chanEpoch.getInstrumentSensitivity() != null) {
+            
+                sensitivity = new QuantityImpl(chanEpoch.getInstrumentSensitivity().getSensitivityValue(),
+                                                            convertUnit(chanEpoch.getInstrumentSensitivity().getSensitivityUnits()) );
+            } else {
+                logger.warn("No sensitivity for "+ChannelIdUtil.toStringFormatDates(chan.getId()));
+            }
             out.add(new ChannelSensitivityBundle(chan, sensitivity));
         }
         return out;
     }
     
     public static UnitImpl convertUnit(String xml) throws StationXMLException {
-        if (xml.trim().equalsIgnoreCase("M/S - Velocity in Meters Per Second")) {
+        String unitString;
+        if (xml.indexOf(" - ") == -1) {
+            unitString = xml.substring(0, xml.indexOf(" - ")).trim();
+        } else {
+            unitString = xml.trim(); // probably won't work, but might as well try
+        }
+        if (unitString.equalsIgnoreCase("M")) {
+            return UnitImpl.METER;
+        } else if (unitString.equalsIgnoreCase("M/S")) {
             return UnitImpl.METER_PER_SECOND;
+        } else if (unitString.equalsIgnoreCase("M/S/S")) {
+            return UnitImpl.METER_PER_SECOND_PER_SECOND;
         } else {
             throw new StationXMLException("Unknown unit: "+xml);
         }
@@ -216,4 +232,5 @@ public class StationXMLToFissures {
     
     public static final TimeInterval ONE_SECOND = new TimeInterval(1, UnitImpl.SECOND);
     
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(StationXMLToFissures.class);
 }
