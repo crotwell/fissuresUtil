@@ -72,7 +72,6 @@ public class StationXMLToFissures {
     }
     
     public static List<StationChannelBundle> convert(Station xml, List<NetworkAttrImpl> knownNets, boolean extractChannels) throws StationXMLException {
-        System.out.println("convert: "+xml.getNetCode()+"."+xml.getStaCode()+"  knownNets.size="+knownNets.size());
         NetworkAttrImpl attr = null;
         for (NetworkAttrImpl net : knownNets) {
             if (xml.getNetCode().equals(net.get_code()))  {
@@ -116,7 +115,6 @@ public class StationXMLToFissures {
                 for (Channel xmlChan : staEpoch.getChannelList()) {
                     List<ChannelSensitivityBundle> chans = convert(xmlChan, sta);
                     bundle.getChanList().addAll(chans);
-                    System.out.println("Convert: "+ChannelIdUtil.toStringNoDates(chans.get(0).getChan()));
                     if ( ! chans.get(0).getChan().getStationImpl().getNetworkAttrImpl().get_code().equals(xml.getNetCode()) ||
                             !  chans.get(0).getChan().getStationImpl().get_code().equals(xml.getStaCode())) {
                         throw new StationXMLException("Chan doesn't match station or net: "+ChannelIdUtil.toStringNoDates(chans.get(0).getChan())+"  "+xml.getNetCode()+"."+xml.getStaCode()+"  attr:"+NetworkIdUtil.toStringNoDates(attr));
@@ -175,7 +173,7 @@ public class StationXMLToFissures {
     
     public static UnitImpl convertUnit(String xml) throws StationXMLException {
         String unitString;
-        if (xml.indexOf(" - ") == -1) {
+        if (xml.indexOf(" - ") != -1) {
             unitString = xml.substring(0, xml.indexOf(" - ")).trim();
         } else {
             unitString = xml.trim(); // probably won't work, but might as well try
@@ -187,7 +185,7 @@ public class StationXMLToFissures {
         } else if (unitString.equalsIgnoreCase("M/S/S")) {
             return UnitImpl.METER_PER_SECOND_PER_SECOND;
         } else {
-            throw new StationXMLException("Unknown unit: "+xml);
+            throw new StationXMLException("Unknown unit: '"+xml+"'");
         }
     }
     
@@ -197,7 +195,7 @@ public class StationXMLToFissures {
     
     public static void main(String[] args) throws FileNotFoundException, XMLStreamException, StationXMLException {
         if (args.length == 0) {
-            System.out.println("Usage: styxprint filename.xml");
+            System.out.println("Usage: StationXMLToFissures filename.xml");
             return;
         }
         String filename = args[0];
