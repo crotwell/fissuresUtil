@@ -159,10 +159,14 @@ public class StationXMLToFissures {
                                                              chanTimeRange,
                                                              station, UNKNOWN));
             QuantityImpl sensitivity = null;
-            if ( chanEpoch.getInstrumentSensitivity() != null) {
-            
+            if ( chanEpoch.getInstrumentSensitivity() != null &&
+                    chanEpoch.getInstrumentSensitivity().getSensitivityUnits().trim().length() != 0) {
+                try {
                 sensitivity = new QuantityImpl(chanEpoch.getInstrumentSensitivity().getSensitivityValue(),
                                                             convertUnit(chanEpoch.getInstrumentSensitivity().getSensitivityUnits()) );
+                } catch (StationXMLException e) {
+                    logger.warn("Unable to extract unit: "+ChannelIdUtil.toStringFormatDates(chan.getId()), e);
+                }
             } else {
                 logger.warn("No sensitivity for "+ChannelIdUtil.toStringFormatDates(chan.getId()));
             }
@@ -178,11 +182,17 @@ public class StationXMLToFissures {
         } else {
             unitString = xml.trim(); // probably won't work, but might as well try
         }
+        if (unitString.length() == 0) {
+            // no unit, probalby means unknown response
+            
+        }
         if (unitString.equalsIgnoreCase("M")) {
             return UnitImpl.METER;
         } else if (unitString.equalsIgnoreCase("M/S")) {
             return UnitImpl.METER_PER_SECOND;
-        } else if (unitString.equalsIgnoreCase("M/S/S")) {
+        } else if (unitString.equalsIgnoreCase("NM/S")) {
+            return UnitImpl.NANOMETER_PER_SECOND;
+        } else if (unitString.equalsIgnoreCase("M/S/S") || unitString.equalsIgnoreCase("M/S**2")) {
             return UnitImpl.METER_PER_SECOND_PER_SECOND;
         } else {
             throw new StationXMLException("Unknown unit: '"+xml+"'");
