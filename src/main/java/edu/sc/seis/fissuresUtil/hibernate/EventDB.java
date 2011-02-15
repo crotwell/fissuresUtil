@@ -110,11 +110,7 @@ public class EventDB extends AbstractHibernateDB {
 
 	public long put(CacheEvent event) {
 		Session session = getSession();
-		internUnit(event.getOrigin().getLocation());
-		Origin[] origins = event.get_origins();
-		for(int i = 0; i < origins.length; i++) {
-            internUnit(origins[i].getLocation());
-        }
+		internUnit(event);
 		Integer dbid = (Integer) session.save(event);
 		return dbid.longValue();
 	}
@@ -235,6 +231,14 @@ public class EventDB extends AbstractHibernateDB {
 	 */
 	protected Class getEventClass() {
 		return CacheEvent.class;
+	}
+	
+	protected void internUnit(CacheEvent event) {
+        internUnit(event.getOrigin().getLocation());
+        Origin[] origins = event.get_origins();
+        for(int i = 0; i < origins.length; i++) {
+            internUnit(origins[i].getLocation());
+        }
 	}
 
 	protected String getLastEventString;
