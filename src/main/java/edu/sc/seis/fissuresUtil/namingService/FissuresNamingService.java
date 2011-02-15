@@ -249,7 +249,7 @@ public class FissuresNamingService {
             InvalidName {
         String corbaloc = getNameServiceCorbaLoc();
         try {
-            rebind(dns, objectname, obj, getNameServiceCorbaLoc(), interfacename);
+            rebind(dns, objectname, obj, interfacename, corbaloc);
         } catch (org.omg.CORBA.SystemException e) {
             logger.warn("Unable to register with : "+corbaloc, e);
         }
