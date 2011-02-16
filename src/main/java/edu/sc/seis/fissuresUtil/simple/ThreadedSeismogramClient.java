@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThreadedSeismogramClient extends SimpleSeismogramClient{
     public void exercise(){
@@ -31,7 +32,7 @@ public class ThreadedSeismogramClient extends SimpleSeismogramClient{
         return runnables;
     }
 
-    private static Logger logger = Logger.getLogger(ThreadedSeismogramClient.class);
+    private static Logger logger = LoggerFactory.getLogger(ThreadedSeismogramClient.class);
 
     public static void main(String[] args){
         Initializer.init(args);

@@ -18,7 +18,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -441,5 +442,5 @@ public class DataSetToXML {
      */
     protected boolean useDataSetRef = true;
 
-    static Logger logger = Logger.getLogger(DataSetToXML.class);
+    static Logger logger = LoggerFactory.getLogger(DataSetToXML.class);
 }

@@ -10,7 +10,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.etopo.ETOPOJarLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -164,5 +165,5 @@ public class ColorMapEtopoLayer extends ETOPOJarLayer implements
 
 	private int[] redValues, greenValues, blueValues;
 
-	private static Logger logger = Logger.getLogger(ColorMapEtopoLayer.class);
+	private static Logger logger = LoggerFactory.getLogger(ColorMapEtopoLayer.class);
 }

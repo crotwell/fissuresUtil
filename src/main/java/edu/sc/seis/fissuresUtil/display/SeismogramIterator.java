@@ -12,7 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
@@ -294,7 +295,7 @@ public class SeismogramIterator implements Iterator{
 
     private Map statisticsMap = new HashMap();
 
-    private static Logger logger = Logger.getLogger(SeismogramIterator.class);
+    private static Logger logger = LoggerFactory.getLogger(SeismogramIterator.class);
 
     private List iterateList = new ArrayList();
 

@@ -5,7 +5,8 @@ import java.io.InputStream;
 import java.net.URL;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xpath.XPathAPI;
 import org.apache.xpath.objects.XObject;
 import org.w3c.dom.Document;
@@ -17,7 +18,7 @@ import org.w3c.dom.NodeList;
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 10257 2004-08-31 13:47:25Z groves $
+ * @version $Id: SimpleXLink.java 22054 2011-02-16 16:51:38Z crotwell $
 */
 public class SimpleXLink {
 
@@ -146,6 +147,6 @@ public class SimpleXLink {
 
     protected URL base;
 
-    static Category logger = Category.getInstance(SimpleXLink.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(SimpleXLink.class.getName());
 
 }

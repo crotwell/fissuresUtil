@@ -240,5 +240,5 @@ public class RetryPlottableDC implements ProxyPlottableDC, CorbaServerWrapper {
 
     RetryStrategy strat;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RetryPlottableDC.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RetryPlottableDC.class);
 }

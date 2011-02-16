@@ -21,7 +21,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Description: This class can be used to display the GUI showing the exception
@@ -201,5 +202,5 @@ public class GUIReporter implements ExceptionReporter {
 
     private JPanel displayPanel;
 
-    private static Logger logger = Logger.getLogger(GUIReporter.class);
+    private static Logger logger = LoggerFactory.getLogger(GUIReporter.class);
 }// ExceptionHandlerGUI

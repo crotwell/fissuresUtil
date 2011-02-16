@@ -2,7 +2,8 @@ package edu.sc.seis.fissuresUtil.map.layers;
 
 import java.awt.Graphics;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Projection;
@@ -59,5 +60,5 @@ public class FissuresShapeLayer extends ShapeLayer implements OverriddenOMLayer{
     
     private int overviewLineWidth = 1, lineWidthThreshold = 5500000;
     private boolean overrideProjectionChanged = false;
-    private static Logger logger = Logger.getLogger(FissuresShapeLayer.class);    
+    private static Logger logger = LoggerFactory.getLogger(FissuresShapeLayer.class);    
 }

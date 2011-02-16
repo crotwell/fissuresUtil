@@ -18,7 +18,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,7 +45,7 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
  * Access to a dataset stored as an XML file.
  * 
  * @author <a href="mailto:">Philip Crotwell </a>
- * @version $Id: XMLDataSet.java 19860 2008-09-04 12:37:15Z crotwell $
+ * @version $Id: XMLDataSet.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.
@@ -1044,5 +1045,5 @@ public class XMLDataSet implements DataSet, Serializable {
 
     private static final String seisNameKey = "Name";
 
-    static Category logger = Category.getInstance(XMLDataSet.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(XMLDataSet.class.getName());
 } // XMLDataSet

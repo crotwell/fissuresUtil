@@ -8,7 +8,8 @@ import java.util.TimeZone;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
@@ -36,7 +37,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 21241 2010-04-22 17:02:49Z crotwell $
+ * @version $Id: EventInfoDisplay.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
@@ -334,7 +335,7 @@ public class EventInfoDisplay extends TextInfoDisplay{
     DecimalFormat twoDecimal = new DecimalFormat("0.00");
     SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
 
-    static Logger logger = Logger.getLogger(EventInfoDisplay.class);
+    static Logger logger = LoggerFactory.getLogger(EventInfoDisplay.class);
 }// EventInfoDisplay
 
 

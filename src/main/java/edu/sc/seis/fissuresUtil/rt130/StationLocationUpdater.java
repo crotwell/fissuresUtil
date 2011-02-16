@@ -12,8 +12,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.Location;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.database.JDBCLocation;
@@ -105,5 +108,5 @@ public class StationLocationUpdater {
 
     private static boolean dryRun = false;
 
-    private static final Logger logger = Logger.getLogger(StationLocationUpdater.class);
+    private static final Logger logger = LoggerFactory.getLogger(StationLocationUpdater.class);
 }

@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -239,7 +240,7 @@ public class ImageAugmenter {
         }
     }
 
-    private static Logger logger = Logger.getLogger(ImageAugmenter.class);
+    private static Logger logger = LoggerFactory.getLogger(ImageAugmenter.class);
 
     private boolean yFromBottom = false;
 

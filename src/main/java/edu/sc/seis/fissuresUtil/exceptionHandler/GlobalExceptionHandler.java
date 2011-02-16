@@ -16,7 +16,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GlobalExceptionHandler {
 
@@ -243,7 +244,7 @@ public class GlobalExceptionHandler {
 
     private static Map sectionToContents = new HashMap();
 
-    private static Logger logger = Logger.getLogger(GlobalExceptionHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private static List reporters = Collections.synchronizedList(new ArrayList());
 

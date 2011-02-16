@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
@@ -11,7 +12,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Created: Sat Oct 19 21:54:26 2002
  *
  * @author <a href="mailto:www@seis.sc.edu">Philip Crotwell</a>
- * @version $Id: RMean.java 17005 2006-04-25 19:40:01Z crotwell $
+ * @version $Id: RMean.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 
 public class RMean implements LocalSeismogramFunction {
@@ -88,6 +89,6 @@ public class RMean implements LocalSeismogramFunction {
     }
 
 
-    private static final Logger logger = Logger.getLogger(RMean.class);
+    private static final Logger logger = LoggerFactory.getLogger(RMean.class);
 
 }// RMean

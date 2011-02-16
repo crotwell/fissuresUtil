@@ -99,5 +99,5 @@ public class LoggingNetworkAccess extends ProxyNetworkAccess {
         return super.get_audit_trail_for_channel(id);
     }
     
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(LoggingNetworkAccess.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoggingNetworkAccess.class);
 }

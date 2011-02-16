@@ -7,7 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.ServiceContext;
 import org.omg.PortableInterceptor.ClientRequestInfo;
@@ -112,5 +113,5 @@ public class Alohomora extends LocalObject implements ClientRequestInterceptor,
     public static final String ALOHOMORA_ORB_PROP_NAME = "org.omg.PortableInterceptor.ORBInitializerClass.edu.sc.seis.fissuresUtil.Alohomora";
     public static final String ALOHOMORA_ORB_PROP_VALUE = "edu.sc.seis.fissuresUtil.Alohomora";
 
-    private static final Logger logger = Logger.getLogger(Alohomora.class);
+    private static final Logger logger = LoggerFactory.getLogger(Alohomora.class);
 }

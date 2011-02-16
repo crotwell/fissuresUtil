@@ -14,7 +14,8 @@ import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -378,7 +379,7 @@ public class PlottableChunk {
 
     private int jday, year;
 
-    private static final Logger logger = Logger.getLogger(PlottableChunk.class);
+    private static final Logger logger = LoggerFactory.getLogger(PlottableChunk.class);
 
     
     public String getNetworkCode() {

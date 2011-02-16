@@ -49,7 +49,7 @@ public class ConfigDefinitions {
         }
     }
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ConfigDefinitions.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigDefinitions.class);
 
     private Map idsToConfigs = new HashMap();
 }

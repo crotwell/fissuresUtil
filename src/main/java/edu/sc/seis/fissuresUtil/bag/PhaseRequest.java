@@ -2,7 +2,8 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
@@ -204,7 +205,7 @@ public class PhaseRequest  {
 
     private Location prevOriginLoc, prevSiteLoc;
 
-    private static Logger logger = Logger.getLogger(PhaseRequest.class);
+    private static Logger logger = LoggerFactory.getLogger(PhaseRequest.class);
 
     private static final String ORIGIN = "origin";
 }// PhaseRequest

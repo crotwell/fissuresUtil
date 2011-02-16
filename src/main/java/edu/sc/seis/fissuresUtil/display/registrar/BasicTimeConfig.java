@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
@@ -239,5 +240,5 @@ public class BasicTimeConfig implements TimeConfig{
 
     protected MicroSecondTimeRange time, initialTime;
 
-    private static Category logger = Category.getInstance(BasicTimeConfig.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(BasicTimeConfig.class.getName());
 }// BasicTimeConfig

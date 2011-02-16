@@ -6,7 +6,8 @@
 package edu.sc.seis.fissuresUtil.xml;
 
 import java.net.URL;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -243,5 +244,5 @@ public class URLDataSet implements DataSet {
 
     private DataSet cache;
 
-    static Logger logger = Logger.getLogger(URLDataSet.class);
+    static Logger logger = LoggerFactory.getLogger(URLDataSet.class);
 }

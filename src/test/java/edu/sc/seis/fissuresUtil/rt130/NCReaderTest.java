@@ -5,9 +5,12 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
+
 import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
+
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.Site;

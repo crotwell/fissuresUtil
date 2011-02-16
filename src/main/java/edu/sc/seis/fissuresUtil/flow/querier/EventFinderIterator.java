@@ -2,7 +2,8 @@ package edu.sc.seis.fissuresUtil.flow.querier;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAccessSeqHolder;
 import edu.iris.Fissures.IfEvent.EventFinder;
@@ -109,5 +110,5 @@ public class EventFinderIterator implements Iterator {
 
     private EventSeqIter iter;
 
-    private static final Logger logger = Logger.getLogger(EventFinderIterator.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventFinderIterator.class);
 }

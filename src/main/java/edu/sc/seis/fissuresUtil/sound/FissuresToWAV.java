@@ -12,7 +12,8 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.swing.event.EventListenerList;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
@@ -196,7 +197,6 @@ public class FissuresToWAV {
     }
 
     public int calculateSampleRate(SamplingImpl sampling){
-        logger.debug(sampling);
         QuantityImpl freq = sampling.getFrequency();
         freq = freq.convertTo(UnitImpl.HERTZ);
         int sampleRate = (int)(freq.getValue() * speedUp);
@@ -245,8 +245,7 @@ public class FissuresToWAV {
 
     }
 
-    static Category logger =
-        Category.getInstance(FissuresToWAV.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(FissuresToWAV.class.getName());
 
 } // FissuresToWAV
 

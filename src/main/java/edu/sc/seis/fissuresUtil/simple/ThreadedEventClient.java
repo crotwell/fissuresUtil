@@ -1,8 +1,11 @@
 package edu.sc.seis.fissuresUtil.simple;
 
 import java.util.Properties;
+
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 
@@ -60,7 +63,7 @@ public class ThreadedEventClient extends SimpleEventClient{
 
     private static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
-    private static Logger logger = Logger.getLogger(ThreadedEventClient.class);
+    private static Logger logger = LoggerFactory.getLogger(ThreadedEventClient.class);
 
     public static void amain(String[] args){
         Initializer.init(args);

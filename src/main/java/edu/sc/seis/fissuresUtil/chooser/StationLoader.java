@@ -8,7 +8,8 @@ package edu.sc.seis.fissuresUtil.chooser;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -75,7 +76,7 @@ public class StationLoader extends Thread {
     void stationAdd(final Station[] s) { chooser.addStationsFromThread(s); }
 
     private static Logger logger =
-        Logger.getLogger(StationLoader.class);
+        LoggerFactory.getLogger(StationLoader.class);
 
 }
 

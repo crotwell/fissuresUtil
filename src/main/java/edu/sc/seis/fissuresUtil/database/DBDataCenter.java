@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
@@ -209,5 +210,5 @@ public class DBDataCenter implements DataCenterOperations, LocalDCOperations {
 
     private int requestNumber = 1;
 
-    private static Logger logger = Logger.getLogger(DBDataCenter.class);
+    private static Logger logger = LoggerFactory.getLogger(DBDataCenter.class);
 }// DBDataCenter

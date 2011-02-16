@@ -6,7 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -330,7 +331,7 @@ public class BasicAmpConfig implements AmpConfig{
 
     private AmpEvent ampEvent = new LazyAmpEvent(this);
 
-    private static Category logger = Category.getInstance(BasicAmpConfig.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(BasicAmpConfig.class.getName());
 }//BasicAmpConfig
 
 

@@ -3,7 +3,8 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 /**
@@ -242,8 +243,7 @@ public class SeismogramShapeIterator implements PathIterator {
     
     protected AffineTransform at;
     
-    private static Category logger =
-        Category.getInstance(SeismogramShapeIterator.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(SeismogramShapeIterator.class.getName());
 }// SeismogramShapeIterator
 
 

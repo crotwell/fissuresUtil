@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Timer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -205,7 +206,7 @@ public class RTTimeRangeConfig implements TimeConfig, TimeListener{
 
     protected TimeInterval width;
 
-    private static Logger logger = Logger.getLogger(RTTimeRangeConfig.class);
+    private static Logger logger = LoggerFactory.getLogger(RTTimeRangeConfig.class);
     public static TimeInterval DEFAULT_REFRESH = new TimeInterval(.125, UnitImpl.SECOND);
 
     private static TimeInterval THREE_MINUTES = new TimeInterval(3, UnitImpl.MINUTE);

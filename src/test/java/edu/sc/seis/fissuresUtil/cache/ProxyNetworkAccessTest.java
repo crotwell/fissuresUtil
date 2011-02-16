@@ -1,9 +1,12 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import java.util.Properties;
+
 import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
 import org.omg.CORBA.SystemException;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.NamedNetDC;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;

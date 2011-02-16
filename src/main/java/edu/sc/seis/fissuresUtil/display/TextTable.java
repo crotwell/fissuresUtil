@@ -11,7 +11,8 @@ package edu.sc.seis.fissuresUtil.display;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TextTable{
 	
@@ -20,7 +21,7 @@ public class TextTable{
 	private String[] header = null;
 	protected List rows = new ArrayList();
 	protected int[] widths;
-	private static Logger logger = Logger.getLogger(TextTable.class);
+	private static Logger logger = LoggerFactory.getLogger(TextTable.class);
 	
 	public TextTable(int columns){
 		this(columns, false);

@@ -3,7 +3,8 @@ package edu.sc.seis.fissuresUtil.chooser;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.network.ChannelIdUtil;
@@ -188,8 +189,7 @@ public class ChannelGrouperImpl {
                       "UVZ",
                       "123",
                       "UVW"};
-    static Category logger =
-    Category.getInstance(ChannelGrouperImpl.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(ChannelGrouperImpl.class.getName());
     
      
 }//ChannelGrouperImpl

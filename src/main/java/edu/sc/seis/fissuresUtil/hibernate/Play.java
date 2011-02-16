@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.hibernate.LockMode;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -39,7 +37,6 @@ public class Play {
     public static void main(String[] args) throws SQLException {
         try {
             BasicConfigurator.configure();
-            Logger.getRootLogger().setLevel(Level.INFO);
             Play mgr = new Play();
             TimeOMatic.start();
             String todo = args[2];
@@ -187,5 +184,5 @@ public class Play {
         return ConnMgr.createConnection();
     }
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Play.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Play.class);
 }

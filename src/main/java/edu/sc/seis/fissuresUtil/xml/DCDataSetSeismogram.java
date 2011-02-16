@@ -4,7 +4,8 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -90,5 +91,5 @@ public class DCDataSetSeismogram extends DataSetSeismogram implements
 
     private DataCenterOperations dataCenterOps;
 
-    static Category logger = Category.getInstance(DCDataSetSeismogram.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(DCDataSetSeismogram.class.getName());
 }// DataSetSeismogram

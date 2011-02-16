@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -187,7 +188,7 @@ public class DataCenterThread implements Runnable{
 
     private Set initiators = Collections.synchronizedSet(new HashSet());
 
-    private static Category logger = Category.getInstance(DataCenterThread.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(DataCenterThread.class.getName());
 
     private boolean finished = false, failed = false;
 

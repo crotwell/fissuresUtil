@@ -8,9 +8,12 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+
 import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
+
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;

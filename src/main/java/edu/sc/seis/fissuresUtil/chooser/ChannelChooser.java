@@ -26,7 +26,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -50,7 +51,7 @@ import edu.sc.seis.fissuresUtil.cache.VestingNetworkDC;
  * ChannelChooser.java
  * 
  * @author Philip Crotwell
- * @version $Id: ChannelChooser.java 20590 2009-07-20 15:44:00Z crotwell $
+ * @version $Id: ChannelChooser.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 /**
  * @author Charlie Groves
@@ -1380,5 +1381,5 @@ public class ChannelChooser extends JPanel {
 
     private List channelSelectionListeners = new ArrayList();
 
-    static Category logger = Category.getInstance(ChannelChooser.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(ChannelChooser.class.getName());
 } // ChannelChooser

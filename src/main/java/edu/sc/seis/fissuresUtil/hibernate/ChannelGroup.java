@@ -1,7 +1,8 @@
 
 package edu.sc.seis.fissuresUtil.hibernate;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Orientation;
@@ -254,5 +255,5 @@ public class ChannelGroup {
 
     private ChannelImpl[] channels;
 
-    private static final Logger logger = Logger.getLogger(ChannelGroup.class);
+    private static final Logger logger = LoggerFactory.getLogger(ChannelGroup.class);
 }

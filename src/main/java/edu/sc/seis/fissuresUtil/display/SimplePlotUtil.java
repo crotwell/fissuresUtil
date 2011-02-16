@@ -23,7 +23,7 @@ import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999
  * 
  * @author Philip Crotwell, Charlie Groves
- * @version $Id: SimplePlotUtil.java 21929 2010-12-15 19:18:44Z crotwell $
+ * @version $Id: SimplePlotUtil.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 public class SimplePlotUtil {
 
@@ -417,7 +417,7 @@ public class SimplePlotUtil {
 
     public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(SimplePlotUtil.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimplePlotUtil.class);
 
     public static List<PlottableChunk> makePlottables(LocalSeismogram[] seis, int pixelsPerDay)
             throws CodecException, IOException {

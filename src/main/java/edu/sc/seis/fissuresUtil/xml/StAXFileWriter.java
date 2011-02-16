@@ -12,7 +12,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StAXFileWriter {
 
@@ -85,5 +86,5 @@ public class StAXFileWriter {
 
     private XMLStreamWriter xmlWriter;
 
-    private Logger logger = Logger.getLogger(StAXFileWriter.class);
+    private Logger logger = LoggerFactory.getLogger(StAXFileWriter.class);
 }

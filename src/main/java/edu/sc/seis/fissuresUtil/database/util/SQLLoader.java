@@ -8,12 +8,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Properties;
+
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.sc.seis.fissuresUtil.database.WrappedSQLException;
 
 /**
@@ -55,10 +58,9 @@ public class SQLLoader {
 
     public static void setupVelocityLogger(Properties velocityProps,  Logger velocityLogger) {
         velocityProps.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                          "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
+                          "org.apache.velocity.runtime.log.Log4JLogChute");
         velocityProps.setProperty(VELOCITY_LOGGER_NAME,
                           logger.getName());
-        velocityLogger.setLevel(Level.WARN);
     }
 
     public boolean has(String propName) {
@@ -85,9 +87,9 @@ public class SQLLoader {
 
     private static final String propsLoc = "edu/sc/seis/fissuresUtil/database/util/SQLLoader.prop";
 
-    public static final String VELOCITY_LOGGER_NAME = "runtime.log.logsystem.log4j.category";
+    public static final String VELOCITY_LOGGER_NAME = "runtime.log.logsystem.log4j.logger";
 
-    private static final Logger logger = Logger.getLogger(SQLLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(SQLLoader.class);
 
     private Context context;
 

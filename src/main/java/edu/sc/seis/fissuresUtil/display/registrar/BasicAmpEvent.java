@@ -6,7 +6,8 @@ package edu.sc.seis.fissuresUtil.display.registrar;
  * @author Created by Charlie Groves
  */
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
@@ -85,7 +86,7 @@ public class BasicAmpEvent implements AmpEvent {
 
     protected UnitRangeImpl genericAmp;
 
-    private static Logger logger = Logger.getLogger(BasicAmpEvent.class);
+    private static Logger logger = LoggerFactory.getLogger(BasicAmpEvent.class);
 
 }
 

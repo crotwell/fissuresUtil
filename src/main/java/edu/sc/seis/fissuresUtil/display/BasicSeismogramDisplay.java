@@ -14,7 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
@@ -466,5 +467,5 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
 
     private Color color = Color.BLACK;
 
-    private static Category logger = Category.getInstance(BasicSeismogramDisplay.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(BasicSeismogramDisplay.class.getName());
 }// BasicSeismogramDisplay

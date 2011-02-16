@@ -7,7 +7,8 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.NO_IMPLEMENT;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Time;
@@ -417,7 +418,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
         }
     }
 
-    static Logger logger = Logger.getLogger(HardCodeDataCenterRouter.class);
+    static Logger logger = LoggerFactory.getLogger(HardCodeDataCenterRouter.class);
 
     public ProxySeismogramDC getDataCenter(RequestFilter[] infilters) {
         DataCenterRoute[] routes = makeRoutes(infilters);

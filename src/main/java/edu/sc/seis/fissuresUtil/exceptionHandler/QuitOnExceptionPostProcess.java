@@ -12,7 +12,7 @@ public class QuitOnExceptionPostProcess implements PostProcess {
 
     public void process(String message, Throwable thrown) {
         if(quitType.isInstance(thrown)) {
-            logger.fatal("Quiting ...caught an exception of type: "
+            logger.error("Quiting ...caught an exception of type: "
                     + quitType.getName()+"  message="+message, thrown);
             System.exit(1);
         } else if (thrown.getCause() != null) {
@@ -24,5 +24,5 @@ public class QuitOnExceptionPostProcess implements PostProcess {
 
     Class quitType;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(QuitOnExceptionPostProcess.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QuitOnExceptionPostProcess.class);
 }

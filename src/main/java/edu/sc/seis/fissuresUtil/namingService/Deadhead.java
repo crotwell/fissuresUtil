@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.omg.CORBA.SystemException;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
@@ -51,7 +54,7 @@ public class Deadhead {
         }
     }
 
-    private static Logger logger = Logger.getLogger(Deadhead.class);
+    private static Logger logger = LoggerFactory.getLogger(Deadhead.class);
 
     private static FissuresNamingService unbindFrom;
 }

@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -513,5 +514,5 @@ public class DisplayUtils {
 
     public static final Color DOWN_STATION = new Color(183, 183, 183);
 
-    private static final Logger logger = Logger.getLogger(DisplayUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(DisplayUtils.class);
 }// DisplayUtils

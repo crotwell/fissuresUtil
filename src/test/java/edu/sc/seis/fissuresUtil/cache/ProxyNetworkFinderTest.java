@@ -1,7 +1,9 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.TestCase;
+
+import org.apache.log4j.BasicConfigurator;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkId;

@@ -10,8 +10,10 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import junit.framework.TestCase;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.varia.NullAppender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Station;
@@ -104,5 +106,5 @@ public class RecordSectionDisplayTest extends TestCase {
 
     private Date date = ClockUtil.now();
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RecordSectionDisplayTest.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecordSectionDisplayTest.class);
 }

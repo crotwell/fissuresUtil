@@ -20,8 +20,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -298,5 +299,5 @@ public class RT130ReportGenerator {
 
     private static Properties props;
 
-    private static final Logger logger = Logger.getLogger(RT130ReportGenerator.class);
+    private static final Logger logger = LoggerFactory.getLogger(RT130ReportGenerator.class);
 }

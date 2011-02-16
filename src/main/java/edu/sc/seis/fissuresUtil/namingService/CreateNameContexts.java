@@ -9,6 +9,7 @@ import org.omg.CosNaming.NamingContextPackage.AlreadyBound;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 
@@ -90,5 +91,5 @@ public class CreateNameContexts {
         System.out.println("Options: -props propfile\n    -dns dnsname\n\nfor example: java ...CreateNameContext -props server.props -dns edu/sc/seis");
     }
     
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CreateNameContexts.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CreateNameContexts.class);
 }

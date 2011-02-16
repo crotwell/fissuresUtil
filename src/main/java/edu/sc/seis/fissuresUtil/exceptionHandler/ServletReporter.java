@@ -13,7 +13,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -43,5 +44,5 @@ public class ServletReporter implements ExceptionReporter{
         }
     }
     
-    private static Logger logger = Logger.getLogger(ServletReporter.class);
+    private static Logger logger = LoggerFactory.getLogger(ServletReporter.class);
 }

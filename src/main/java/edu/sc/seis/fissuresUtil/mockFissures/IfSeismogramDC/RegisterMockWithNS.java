@@ -2,10 +2,13 @@ package edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC;
 
 import java.io.IOException;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.IfSeismogramDC.DataCenter;
 import edu.iris.Fissures.model.AllVTFactory;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
@@ -46,13 +49,13 @@ public class RegisterMockWithNS {
             manager.activate();
             orb.run();
         } catch(org.omg.CosNaming.NamingContextPackage.NotFound e) {
-            logger.fatal("Couldn!t bind to the naming service", e);
+            logger.error("Couldn!t bind to the naming service", e);
         } catch(org.omg.PortableServer.POAManagerPackage.AdapterInactive e) {
-            logger.fatal("POA problem.", e);
+            logger.error("POA problem.", e);
         } catch(org.omg.CORBA.ORBPackage.InvalidName e) {
-            logger.fatal("Naming problem.", e);
+            logger.error("Naming problem.", e);
         } catch(Throwable e) {
-            logger.fatal("Couldn't... ", e);
+            logger.error("Couldn't... ", e);
         } finally {
             // unregister with name service
             try {
@@ -69,5 +72,5 @@ public class RegisterMockWithNS {
 
     protected static org.omg.CORBA_2_3.ORB orb;
 
-    private static final Logger logger = Logger.getLogger(RegisterMockWithNS.class);
+    private static final Logger logger = LoggerFactory.getLogger(RegisterMockWithNS.class);
 }

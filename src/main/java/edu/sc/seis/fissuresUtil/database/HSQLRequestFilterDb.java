@@ -11,7 +11,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -430,7 +431,7 @@ public class HSQLRequestFilterDb extends AbstractDb{
     
     private final static String PREFIX = "edu.sc.seis.fissuresUtil.database.seismogram";
     
-    static Category logger = Category.getInstance(HSQLRequestFilterDb.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(HSQLRequestFilterDb.class.getName());
     
     
 }// HSQLRequestFilterDb

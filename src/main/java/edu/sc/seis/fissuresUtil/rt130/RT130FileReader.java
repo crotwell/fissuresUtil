@@ -14,7 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
@@ -253,5 +254,5 @@ public class RT130FileReader {
 
     PacketType firstDataPacketOfFirstFile;
 
-    private static final Logger logger = Logger.getLogger(RT130FileReader.class);
+    private static final Logger logger = LoggerFactory.getLogger(RT130FileReader.class);
 }

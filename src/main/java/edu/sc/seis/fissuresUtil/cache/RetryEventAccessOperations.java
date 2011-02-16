@@ -3,7 +3,8 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.SystemException;
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
@@ -247,5 +248,5 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 	}
 	
 	private int retry;
-	private static final Logger logger = Logger.getLogger(RetryEventAccessOperations.class);
+	private static final Logger logger = LoggerFactory.getLogger(RetryEventAccessOperations.class);
 }

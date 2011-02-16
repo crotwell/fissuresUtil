@@ -8,7 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
@@ -279,5 +280,5 @@ public class EventFlag {
 
     private static int colorCount = 0;
 
-    private static Logger logger = Logger.getLogger(EventFlag.class);
+    private static Logger logger = LoggerFactory.getLogger(EventFlag.class);
 }// EventFlagPlotter

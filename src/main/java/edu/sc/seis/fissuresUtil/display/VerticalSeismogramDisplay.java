@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.BoxLayout;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
@@ -296,5 +297,5 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay {
 
     protected AmpConfig ac = new RMeanAmpConfig();
 
-    private static Logger logger = Logger.getLogger(VerticalSeismogramDisplay.class);
+    private static Logger logger = LoggerFactory.getLogger(VerticalSeismogramDisplay.class);
 }// VerticalSeismogramDisplay

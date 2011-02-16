@@ -4,8 +4,11 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 
@@ -187,7 +190,7 @@ public class SimpleEventClient implements TestingClient {
     private static final TimeInterval ONE_DAY = new TimeInterval(1,
                                                                  UnitImpl.DAY);
 
-    private static Logger logger = Logger.getLogger(SimpleEventClient.class);
+    private static Logger logger = LoggerFactory.getLogger(SimpleEventClient.class);
 
     public static void main(String[] args) {
         BasicConfigurator.configure();

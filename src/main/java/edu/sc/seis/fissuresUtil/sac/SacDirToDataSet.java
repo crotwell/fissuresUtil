@@ -9,10 +9,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
 import org.w3c.dom.Element;
+
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -32,7 +35,7 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
  * Created: Tue Feb 26 11:43:08 2002
  *
  * @author <a href="mailto:crotwell@pooh">Philip Crotwell</a>
- * @version $Id: SacDirToDataSet.java 14283 2005-07-19 17:08:02Z crotwell $
+ * @version $Id: SacDirToDataSet.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 
 public class SacDirToDataSet implements StdDataSetParamNames {

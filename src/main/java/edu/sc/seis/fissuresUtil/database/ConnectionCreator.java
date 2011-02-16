@@ -7,7 +7,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 /**
@@ -153,7 +154,7 @@ public class ConnectionCreator {
     
     private Properties extraProps;
     
-    private static Logger logger = Logger.getLogger(ConnectionCreator.class);
+    private static Logger logger = LoggerFactory.getLogger(ConnectionCreator.class);
 
     public static final String DB_PROP_PREFIX = "fissuresUtil.database.";
 

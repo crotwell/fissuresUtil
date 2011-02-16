@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -394,5 +395,5 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
 
     protected Unit y_unit;
 
-    static Category logger = Category.getInstance(DataSetSeismogram.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(DataSetSeismogram.class.getName());
 }// DataSetSeismogram

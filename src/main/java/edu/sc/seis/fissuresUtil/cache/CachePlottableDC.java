@@ -5,7 +5,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfEvent.EventAccess;
@@ -135,7 +136,6 @@ public class CachePlottableDC implements ProxyPlottableDC {
 
     private PlottableDCOperations plottable;
 
-    private static Category logger =
-        Category.getInstance(CachePlottableDC.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(CachePlottableDC.class.getName());
 
 }// PlottableCache

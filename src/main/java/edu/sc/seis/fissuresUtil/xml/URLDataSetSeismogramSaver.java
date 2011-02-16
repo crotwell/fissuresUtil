@@ -9,7 +9,8 @@ package edu.sc.seis.fissuresUtil.xml;
 import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 
@@ -118,7 +119,7 @@ public class URLDataSetSeismogramSaver implements SeisDataChangeListener {
 
     URLDataSetSeismogram urlDSS;
 
-    private static Logger logger = Logger.getLogger(URLDataSetSeismogramSaver.class);
+    private static Logger logger = LoggerFactory.getLogger(URLDataSetSeismogramSaver.class);
 
 }
 
