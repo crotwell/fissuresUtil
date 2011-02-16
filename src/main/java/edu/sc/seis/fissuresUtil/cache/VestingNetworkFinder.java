@@ -180,5 +180,5 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         private VestingNetworkFinder vnf;
     }
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(VestingNetworkFinder.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(VestingNetworkFinder.class);
 }

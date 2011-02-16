@@ -491,5 +491,5 @@ public class NetworkDB extends AbstractHibernateDB {
     static String getNetworkByCodeString = getAllNetsString
             + " WHERE network_code = :netCode";
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(NetworkDB.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkDB.class);
 }

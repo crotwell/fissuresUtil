@@ -22,6 +22,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -775,4 +777,6 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
      * does not prevent garbage collection.
      */
     private HashMap urlToLSMap = new HashMap();
+    
+    private static Logger logger = LoggerFactory.getLogger(URLDataSetSeismogram.class);
 }// URLDataSetSeismogram

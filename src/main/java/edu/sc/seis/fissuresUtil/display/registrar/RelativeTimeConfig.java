@@ -48,7 +48,7 @@ public class RelativeTimeConfig extends BasicTimeConfig {
      */
     protected void shaleInitialTime() {}
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(RelativeTimeConfig.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RelativeTimeConfig.class);
 
     public String getTypeOfRelativity() {
         return "Time relative to the first seismogram added";

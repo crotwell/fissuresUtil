@@ -64,7 +64,7 @@ public class XYReader {
 
     public static final String XY_FILE_LOC = "XYFile";
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(XYReader.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(XYReader.class);
 
     public static Map create(Properties props) throws IOException {
         PropParser pp = new PropParser(props);

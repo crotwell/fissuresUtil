@@ -2,7 +2,8 @@ package edu.sc.seis.fissuresUtil.simple;
 
 
 import java.io.PrintWriter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Tester{
     private  class Repeater extends Thread{
@@ -87,7 +88,7 @@ public class Tester{
         return threads;
     }
 
-    private static Logger logger = Logger.getLogger(Tester.class);
+    private static Logger logger = LoggerFactory.getLogger(Tester.class);
 
     public static void main(String[] args){
         Initializer.init(args);

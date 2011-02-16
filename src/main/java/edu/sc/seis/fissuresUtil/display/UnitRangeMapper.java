@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.text.DecimalFormat;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 
@@ -148,6 +149,6 @@ public class UnitRangeMapper implements ScaleMapper{
 
     private final boolean ascending;
 
-    static Logger logger = Logger.getLogger(AmpScaleMapper.class);
+    static Logger logger = LoggerFactory.getLogger(AmpScaleMapper.class);
 }
 

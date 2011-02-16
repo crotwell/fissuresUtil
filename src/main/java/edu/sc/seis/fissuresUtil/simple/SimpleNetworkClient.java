@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.simple;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.Area;
@@ -212,7 +213,7 @@ public class SimpleNetworkClient implements TestingClient {
 
     protected NetworkDC netDC;
     
-    private static Logger logger = Logger.getLogger(SimpleNetworkClient.class);
+    private static Logger logger = LoggerFactory.getLogger(SimpleNetworkClient.class);
 
     /**
      * A very simple client that shows how to connect to a DHI NetworkDC and

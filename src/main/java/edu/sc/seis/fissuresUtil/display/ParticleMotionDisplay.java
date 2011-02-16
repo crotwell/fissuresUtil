@@ -14,7 +14,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.Border;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;
@@ -250,7 +251,7 @@ public class ParticleMotionDisplay extends JPanel{
     
     private AbstractButton initialButton;
     
-    static Logger logger = Logger.getLogger(ParticleMotionDisplay.class);
+    static Logger logger = LoggerFactory.getLogger(ParticleMotionDisplay.class);
     
     private static final String[] labelStrings = { DisplayUtils.NORTHEAST,
             DisplayUtils.UPNORTH,

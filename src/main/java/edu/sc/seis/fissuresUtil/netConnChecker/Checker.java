@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 
 public class Checker {
@@ -75,7 +76,7 @@ public class Checker {
 
     private List connCheckers = Collections.synchronizedList(new ArrayList());
 
-    static Category logger = Category.getInstance(Checker.class);
+    private static Logger logger = LoggerFactory.getLogger(Checker.class);
 
     private WorkerThreadPool pool = new WorkerThreadPool("Connection Checker Pool", 20);
 

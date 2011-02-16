@@ -14,7 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import edu.iris.Fissures.Time;
@@ -356,7 +357,7 @@ public class Flag implements Drawable {
     //pixels of space of flag around the font
     private static final int PADDING = 4;
 
-    private static Category logger = Category.getInstance(Flag.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(Flag.class.getName());
 
     //names for the data template
     public static final String NAME = "Flag Name";

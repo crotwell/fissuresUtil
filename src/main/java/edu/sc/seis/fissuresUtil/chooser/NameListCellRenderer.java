@@ -3,7 +3,8 @@ package edu.sc.seis.fissuresUtil.chooser;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Site;
@@ -129,5 +130,5 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
 
     boolean codeIsFirst;
 
-    private static Logger logger = Logger.getLogger(NameListCellRenderer.class);
+    private static Logger logger = LoggerFactory.getLogger(NameListCellRenderer.class);
 }

@@ -62,5 +62,5 @@ public class CoarseRequestCutSeismogramDC extends AbstractProxySeismogramDC {
         return "CoarseCut " + getWrappedDC().toString();
     }
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(CoarseRequestCutSeismogramDC.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CoarseRequestCutSeismogramDC.class);
 }

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventAttr;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
@@ -146,5 +147,5 @@ public class CacheEvent extends ProxyEventAccessOperations {
 
     protected OriginImpl preferred;
 
-    private static final Logger logger = Logger.getLogger(CacheEvent.class);
+    private static final Logger logger = LoggerFactory.getLogger(CacheEvent.class);
 } // CacheEvent

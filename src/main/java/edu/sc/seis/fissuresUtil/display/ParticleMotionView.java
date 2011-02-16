@@ -24,7 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
@@ -279,7 +280,7 @@ public class ParticleMotionView extends JComponent {
 
     private static int filterCount = SeismogramDisplay.COLORS.length / 2;
 
-    private static Logger logger = Logger.getLogger(ParticleMotionView.class);
+    private static Logger logger = LoggerFactory.getLogger(ParticleMotionView.class);
 
     private int i = 0;
 

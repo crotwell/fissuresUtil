@@ -14,7 +14,8 @@ import java.util.Set;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.SelectMouseMode;
@@ -251,7 +252,7 @@ public class EventLayer extends MouseAdapterLayer implements EventDataListener,
 
     private Set events = new HashSet();
 
-    private static Logger logger = Logger.getLogger(EventLayer.class);
+    private static Logger logger = LoggerFactory.getLogger(EventLayer.class);
 
     private OpenMap map;
 

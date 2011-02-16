@@ -9,7 +9,8 @@ import java.util.WeakHashMap;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
@@ -31,7 +32,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Mon Jan 8 15:59:05 2001
  * 
  * @author Philip Crotwell
- * @version $Id: EventTableModel.java 19860 2008-09-04 12:37:15Z crotwell $
+ * @version $Id: EventTableModel.java 22054 2011-02-16 16:51:38Z crotwell $
  */
 public class EventTableModel extends AbstractTableModel implements
         EventLoadedListener {
@@ -339,6 +340,6 @@ public class EventTableModel extends AbstractTableModel implements
 
     protected String[] columnNames;
 
-    static Category logger = Category.getInstance(EventTableModel.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(EventTableModel.class.getName());
 
 } // EventTableModel

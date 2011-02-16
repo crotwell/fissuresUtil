@@ -8,7 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.Unit;
@@ -234,5 +235,5 @@ public class CacheNetworkAccess extends ProxyNetworkAccess {
     
     private HashMap<String, List<SensitivityHolder>> sensMap = new HashMap<String, List<SensitivityHolder>>();
 
-    private static Logger logger = Logger.getLogger(CacheNetworkAccess.class);
+    private static Logger logger = LoggerFactory.getLogger(CacheNetworkAccess.class);
 }

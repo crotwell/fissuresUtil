@@ -42,6 +42,6 @@ public class TimeoutDC extends MockDC {
 
     private int updateInterval;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TimeoutDC.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TimeoutDC.class);
 
 }

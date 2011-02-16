@@ -136,5 +136,5 @@ public class ClockUtil {
     private static TimeInterval ONE_WEEK = new TimeInterval(7, UnitImpl.DAY);
     private static TimeInterval ONE_MONTH = new TimeInterval(30, UnitImpl.DAY);
     
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ClockUtil.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClockUtil.class);
 } // ClockUtil

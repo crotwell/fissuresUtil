@@ -15,7 +15,8 @@ import java.io.IOException;
 import java.net.URL;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataSetToXMLStAX {
 
@@ -199,5 +200,5 @@ public class DataSetToXMLStAX {
      */
     protected boolean useDataSetRef = true;
 
-    static Logger logger = Logger.getLogger(DataSetToXMLStAX.class);
+    static Logger logger = LoggerFactory.getLogger(DataSetToXMLStAX.class);
 }

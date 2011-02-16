@@ -52,5 +52,5 @@ public class MailExceptionReporter extends ResultMailer implements
 
     private int limit = Integer.MAX_VALUE;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(MailExceptionReporter.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MailExceptionReporter.class);
 }

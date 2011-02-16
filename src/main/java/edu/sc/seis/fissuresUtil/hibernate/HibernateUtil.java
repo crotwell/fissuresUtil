@@ -45,7 +45,7 @@ public class HibernateUtil {
         configuration = null;
     }
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(HibernateUtil.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HibernateUtil.class);
 
     public static void setUpFromConnMgr(Properties props, URL ehcacheConfig) {
         if ( ! props.containsKey("ehcache.disk.store.dir")) {

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
@@ -75,5 +76,5 @@ public class RMeanAmpConfig extends BasicAmpConfig {
                                  currRange.getUnit());
     }
 
-    private static final Logger logger = Logger.getLogger(RMeanAmpConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(RMeanAmpConfig.class);
 }// RMeanAmpConfig

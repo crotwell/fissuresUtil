@@ -6,7 +6,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Description: This class checks for HTTP connections. An HTTPChecker can be instantiated by
@@ -56,6 +57,7 @@ public class HTTPChecker extends ConcreteConnChecker  {
     public String getURL(){ return url; }
 
     private String url;
-    static Category logger = Category.getInstance(HTTPChecker.class);
+    
+    private static Logger logger = LoggerFactory.getLogger(HTTPChecker.class);
 
 } // HTTPChecker class

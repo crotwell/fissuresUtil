@@ -133,5 +133,5 @@ public class PSXYExecute {
         } catch(Exception e) {
             e.printStackTrace();
         }
-    } //private static Logger logger = Logger.getLogger(PSXYExecute.class);
+    } //private static Logger logger = LoggerFactory.getLogger(PSXYExecute.class);
 }

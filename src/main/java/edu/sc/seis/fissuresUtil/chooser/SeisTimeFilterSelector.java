@@ -3,7 +3,8 @@ package edu.sc.seis.fissuresUtil.chooser;
 
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
@@ -81,6 +82,6 @@ public class SeisTimeFilterSelector  {
 
 
 
-    static Category logger = Category.getInstance(SeisTimeFilterSelector.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(SeisTimeFilterSelector.class.getName());
 
 } // SeisTimeFilterSelector

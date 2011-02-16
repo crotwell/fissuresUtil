@@ -1,7 +1,8 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Color;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
@@ -114,5 +115,5 @@ public class ParticleMotionDisplayThread {
 
     private Color displayColor;
 
-    static Category logger = Category.getInstance(ParticleMotionDisplayThread.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(ParticleMotionDisplayThread.class.getName());
 }// ParticleMotionDisplayThread

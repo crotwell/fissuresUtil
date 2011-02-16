@@ -4,9 +4,12 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.sc.seis.fissuresUtil.database.util.TableSetup;
 

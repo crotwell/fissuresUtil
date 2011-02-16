@@ -196,5 +196,5 @@ public class UpdateCheckerJob extends AbstractJob {
     
     static final String NEXT_CHECK_DATE = "nextCheckDate";
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(UpdateCheckerJob.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateCheckerJob.class);
 }

@@ -17,11 +17,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+
 import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.BufferedMapBean;
 import com.bbn.openmap.InformationDelegator;
 import com.bbn.openmap.LatLonPoint;
@@ -46,6 +50,7 @@ import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.Projection;
+
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.map.colorizer.event.DepthEventColorizer;
@@ -90,7 +95,7 @@ public class OpenMap extends OMComponentPanel implements LayerStatusListener,
 
     private Map layerStatusMap = new HashMap();
 
-    private static Logger logger = Logger.getLogger(OpenMap.class);
+    private static Logger logger = LoggerFactory.getLogger(OpenMap.class);
 
     private List shapeLayers = new ArrayList();
 

@@ -409,5 +409,5 @@ public class XMLParameter {
 
     private static final String xlinkNS = "http://www.w3.org/1999/xlink";
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(XMLParameter.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(XMLParameter.class);
 }// XMLParameter

@@ -5,7 +5,8 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Plottable;
@@ -159,7 +160,7 @@ public class NSPlottableDC implements ServerNameDNS, ProxyPlottableDC {
 
     protected FissuresNamingService namingService;
 
-    private static Logger logger = Logger.getLogger(NSPlottableDC.class);
+    private static Logger logger = LoggerFactory.getLogger(NSPlottableDC.class);
 
     public PlottableDCOperations getWrappedDC() {
         return getPlottableDC();

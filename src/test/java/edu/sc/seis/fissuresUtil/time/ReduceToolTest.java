@@ -1,9 +1,12 @@
 package edu.sc.seis.fissuresUtil.time;
 
 import java.util.Date;
+
 import junit.framework.TestCase;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
+
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;

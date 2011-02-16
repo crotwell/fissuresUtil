@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.SiteIdUtil;
@@ -262,5 +263,5 @@ public class AmpConfigData implements SeismogramContainerListener {
 
     private boolean newData = false;
 
-    private static Logger logger = Logger.getLogger(AmpConfigData.class);
+    private static Logger logger = LoggerFactory.getLogger(AmpConfigData.class);
 }// AmpConfigData

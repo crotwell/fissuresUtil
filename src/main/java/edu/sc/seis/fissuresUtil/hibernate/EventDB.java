@@ -265,6 +265,6 @@ public class EventDB extends AbstractHibernateDB {
 	         
 	public static final float INCONCEIVABLY_LARGE_DEPTH = 7000.0f;
 	
-	private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(EventDB.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EventDB.class);
 	
 }

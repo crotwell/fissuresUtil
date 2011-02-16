@@ -4,8 +4,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -154,7 +157,7 @@ public abstract class Initializer {
 
     private static final String[] EMPTY_ARGS = {};
 
-    private static Logger logger = Logger.getLogger(Initializer.class);
+    private static Logger logger = LoggerFactory.getLogger(Initializer.class);
 
     public static final NetworkId IU = new NetworkId("IU",
                                                      new Time("19981026200000.0000GMT",

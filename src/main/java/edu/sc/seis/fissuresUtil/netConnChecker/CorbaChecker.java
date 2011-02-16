@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CORBA.COMM_FAILURE;
 
 public class CorbaChecker extends ConcreteConnChecker {
@@ -40,5 +41,5 @@ public class CorbaChecker extends ConcreteConnChecker {
 
     protected org.omg.CORBA.Object obj;
 
-    static Category logger = Category.getInstance(CorbaChecker.class);
+    private static Logger logger = LoggerFactory.getLogger(CorbaChecker.class);
 }// CorbaChecker class

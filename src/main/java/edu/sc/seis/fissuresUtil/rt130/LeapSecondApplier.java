@@ -147,5 +147,5 @@ public class LeapSecondApplier {
     public static final String LEAP_SECOND_FILE = "leapSecondFile",
             POWER_UP_TIMES = "powerUpTimes";
     
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(LeapSecondApplier.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LeapSecondApplier.class);
 }

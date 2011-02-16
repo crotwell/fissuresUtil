@@ -18,7 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.BorderFactory;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.Drawable;
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableIterator;
@@ -307,7 +308,7 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     private Map classToColor = new HashMap();
 
-    private static final Logger logger = Logger.getLogger(SeismogramDisplay.class);
+    private static final Logger logger = LoggerFactory.getLogger(SeismogramDisplay.class);
 
     public static boolean PRINTING = false;
 

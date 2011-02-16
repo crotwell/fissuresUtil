@@ -2,7 +2,8 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import edu.iris.Fissures.FissuresException;
@@ -181,7 +182,7 @@ public class SimpleSeismogramClient implements TestingClient {
     private static final TimeInterval ONE_HOUR = new TimeInterval(1,
                                                                   UnitImpl.HOUR);
 
-    private static Logger logger = Logger.getLogger(SimpleSeismogramClient.class);
+    private static Logger logger = LoggerFactory.getLogger(SimpleSeismogramClient.class);
 
     public static void main(String[] args) {
         /*

@@ -4,8 +4,10 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 import junit.framework.TestCase;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Station;
@@ -21,7 +23,6 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 public class ChannelChooserTest extends TestCase {
 
     public ChannelChooserTest() throws NetworkNotFound {
-        BasicConfigurator.configure();
         MockNetworkDC mockDC = new MockNetworkDC();
         VestingNetworkDC[] dcs = new VestingNetworkDC[] {new VestingNetworkDC(FissuresNamingService.MOCK_DNS, NamedNetDC.VECTOR, new FissuresNamingService())};
         cc = new ChannelChooser(dcs);
@@ -90,5 +91,5 @@ public class ChannelChooserTest extends TestCase {
 
     private Station vertOnlyStation;
 
-    private static Logger logger = Logger.getLogger(ChannelChooserTest.class);
+    private static Logger logger = LoggerFactory.getLogger(ChannelChooserTest.class);
 }

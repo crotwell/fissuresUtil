@@ -14,7 +14,7 @@ import edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames;
  * TopLevelOrganizer.java Created: Mon Jan 7 12:28:32 2002
  * 
  * @author <a href="mailto:">Srinivasa Telukutla</a>
- * @version $Id: TopLevelOrganizer.java 19011 2007-04-27 17:24:29Z crotwell $
+ * @version $Id: TopLevelOrganizer.java 22054 2011-02-16 16:51:38Z crotwell $
  *          This class implements the Organizer interface and this interface can
  *          be used to organize data based on some consideration while
  *          populating the DataSetTree can be Extended to Remote DataSet also.
@@ -150,5 +150,5 @@ public class TopLevelOrganizer implements Organizer {
 
     DataSet rootDataSet;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(TopLevelOrganizer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TopLevelOrganizer.class);
 }// TopLevelOrganizer

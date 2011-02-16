@@ -181,7 +181,7 @@ public abstract class AbstractHibernateDB {
 
     private static TimeInterval MAX_SESSION_LIFE = new TimeInterval(300, UnitImpl.SECOND);
     
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(AbstractHibernateDB.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractHibernateDB.class);
 
     static {
         GlobalExceptionHandler.add(new DefaultExtractor() {
@@ -216,7 +216,7 @@ public abstract class AbstractHibernateDB {
                                 TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
                                 logger.warn("Session still open after "+aliveTime+" seconds. ");
                                 for (int i = 0; i < item.stackTrace.length; i++) {
-                                    logger.warn(item.stackTrace[i]);
+                                    logger.warn(item.stackTrace[i].toString());
                                 }
                             }
                         }

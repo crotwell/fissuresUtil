@@ -7,7 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DataSetDb.java
@@ -142,7 +143,6 @@ public class DataSetDb {
 
     private PreparedStatement getNamesStmt;
 
-    static Category logger = 
-	Category.getInstance(DataSetDb.class.getName());
+    static Logger logger = LoggerFactory.getLogger(DataSetDb.class.getName());
 
 }// DataSetDb

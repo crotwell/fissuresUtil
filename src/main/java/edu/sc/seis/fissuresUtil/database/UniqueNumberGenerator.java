@@ -5,7 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * This class is used to create a UniqueIdentifier when the method
  * getUniqueIdentifier is called. It makes use of database for returning
@@ -110,6 +111,6 @@ public class UniqueNumberGenerator extends AbstractDb{
 
     private  PreparedStatement updateStmt;
 
-    static Category logger = Category.getInstance(UniqueNumberGenerator.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(UniqueNumberGenerator.class.getName());
 
 }// UniqueNumberGenerator

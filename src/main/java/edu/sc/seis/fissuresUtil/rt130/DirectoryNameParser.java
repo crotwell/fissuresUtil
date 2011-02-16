@@ -5,7 +5,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.model.MicroSecondDate;
 
 public class DirectoryNameParser {
@@ -72,5 +73,5 @@ public class DirectoryNameParser {
         dirParserCal.set(Calendar.MILLISECOND, 0);
     }
 
-    private static final Logger logger = Logger.getLogger(DirectoryNameParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(DirectoryNameParser.class);
 }

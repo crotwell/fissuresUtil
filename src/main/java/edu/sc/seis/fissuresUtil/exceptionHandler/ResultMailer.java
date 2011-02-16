@@ -83,7 +83,7 @@ public class ResultMailer {
 
     private Properties props;
 
-    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(ResultMailer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResultMailer.class);
 
     /**
      * mail.smtp.host specifies the smtp server you want to use

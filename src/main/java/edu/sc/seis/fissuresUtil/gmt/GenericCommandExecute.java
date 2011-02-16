@@ -7,7 +7,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.bag.StreamPump;
 
 /**
@@ -90,5 +91,5 @@ public class GenericCommandExecute {
         }
     }
 
-    private static Logger logger = Logger.getLogger(GenericCommandExecute.class);
+    private static Logger logger = LoggerFactory.getLogger(GenericCommandExecute.class);
 }

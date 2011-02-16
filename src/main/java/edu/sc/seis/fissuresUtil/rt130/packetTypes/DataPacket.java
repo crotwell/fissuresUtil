@@ -2,7 +2,8 @@ package edu.sc.seis.fissuresUtil.rt130.packetTypes;
 
 import java.io.DataInput;
 import java.io.IOException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.sc.seis.fissuresUtil.rt130.BCDRead;
 import edu.sc.seis.fissuresUtil.rt130.HexRead;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
@@ -98,5 +99,5 @@ public class DataPacket extends PacketType {
     
     public int eventNumber, dataStreamNumber, channelNumber, numberOfSamples;
     
-    private static final Logger logger = Logger.getLogger(DataPacket.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataPacket.class);
 }

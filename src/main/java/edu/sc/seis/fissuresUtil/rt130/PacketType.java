@@ -8,7 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
@@ -287,5 +288,5 @@ public class PacketType {
 
     public StateOfHealthPacket sOHP;
 
-    private static final Logger logger = Logger.getLogger(PacketType.class);
+    private static final Logger logger = LoggerFactory.getLogger(PacketType.class);
 }

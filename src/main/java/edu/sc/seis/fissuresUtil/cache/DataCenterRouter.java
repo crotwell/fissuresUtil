@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkId;
@@ -211,5 +212,5 @@ public class DataCenterRouter implements DataCenterOperations {
 
     protected List unmatchedDCList = new LinkedList();
 
-    static Category logger = Category.getInstance(DataCenterRouter.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(DataCenterRouter.class.getName());
 } // DataCenterRouter

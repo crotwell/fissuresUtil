@@ -10,7 +10,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
@@ -178,6 +179,6 @@ public class InstrumentationLoader extends Thread
 
     }
 
-    static Logger logger = Logger.getLogger(InstrumentationLoader.class);
+    static Logger logger = LoggerFactory.getLogger(InstrumentationLoader.class);
  }
 
