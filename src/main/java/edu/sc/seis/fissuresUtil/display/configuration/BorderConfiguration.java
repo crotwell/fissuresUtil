@@ -4,9 +4,12 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.JComponent;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import edu.sc.seis.fissuresUtil.display.BorderedDisplay;
 import edu.sc.seis.fissuresUtil.display.RecordSectionDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;

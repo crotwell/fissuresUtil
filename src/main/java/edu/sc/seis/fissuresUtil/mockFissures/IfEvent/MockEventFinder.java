@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.mockFissures.IfEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.omg.CORBA.Context;
 import org.omg.CORBA.ContextList;
 import org.omg.CORBA.DomainManager;
@@ -12,6 +13,7 @@ import org.omg.CORBA.Object;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.SetOverrideType;
+
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.TimeRange;

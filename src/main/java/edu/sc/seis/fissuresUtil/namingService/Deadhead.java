@@ -1,14 +1,13 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.log4j.BasicConfigurator;
 import org.omg.CORBA.SystemException;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.InvalidName;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.sc.seis.fissuresUtil.cache.ServerNameDNS;
 import edu.sc.seis.fissuresUtil.netConnChecker.ConnStatus;
 import edu.sc.seis.fissuresUtil.netConnChecker.CorbaChecker;

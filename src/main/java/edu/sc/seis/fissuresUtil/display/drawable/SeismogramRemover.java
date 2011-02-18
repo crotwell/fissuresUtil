@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
  */
 
 import java.awt.Graphics2D;
+
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.mockFissures.IfNetwork;
 
 import org.omg.CORBA.UNKNOWN;
+
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkDC;

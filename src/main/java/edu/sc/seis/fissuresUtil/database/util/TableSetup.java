@@ -6,8 +6,10 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
+
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
+
 import edu.sc.seis.fissuresUtil.database.DBUtil;
 import edu.sc.seis.fissuresUtil.database.JDBCTable;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;

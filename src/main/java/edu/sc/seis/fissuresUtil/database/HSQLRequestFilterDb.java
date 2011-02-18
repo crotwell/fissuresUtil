@@ -10,9 +10,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+
 import javax.swing.JOptionPane;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
@@ -22,8 +25,8 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
-import edu.sc.seis.seisFile.sac.SacTimeSeries;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 public class HSQLRequestFilterDb extends AbstractDb{
     public HSQLRequestFilterDb(String directoryName, String databaseName) throws SQLException {

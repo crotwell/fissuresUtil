@@ -3,8 +3,6 @@ package edu.sc.seis.fissuresUtil.stationxml;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.iris.Fissures.IfNetwork.Sensitivity;
-import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.StationImpl;
 
 

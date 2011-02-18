@@ -6,6 +6,7 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.SystemException;
+
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Plottable;

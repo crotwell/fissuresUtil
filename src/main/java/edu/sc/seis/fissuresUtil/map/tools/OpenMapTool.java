@@ -3,7 +3,9 @@ package edu.sc.seis.fissuresUtil.map.tools;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+
 import javax.swing.Icon;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.MapMouseMode;

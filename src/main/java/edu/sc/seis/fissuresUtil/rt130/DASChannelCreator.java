@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.Orientation;

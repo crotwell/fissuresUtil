@@ -9,6 +9,7 @@ package edu.sc.seis.fissuresUtil.bag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Station;

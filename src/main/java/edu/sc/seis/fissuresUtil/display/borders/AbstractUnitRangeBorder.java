@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
 public abstract class AbstractUnitRangeBorder extends Border implements

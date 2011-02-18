@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.mseed;
 
 import java.io.IOException;
 import java.util.LinkedList;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;

@@ -1,13 +1,16 @@
 package edu.sc.seis.fissuresUtil.map.tools;
 
 import java.awt.event.MouseEvent;
+
 import javax.swing.event.EventListenerList;
+
 import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.event.ZoomEvent;
 import com.bbn.openmap.event.ZoomListener;
+
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;

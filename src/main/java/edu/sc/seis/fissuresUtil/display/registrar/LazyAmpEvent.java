@@ -9,6 +9,7 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 

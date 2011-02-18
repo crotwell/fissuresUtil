@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.rt130.packetTypes;
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.StringTokenizer;
+
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
 import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 

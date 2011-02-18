@@ -1,7 +1,9 @@
 package edu.sc.seis.fissuresUtil.display.configuration;
 
 import java.awt.Color;
+
 import org.w3c.dom.Element;
+
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**

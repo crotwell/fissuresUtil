@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
 import javax.swing.tree.TreeModel;
+
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class TextDump {

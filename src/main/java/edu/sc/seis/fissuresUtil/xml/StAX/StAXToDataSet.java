@@ -2,8 +2,10 @@ package edu.sc.seis.fissuresUtil.xml.StAX;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
 import edu.iris.Fissures.AuditInfo;
 import edu.sc.seis.fissuresUtil.xml.MemoryDataSet;
 import edu.sc.seis.fissuresUtil.xml.URLDataSet;

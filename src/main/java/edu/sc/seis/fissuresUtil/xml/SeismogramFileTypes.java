@@ -11,6 +11,7 @@ package edu.sc.seis.fissuresUtil.xml;
  */
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class SeismogramFileTypes {

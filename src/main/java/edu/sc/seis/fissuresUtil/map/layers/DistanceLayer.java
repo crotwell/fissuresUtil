@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+
 import com.bbn.openmap.LatLonPoint;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.NavMouseMode;
@@ -21,6 +22,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.Projection;
+
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.iris.Fissures.IfEvent.Origin;

@@ -3,9 +3,10 @@
  */
 package edu.sc.seis.fissuresUtil.cache;
 
+import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.omg.CORBA.SystemException;
+
 import edu.iris.Fissures.AuditElement;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.IfEvent.Event;

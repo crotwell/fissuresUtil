@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.borders;
 
 import java.awt.Color;
 import java.awt.Font;
+
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
 public class UnchangingTitleProvider implements TitleProvider {

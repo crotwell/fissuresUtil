@@ -5,8 +5,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfEvent.EventAccess;

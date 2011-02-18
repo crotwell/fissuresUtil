@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Color;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;

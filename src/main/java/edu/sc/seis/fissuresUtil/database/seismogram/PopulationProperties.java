@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.database.seismogram;
 
 import java.util.HashMap;
 import java.util.Properties;
+
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;

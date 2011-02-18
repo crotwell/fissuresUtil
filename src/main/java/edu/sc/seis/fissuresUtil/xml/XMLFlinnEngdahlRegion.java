@@ -3,8 +3,10 @@ package edu.sc.seis.fissuresUtil.xml;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import edu.iris.Fissures.FlinnEngdahlRegion;
 import edu.iris.Fissures.FlinnEngdahlType;
 import edu.iris.Fissures.model.FlinnEngdahlRegionImpl;

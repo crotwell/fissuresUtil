@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.Instrumentation;

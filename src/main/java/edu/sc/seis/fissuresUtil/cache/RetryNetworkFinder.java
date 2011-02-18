@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.SystemException;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkFinder;
 import edu.iris.Fissures.IfNetwork.NetworkId;

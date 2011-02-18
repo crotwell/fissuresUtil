@@ -9,9 +9,9 @@ import java.sql.Types;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.SessionImplementor;
+import org.hibernate.type.StandardBasicTypes;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
-import org.hibernate.type.StandardBasicTypes;
 
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;

@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.rt130.packetTypes;
 
 import java.io.DataInput;
 import java.io.IOException;
+
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
 
 /**

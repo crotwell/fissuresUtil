@@ -18,9 +18,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.xpath.XPathAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -45,7 +45,7 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
  * Access to a dataset stored as an XML file.
  * 
  * @author <a href="mailto:">Philip Crotwell </a>
- * @version $Id: XMLDataSet.java 22054 2011-02-16 16:51:38Z crotwell $
+ * @version $Id: XMLDataSet.java 22072 2011-02-18 15:43:18Z crotwell $
  */
 /**
  * Describe class <code>XMLDataSet</code> here.

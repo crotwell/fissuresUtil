@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.registrar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.SiteIdUtil;

@@ -28,6 +28,7 @@ import edu.iris.Fissures.IfNetwork.TimeCorrection;
 public class SynchronizedNetworkAccess extends ProxyNetworkAccess {
 
     public SynchronizedNetworkAccess(NetworkAccess netAC){
+//        super(new LoggingNetworkAccess(netAC));
         super(netAC);
     }
 

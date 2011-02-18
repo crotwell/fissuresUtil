@@ -4,6 +4,7 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import org.omg.CORBA.SystemException;
+
 import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFinder;
 

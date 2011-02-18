@@ -2,12 +2,14 @@ package edu.sc.seis.fissuresUtil.rt130.packetTypes;
 
 import java.io.DataInput;
 import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.sc.seis.fissuresUtil.rt130.BCDRead;
 import edu.sc.seis.fissuresUtil.rt130.HexRead;
-import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 import edu.sc.seis.fissuresUtil.rt130.PacketType;
+import edu.sc.seis.fissuresUtil.rt130.RT130FormatException;
 
 /**
  * @author fenner Created on Jun 14, 2005

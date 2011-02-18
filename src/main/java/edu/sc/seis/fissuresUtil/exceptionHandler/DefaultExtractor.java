@@ -6,6 +6,7 @@
 package edu.sc.seis.fissuresUtil.exceptionHandler;
 
 import java.sql.SQLException;
+
 import edu.iris.Fissures.FissuresException;
 
 public class DefaultExtractor implements Extractor {

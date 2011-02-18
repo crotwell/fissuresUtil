@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
 import edu.sc.seis.fissuresUtil.display.borders.UnchangingTitleProvider;
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;

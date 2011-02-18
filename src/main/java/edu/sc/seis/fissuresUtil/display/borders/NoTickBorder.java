@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.borders;
 
 import java.awt.Graphics2D;
 import java.util.List;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
 
 /**

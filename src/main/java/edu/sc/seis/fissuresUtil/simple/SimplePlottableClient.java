@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.simple;
 
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
+
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfPlottable.PlottableDCOperations;

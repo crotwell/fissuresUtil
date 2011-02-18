@@ -7,10 +7,12 @@ package edu.sc.seis.fissuresUtil.map.graphics;
 
 import java.awt.Color;
 import java.awt.Paint;
+
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.event.CenterEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+
 import edu.iris.Fissures.IfEvent.NoPreferredOrigin;
 import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;

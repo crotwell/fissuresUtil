@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
 import java.util.Iterator;
+
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 

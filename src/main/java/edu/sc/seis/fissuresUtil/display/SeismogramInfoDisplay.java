@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TimeZone;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.Channel;
