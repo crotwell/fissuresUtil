@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
 import java.io.IOException;
+
 import junit.framework.TestCase;
 import edu.iris.Fissures.model.UnitImpl;
 

@@ -7,7 +7,6 @@ import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.mockFissures.Defaults;
-// JUnitDoclet end import
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 
 // JUnitDoclet end import

@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
-import junit.framework.TestCase;
 
 // JUnitDoclet end import
 

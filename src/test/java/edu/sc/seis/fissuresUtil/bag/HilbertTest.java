@@ -2,13 +2,13 @@ package edu.sc.seis.fissuresUtil.bag;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import junit.framework.TestCase;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
-import edu.sc.seis.seisFile.sac.SacTimeSeries;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.sac.SacToFissures;
-import junit.framework.TestCase;
 
 
 /**

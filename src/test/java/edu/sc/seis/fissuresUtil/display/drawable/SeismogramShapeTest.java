@@ -5,11 +5,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.DataInputStream;
 import java.io.IOException;
+
 import junit.framework.TestCase;
 
 import org.apache.log4j.BasicConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;

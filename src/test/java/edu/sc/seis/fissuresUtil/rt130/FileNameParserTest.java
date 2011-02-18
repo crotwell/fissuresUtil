@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.rt130;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.model.ISOTime;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import junit.framework.TestCase;
 
 public class FileNameParserTest extends TestCase {
 

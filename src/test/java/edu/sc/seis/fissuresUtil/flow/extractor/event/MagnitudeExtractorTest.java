@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.flow.extractor.event;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Magnitude;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockMagnitude;
-import junit.framework.TestCase;
 
 public class MagnitudeExtractorTest extends TestCase {
 

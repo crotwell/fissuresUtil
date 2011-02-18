@@ -2,9 +2,8 @@ package edu.sc.seis.fissuresUtil.flow.querier;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
 import junit.framework.TestCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAccessOperations;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventFinder;
