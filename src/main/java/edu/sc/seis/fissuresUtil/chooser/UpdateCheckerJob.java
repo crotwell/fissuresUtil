@@ -4,11 +4,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
 import javax.swing.JOptionPane;
+
 import com.isti.util.updatechecker.LocationUpdate;
 import com.isti.util.updatechecker.UpdateAction;
 import com.isti.util.updatechecker.UpdateInformation;
 import com.isti.util.updatechecker.XMLUpdateCheckerClient;
+
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;

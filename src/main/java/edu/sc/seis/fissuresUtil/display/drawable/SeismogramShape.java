@@ -7,8 +7,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
@@ -26,7 +28,7 @@ import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
  * SeismogramShape.java Created: Fri Jul 26 16:06:52 2002
  * 
  * @author <a href="mailto:">Charlie Groves </a>
- * @version $Id: SeismogramShape.java 22054 2011-02-16 16:51:38Z crotwell $
+ * @version $Id: SeismogramShape.java 22072 2011-02-18 15:43:18Z crotwell $
  */
 public class SeismogramShape implements Shape, SeismogramContainerListener {
 

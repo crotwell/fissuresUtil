@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.mouse;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import javax.swing.event.EventListenerList;
 
 public class SDMouseForwarder implements MouseListener {

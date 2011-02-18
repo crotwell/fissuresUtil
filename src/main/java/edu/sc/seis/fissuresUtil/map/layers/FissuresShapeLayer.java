@@ -2,11 +2,14 @@ package edu.sc.seis.fissuresUtil.map.layers;
 
 import java.awt.Graphics;
 import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Projection;
+
 import edu.sc.seis.fissuresUtil.exceptionHandler.ExceptionReporterUtils;
 
 

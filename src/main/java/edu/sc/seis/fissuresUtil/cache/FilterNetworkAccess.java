@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.cache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfNetwork.StationId;

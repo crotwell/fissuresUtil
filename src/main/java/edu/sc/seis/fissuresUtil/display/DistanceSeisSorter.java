@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.display;
  */
 
 import java.util.Iterator;
+
 import edu.sc.seis.fissuresUtil.display.registrar.BasicLayoutConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.LayoutData;

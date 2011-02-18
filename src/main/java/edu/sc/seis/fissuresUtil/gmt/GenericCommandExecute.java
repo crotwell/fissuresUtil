@@ -7,8 +7,10 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.sc.seis.fissuresUtil.bag.StreamPump;
 
 /**

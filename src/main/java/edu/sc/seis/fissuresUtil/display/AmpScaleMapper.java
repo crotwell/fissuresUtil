@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.sc.seis.fissuresUtil.display.registrar.AmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.AmpListener;

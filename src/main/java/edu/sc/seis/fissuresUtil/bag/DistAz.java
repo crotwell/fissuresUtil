@@ -28,8 +28,6 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.Station;
-import edu.iris.Fissures.network.SiteImpl;
-import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
 
 public class DistAz {

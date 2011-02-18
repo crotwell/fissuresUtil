@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.mockFissures;
 
 import java.util.Calendar;
 import java.util.TimeZone;
+
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;

@@ -12,11 +12,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.border.LineBorder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.borders.AmpBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;

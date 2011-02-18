@@ -2,12 +2,15 @@ package edu.sc.seis.fissuresUtil.xml;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import edu.iris.Fissures.Unit;
 import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.model.UnitImpl;

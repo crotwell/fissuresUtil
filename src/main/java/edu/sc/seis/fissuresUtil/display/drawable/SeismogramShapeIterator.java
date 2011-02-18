@@ -3,8 +3,10 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 /**

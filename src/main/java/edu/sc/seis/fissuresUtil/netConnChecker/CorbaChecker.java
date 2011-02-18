@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.netConnChecker;
 
+import org.omg.CORBA.COMM_FAILURE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.omg.CORBA.COMM_FAILURE;
 
 public class CorbaChecker extends ConcreteConnChecker {
 

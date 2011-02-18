@@ -6,6 +6,7 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.awt.Color;
+
 import edu.sc.seis.fissuresUtil.display.registrar.RMeanAmpConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;

@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.model.MicroSecondDate;
-import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.network.NetworkIdUtil;
 
 

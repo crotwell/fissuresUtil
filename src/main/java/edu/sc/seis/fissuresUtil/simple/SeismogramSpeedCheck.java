@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.simple;
 
 import java.text.DecimalFormat;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.NetworkId;

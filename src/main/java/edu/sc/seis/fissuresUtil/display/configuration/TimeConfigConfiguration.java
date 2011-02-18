@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.display.configuration;
 
 import org.w3c.dom.Element;
+
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.display.registrar.BasicTimeConfig;

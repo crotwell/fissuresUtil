@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.time.RangeTool;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;

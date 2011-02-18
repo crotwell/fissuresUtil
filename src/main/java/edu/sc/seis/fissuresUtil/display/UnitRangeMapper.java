@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.text.DecimalFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 

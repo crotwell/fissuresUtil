@@ -1,8 +1,10 @@
 package edu.sc.seis.fissuresUtil.display.configuration;
 
 import java.awt.Color;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
 import edu.sc.seis.fissuresUtil.display.drawable.DrawableSeismogram;
 import edu.sc.seis.fissuresUtil.display.drawable.Flag;
 

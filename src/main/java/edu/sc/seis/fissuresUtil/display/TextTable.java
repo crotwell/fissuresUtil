@@ -11,6 +11,7 @@ package edu.sc.seis.fissuresUtil.display;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

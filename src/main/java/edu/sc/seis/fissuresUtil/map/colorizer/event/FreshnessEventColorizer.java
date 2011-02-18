@@ -7,7 +7,9 @@
 package edu.sc.seis.fissuresUtil.map.colorizer.event;
 
 import java.awt.Color;
+
 import com.bbn.openmap.omGraphics.OMGraphicList;
+
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.map.graphics.OMEvent;
 

@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import edu.iris.Fissures.FlinnEngdahlRegion;
 import edu.iris.Fissures.FlinnEngdahlType;
 

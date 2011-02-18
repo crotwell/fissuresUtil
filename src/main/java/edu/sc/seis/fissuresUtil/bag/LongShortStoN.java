@@ -7,6 +7,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import java.util.LinkedList;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;

@@ -7,8 +7,10 @@
 package edu.sc.seis.fissuresUtil.map.graphics;
 
 import java.awt.Color;
+
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.omGraphics.OMPoly;
+
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 

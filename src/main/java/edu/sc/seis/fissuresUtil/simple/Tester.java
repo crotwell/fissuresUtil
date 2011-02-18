@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.simple;
 
 
 import java.io.PrintWriter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

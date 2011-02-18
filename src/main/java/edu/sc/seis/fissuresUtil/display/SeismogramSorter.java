@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import java.util.LinkedList;
+
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**

@@ -3,12 +3,14 @@ package edu.sc.seis.fissuresUtil.xml;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URL;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.apache.xpath.XPathAPI;
 import org.apache.xpath.objects.XObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,7 +20,7 @@ import org.w3c.dom.NodeList;
  * protocol is known, ie  URLConnection can be gotten from Java.
  *
  * @author Philip Crotwell
- * @version $Id: SimpleXLink.java 22054 2011-02-16 16:51:38Z crotwell $
+ * @version $Id: SimpleXLink.java 22072 2011-02-18 15:43:18Z crotwell $
 */
 public class SimpleXLink {
 

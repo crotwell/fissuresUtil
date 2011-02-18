@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.sound;
 
 import javax.sound.sampled.Clip;
+
 import edu.iris.Fissures.model.TimeInterval;
 
 

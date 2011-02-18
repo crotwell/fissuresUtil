@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.database;
 
 import java.sql.SQLException;
+
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 

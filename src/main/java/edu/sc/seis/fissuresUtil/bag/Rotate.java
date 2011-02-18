@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import java.awt.geom.AffineTransform;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.Orientation;
@@ -11,7 +12,7 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  * Rotate.java Created: Sun Dec 15 13:43:21 2002
  * 
  * @author Philip Crotwell
- * @version $Id: Rotate.java 20577 2009-07-14 13:40:49Z crotwell $
+ * @version $Id: Rotate.java 22072 2011-02-18 15:43:18Z crotwell $
  */
 public class Rotate  {
 

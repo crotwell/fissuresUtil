@@ -6,6 +6,7 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 
 import java.util.Date;
+
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;

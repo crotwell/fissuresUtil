@@ -11,6 +11,7 @@ import org.omg.CORBA.Object;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.SetOverrideType;
+
 import edu.iris.Fissures.Area;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.TimeRange;
@@ -19,7 +20,6 @@ import edu.iris.Fissures.IfEvent.EventChannelFinder;
 import edu.iris.Fissures.IfEvent.EventFactory;
 import edu.iris.Fissures.IfEvent.EventFinder;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
-import edu.iris.Fissures.IfNetwork.NetworkFinder;
 
 public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
 

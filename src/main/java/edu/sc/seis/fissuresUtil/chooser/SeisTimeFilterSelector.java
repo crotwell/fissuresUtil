@@ -3,8 +3,10 @@ package edu.sc.seis.fissuresUtil.chooser;
 
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;

@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.xml;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;

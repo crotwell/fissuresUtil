@@ -9,7 +9,9 @@ package edu.sc.seis.fissuresUtil.map.layers;
  */
 
 import java.awt.event.MouseEvent;
+
 import javax.swing.JPopupMenu;
+
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.NavMouseMode;

@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.dataset;
 
 import javax.swing.event.EventListenerList;
+
 import edu.iris.Fissures.AuditInfo;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -14,7 +15,7 @@ import edu.sc.seis.fissuresUtil.xml.StdDataSetParamNames;
  * TopLevelOrganizer.java Created: Mon Jan 7 12:28:32 2002
  * 
  * @author <a href="mailto:">Srinivasa Telukutla</a>
- * @version $Id: TopLevelOrganizer.java 22054 2011-02-16 16:51:38Z crotwell $
+ * @version $Id: TopLevelOrganizer.java 22072 2011-02-18 15:43:18Z crotwell $
  *          This class implements the Organizer interface and this interface can
  *          be used to organize data based on some consideration while
  *          populating the DataSetTree can be Extended to Remote DataSet also.

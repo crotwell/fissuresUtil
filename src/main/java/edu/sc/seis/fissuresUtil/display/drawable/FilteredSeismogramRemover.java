@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
  */
 
 import java.util.Iterator;
+
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 
 public class FilteredSeismogramRemover extends SeismogramRemover{

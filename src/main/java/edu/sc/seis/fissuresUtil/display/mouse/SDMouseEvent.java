@@ -2,6 +2,7 @@ package edu.sc.seis.fissuresUtil.display.mouse;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;

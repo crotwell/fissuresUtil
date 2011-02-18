@@ -7,6 +7,7 @@ package edu.sc.seis.fissuresUtil.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Plottable;
@@ -16,8 +17,6 @@ import edu.iris.Fissures.IfPlottable.PlottableDC;
 import edu.iris.Fissures.IfPlottable.PlottableDCOperations;
 import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
 import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
-import edu.iris.Fissures.IfSeismogramDC.DataCenter;
-import edu.iris.Fissures.IfSeismogramDC.DataCenterOperations;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 

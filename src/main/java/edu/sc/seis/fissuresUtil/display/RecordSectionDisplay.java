@@ -13,7 +13,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JOptionPane;
+
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.borders.DistanceBorder;
 import edu.sc.seis.fissuresUtil.display.borders.TimeBorder;

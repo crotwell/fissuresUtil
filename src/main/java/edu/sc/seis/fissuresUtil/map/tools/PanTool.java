@@ -1,6 +1,8 @@
 package edu.sc.seis.fissuresUtil.map.tools;
 import java.awt.event.MouseEvent;
+
 import com.bbn.openmap.proj.Proj;
+
 import edu.sc.seis.fissuresUtil.map.OpenMap;
 
 

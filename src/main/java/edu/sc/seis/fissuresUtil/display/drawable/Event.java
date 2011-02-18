@@ -7,6 +7,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;

@@ -9,8 +9,10 @@ package edu.sc.seis.fissuresUtil.xml;
 import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 

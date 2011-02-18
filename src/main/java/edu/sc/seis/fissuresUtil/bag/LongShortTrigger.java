@@ -7,6 +7,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import java.io.Serializable;
+
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
