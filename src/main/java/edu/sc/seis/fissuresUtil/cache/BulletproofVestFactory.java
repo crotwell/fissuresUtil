@@ -87,9 +87,9 @@ public class BulletproofVestFactory {
                                                      RetryStrategy strat) {
         NSSeismogramDC ns = new NSSeismogramDC(serverDNS, serverName, fisName);
         RetrySeismogramDC retryDC = new RetrySeismogramDC(ns, strat);
+return retryDC;
         // make sure DC doesn't send lots more data than we asked for
-        CoarseRequestCutSeismogramDC coarseCutDC = new CoarseRequestCutSeismogramDC(retryDC); 
-        return coarseCutDC;
+//        return new CoarseRequestCutSeismogramDC(retryDC); 
     }
 
     public static ProxyPlottableDC vestPlottableDC(String serverDNS,
