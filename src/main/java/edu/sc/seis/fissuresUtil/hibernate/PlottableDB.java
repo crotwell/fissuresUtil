@@ -3,12 +3,11 @@ package edu.sc.seis.fissuresUtil.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
@@ -30,12 +29,12 @@ public class PlottableDB extends AbstractHibernateDB {
     }
 
     public List<PlottableChunk> get(MicroSecondTimeRange requestRange,
-                                Channel channel,
+                                ChannelId channel,
                                 int pixelsPerDay) {
-        return get(requestRange, channel.get_id().network_id.network_code,
-                   channel.get_id().station_code,
-                   channel.get_id().site_code,
-                   channel.get_id().channel_code,
+        return get(requestRange, channel.network_id.network_code,
+                   channel.station_code,
+                   channel.site_code,
+                   channel.channel_code,
                    pixelsPerDay);
     }
 
