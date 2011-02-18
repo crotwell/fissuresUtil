@@ -2,14 +2,18 @@ package edu.sc.seis.fissuresUtil.xml;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
+
 import junit.framework.TestCase;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
+
 import edu.iris.Fissures.model.UnitImpl;
 
 public class XMLUnitTest extends TestCase {

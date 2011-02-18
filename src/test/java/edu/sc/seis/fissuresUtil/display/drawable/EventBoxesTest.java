@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.display.drawable;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.List;
+
 import junit.framework.TestCase;
 import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
@@ -11,7 +12,6 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.SeismicPhase;
-import edu.sc.seis.TauP.TauModel;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;

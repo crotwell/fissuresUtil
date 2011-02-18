@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.mseed;
 import java.io.IOException;
 import java.util.List;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -14,7 +15,6 @@ import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
-import junit.framework.TestCase;
 
 public class TestFissuresConvert extends TestCase {
 

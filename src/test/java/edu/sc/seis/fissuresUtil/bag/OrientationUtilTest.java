@@ -1,8 +1,8 @@
 package edu.sc.seis.fissuresUtil.bag;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.Orientation;
 import edu.sc.seis.TauP.SphericalCoords;
-import junit.framework.TestCase;
 
 public class OrientationUtilTest extends TestCase {
 

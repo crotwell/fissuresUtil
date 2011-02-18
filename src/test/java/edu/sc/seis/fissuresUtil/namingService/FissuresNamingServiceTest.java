@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.namingService;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.Dimension;
 import edu.iris.Fissures.NotImplemented;
 import edu.iris.Fissures.Plottable;
@@ -10,7 +11,6 @@ import edu.iris.Fissures.IfPlottable.PlottableDCPOA;
 import edu.iris.Fissures.IfPlottable.PlottableNotAvailable;
 import edu.iris.Fissures.IfPlottable.UnsupportedDimension;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import junit.framework.TestCase;
 
 
 /**

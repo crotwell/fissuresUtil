@@ -9,17 +9,17 @@ package edu.sc.seis.fissuresUtil.bag;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.util.LinkedList;
+
 import junit.framework.TestCase;
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.seisFile.mseed.DataRecord;
-import edu.sc.seis.seisFile.mseed.SeedRecord;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
-import edu.sc.seis.seisFile.mseed.MiniSeedRead;
+import edu.sc.seis.seisFile.mseed.DataRecord;
+import edu.sc.seis.seisFile.mseed.SeedRecord;
 
 public class LongShortStoNTest extends TestCase {
 

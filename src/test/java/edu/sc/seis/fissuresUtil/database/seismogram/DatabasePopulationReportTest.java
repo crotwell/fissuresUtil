@@ -1,9 +1,9 @@
 package edu.sc.seis.fissuresUtil.database.seismogram;
 
+import junit.framework.TestCase;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.model.ISOTime;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
-import junit.framework.TestCase;
 
 public class DatabasePopulationReportTest extends TestCase {
 
