@@ -13,7 +13,7 @@ public class ClassExceptionInterceptor implements ExceptionInterceptor {
     
     public boolean handle(String message, Throwable t) {
         if(exceptionClass.isInstance(t) || (exceptionClass.isInstance(t.getCause()))) {
-            logger.debug(exceptionClass.getName()+", ignoring.", t);
+            logger.info(exceptionClass.getName()+", ignoring.", t);
             return true;
         }
         return false;
@@ -21,5 +21,5 @@ public class ClassExceptionInterceptor implements ExceptionInterceptor {
     
     Class<? extends Throwable> exceptionClass;
 
-    private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(ClassExceptionInterceptor.class);
 }
