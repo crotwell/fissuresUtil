@@ -385,18 +385,23 @@ public class NetworkDB extends AbstractHibernateDB {
         return (ChannelImpl)result.get(0);
     }
 
-    public Instrumentation getInstrumentation(ChannelImpl chan) throws ChannelNotFound {
+    public InstrumentationBlob getInstrumentationBlob(ChannelImpl chan) throws ChannelNotFound {
         Query query = getSession().createQuery("from "+InstrumentationBlob.class.getName()+" where channel = :chan");
         query.setEntity("chan", chan);
         Iterator it = query.iterate();
         if (it.hasNext()) {
             InstrumentationBlob ib = (InstrumentationBlob)it.next();
-            if (ib.getInstrumentation() != null) {
-                return ib.getInstrumentation();
-            }
-            throw new ChannelNotFound();
+            return ib;
         }
-        return null;
+        return null;    
+    }
+    
+    public Instrumentation getInstrumentation(ChannelImpl chan) throws ChannelNotFound {
+        InstrumentationBlob ib = getInstrumentationBlob(chan);
+        if (ib != null) {
+            return ib.getInstrumentation(); // might be null, meaning no inst exists, but blob in DB so we tried before
+        }
+        throw new ChannelNotFound(); // instBlob null, so never seen this channel before
     }
 
     public Sensitivity getSensitivity(ChannelImpl chan) throws ChannelNotFound {
@@ -405,7 +410,20 @@ public class NetworkDB extends AbstractHibernateDB {
     
     public void putInstrumentation(ChannelImpl chan, Instrumentation inst) {
         logger.debug("Put instrumentation: "+ChannelIdUtil.toStringNoDates(chan));
-        getSession().save(new InstrumentationBlob(chan, inst));
+        InstrumentationBlob ib = null;
+        try {
+            ib = getInstrumentationBlob(chan);
+        } catch(ChannelNotFound e) {
+            // must be new
+        }
+        if (ib == null) {
+            ib = new InstrumentationBlob(chan, inst);
+        } else {
+            int dbid = ib.getDbid();
+            ib = new InstrumentationBlob(chan, inst);
+            ib.setDbid(dbid);
+        }
+        getSession().saveOrUpdate(ib);
     }
 
     public void internUnit(Station sta) {
