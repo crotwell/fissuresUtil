@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
@@ -34,6 +35,7 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.iris.dmc.seedcodec.B1000Types;
@@ -411,15 +413,22 @@ public class FissuresConvert {
                                        bits);
     }
     
-    public static List<DataRecord> toMSeed(List<PlottableChunk> chunkList, ChannelId chan) throws SeedFormatException {
+    public static List<DataRecord> toMSeed(List<PlottableChunk> chunkList) throws SeedFormatException {
         List<DataRecord> out = new ArrayList<DataRecord>();
         int seqStart = 0;
         for (PlottableChunk chunk : chunkList) {
+            ChannelId chan = new ChannelId(new NetworkId(chunk.getNetworkCode(), chunk.getBeginTime().getFissuresTime()),
+                                           chunk.getStationCode(),
+                                           chunk.getSiteCode(),
+                                           chunk.getChannelCode(),
+                                           chunk.getBeginTime().getFissuresTime());
+            SamplingImpl samp = new SamplingImpl(chunk.getPixelsPerDay()*2, DAY);
             List<DataRecord> drList = toMSeed(toEncodedData(chunk.getYData()),
                                                             chan,
-                                                            chunk.getBeginTime(),
-                                                            new SamplingImpl(chunk.getPixelsPerDay()*2, DAY),
+                                                            chunk.getBeginTime().add((TimeInterval)samp.getPeriod().multiplyBy(chunk.getBeginPixel())),
+                                                            samp,
                                                             seqStart);
+            logger.debug("Plot toMSeed begin: "+drList.get(0).getHeader().getStartTime());
             out.addAll(drList);
             seqStart += drList.size();
         }
@@ -434,28 +443,33 @@ public class FissuresConvert {
     public static List<PlottableChunk> toPlottable(List<DataRecord> drList) throws SeedFormatException, FissuresException {
         List<PlottableChunk> out = new ArrayList<PlottableChunk>();
         for (DataRecord dr : drList) {
-            LocalSeismogramImpl seis = toFissures(new DataRecord[] {dr});
-            int[] yData = seis.get_as_longs();
-            int[] xData = new int[yData.length];
-            for (int i = 0; i < xData.length; i++) {
-                xData[i] = i/2;
-            }
-            Plottable pData = new Plottable(xData, yData);
-            int pixelsPerDay = Math.round((float)(DAY.divideBy(seis.getSampling().getPeriod()).getValue(UnitImpl.DIMENSIONLESS)/2));
-            IntRange seisPixelRange = SimplePlotUtil.getDayPixelRange(seis,
-                                                       pixelsPerDay,
-                                                       seis.getBeginTime());
-            PlottableChunk chunk = new PlottableChunk(pData,
-                                                      seisPixelRange.getMin(),
-                                                      seis.getBeginTime(), 
-                                                      pixelsPerDay,
-                                                      seis.getChannelID().network_id.network_code,
-                                                      seis.getChannelID().station_code,
-                                                      seis.getChannelID().site_code,
-                                                      seis.getChannelID().channel_code);
-            out.add(chunk);
+            out.add(toPlottable(dr));
         }
         return out;
+    }
+
+    public static PlottableChunk toPlottable(DataRecord dr) throws SeedFormatException, FissuresException {
+        LocalSeismogramImpl seis = toFissures(new DataRecord[] {dr});
+        int[] yData = seis.get_as_longs();
+        int[] xData = new int[yData.length];
+        for (int i = 0; i < xData.length; i++) {
+            xData[i] = i/2;
+        }
+        Plottable pData = new Plottable(xData, yData);
+        int pixelsPerDay = Math.round((float)(DAY.divideBy(seis.getSampling().getPeriod()).getValue(UnitImpl.DIMENSIONLESS)/2));
+        IntRange seisPixelRange = SimplePlotUtil.getDayPixelRange(seis,
+                                                   pixelsPerDay,
+                                                   seis.getBeginTime());
+        PlottableChunk chunk = new PlottableChunk(pData,
+                                                  0,  //seisPixelRange.getMin()
+                                                  seis.getBeginTime(), 
+                                                  pixelsPerDay,
+                                                  seis.getChannelID().network_id.network_code,
+                                                  seis.getChannelID().station_code,
+                                                  seis.getChannelID().site_code,
+                                                  seis.getChannelID().channel_code);
+        logger.debug("chunk "+ChannelIdUtil.toStringNoDates(seis.getChannelID())+" "+chunk.getBeginTime()+" "+chunk.getEndTime()+" "+chunk.getBeginPixel()+" "+chunk.getNumDataPoints()+" "+chunk.getNumPixels()+" "+chunk.getPixelsPerDay());
+        return chunk;
     }
 
     public static SamplingImpl convertSampleRate(DataRecord seed) {
@@ -513,11 +527,11 @@ public class FissuresConvert {
         return bits;
     }
     
-    public static EncodedData[] toEncodedData(int[] data) throws SeedFormatException {
+    public static EncodedData[] toEncodedData(int[] data) {
         // for int (corba calls this a long), 64 bytes = 4 bytes * 16 samples, so each edata
         // holds 62*16 samples
         if (data.length == 0) {
-            throw new SeedFormatException("Can't put zero length array into encodedData");
+            return new EncodedData[0];
         }
         EncodedData[] eData = new EncodedData[(int)Math.ceil(data.length * 4.0f / (62 * 64))];
         for (int i = 0; i < eData.length; i++) {
@@ -560,12 +574,15 @@ public class FissuresConvert {
      * @return the value of start time in MicroSecondDate format
      */
     public static MicroSecondDate getMicroSecondTime(Btime startStruct) {
-        ISOTime iso = new ISOTime(startStruct.year,
-                                  startStruct.jday,
-                                  startStruct.hour,
-                                  startStruct.min,
-                                  startStruct.sec);
-        MicroSecondDate d = iso.getDate().add(new TimeInterval(startStruct.tenthMilli, UnitImpl.TENTHMILLISECOND));
+        Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        cal.set(startStruct.year,
+                0,
+                startStruct.jday,
+                startStruct.hour,
+                startStruct.min,
+                startStruct.sec);
+        cal.set(cal.MILLISECOND, 0);
+        MicroSecondDate d = new MicroSecondDate(cal.getTime()).add(new TimeInterval(startStruct.tenthMilli*100, UnitImpl.MICROSECOND));
         return d;
     }
 
@@ -633,4 +650,6 @@ public class FissuresConvert {
             singletonizeUnitBase((UnitImpl)impl.elements[i]);
         }
     }
+    
+    private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(FissuresConvert.class);
 } // FissuresConvert
