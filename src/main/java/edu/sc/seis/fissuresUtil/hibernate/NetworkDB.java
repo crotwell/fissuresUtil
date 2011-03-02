@@ -420,6 +420,7 @@ public class NetworkDB extends AbstractHibernateDB {
             ib = new InstrumentationBlob(chan, inst);
         } else {
             int dbid = ib.getDbid();
+            getSession().evict(ib);
             ib = new InstrumentationBlob(chan, inst);
             ib.setDbid(dbid);
         }
