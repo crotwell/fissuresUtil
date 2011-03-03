@@ -30,7 +30,17 @@ public class NameServiceTreeModel implements TreeModel {
     FissuresNamingService ns;
 
     public Object getRoot() {
-        return new NCWrapper(ns.getNameService(), new NameComponent[0]);
+        return new NCWrapper(ns.getNameService(), new NameComponent[0], extractAddress(ns.getNameService()));
+    }
+    
+    public static IIOPAddress extractAddress(org.omg.CORBA.Object obj) {
+        String IOR;
+        IIOPAddress addr = null;
+        IOR = Initializer.getORB().object_to_string(obj);
+        ParsedIOR parsed = new ParsedIOR((org.jacorb.orb.ORB)Initializer.getORB(),
+                                         IOR);
+        IIOPProfile profile = (IIOPProfile)parsed.getProfiles().get(0);
+        return addr = (IIOPAddress)profile.getAddress();
     }
 
     public Object getChild(Object arg0, int arg1) {
@@ -40,11 +50,19 @@ public class NameServiceTreeModel implements TreeModel {
             BindingListHolder blHold = new BindingListHolder();
             nc.list(100, blHold, new BindingIteratorHolder());
             Binding[] bindings = blHold.value;
+            IIOPAddress addr = null;
+            try {
+                addr = extractAddress(nc.resolve(bindings[arg1].binding_name));
+            } catch(NotFound e) {
+            } catch(CannotProceed e) {
+            } catch(InvalidName e) {
+            }
             if(bindings[arg1].binding_type.equals(BindingType.ncontext)) {
                 try {
                     NamingContext childNC = NamingContextHelper.narrow(nc.resolve(bindings[arg1].binding_name));
                     NCWrapper wrapper = new NCWrapper(childNC,
-                                                      bindings[arg1].binding_name);
+                                                      bindings[arg1].binding_name,
+                                                      addr);
                     return wrapper;
                 } catch(NotFound e) {
                 	return handleWithBinding(e, bindings, arg1);
@@ -53,18 +71,6 @@ public class NameServiceTreeModel implements TreeModel {
                 }
             } else {
                 NameComponent name = bindings[arg1].binding_name[bindings[arg1].binding_name.length - 1];
-                String IOR;
-                IIOPAddress addr = null;
-                try {
-                    IOR = Initializer.getORB().object_to_string(nc.resolve(bindings[arg1].binding_name));
-                    ParsedIOR parsed = new ParsedIOR((org.jacorb.orb.ORB)Initializer.getORB(),
-                                                     IOR);
-                    IIOPProfile profile = (IIOPProfile)parsed.getProfiles().get(0);
-                    addr = (IIOPAddress)profile.getAddress();
-                } catch(NotFound e) {
-                } catch(CannotProceed e) {
-                } catch(InvalidName e) {
-                }
                 return name.id + "." + name.kind+(addr==null?"":" ("+addr.getIP()+":"+addr.getPort()+")");
             }
         }
@@ -145,20 +151,23 @@ public class NameServiceTreeModel implements TreeModel {
 
 class NCWrapper {
 
-    NCWrapper(NamingContext nc, NameComponent[] name) {
+    NCWrapper(NamingContext nc, NameComponent[] name, IIOPAddress addr) {
         this.nc = nc;
         this.name = name;
+        this.addr = addr;
     }
 
     public String toString() {
         if(name.length != 0) {
-            return name[name.length - 1].id + "." + name[name.length - 1].kind;
+            return name[name.length - 1].id + "." + name[name.length - 1].kind+(addr==null?"":" ("+addr.getIP()+":"+addr.getPort()+")");
         } else {
-            return "root";
+            return "root"+(addr==null?"":" ("+addr.getIP()+":"+addr.getPort()+")");
         }
     }
 
     NameComponent[] name;
 
     NamingContext nc;
+    
+    IIOPAddress addr;
 }
