@@ -301,6 +301,45 @@ public class FissuresConvert {
         return toFissures(data.toArray(new DataRecord[0]));
     }
 
+    /*
+
+                                    if (seis == null) {
+                                    logger.debug("Found beginning, records skipped="+numBeforeStart);
+                                    seis = FissuresConvert.toFissures(dr);
+                                    out.add(seis);
+                                } else {
+                                    TimeInterval fivePercent = (TimeInterval)seis.getSampling()
+                                            .getPeriod()
+                                            .multiplyBy(0.05);
+                                    TimeInterval gap = seis.getEndTime()
+                                            .add(seis.getSampling().getPeriod())
+                                            .difference(drStart);
+                                    if (gap.lessThanEqual(fivePercent)) {
+                                        FissuresConvert.append(seis, dr);
+                                    } else {
+                                        logger.debug("create new due to gap > 5% samp:  "+gap+" > "+fivePercent);
+                                        seis = FissuresConvert.toFissures(dr);
+                                        out.add(seis);
+                                    }
+                                }
+     */
+
+    /**
+     * assume all records from same channel and in time order with no
+     * gaps/overlaps.
+     */
+    public static LocalSeismogramImpl toFissures(List<DataRecord> seed) throws SeedFormatException, FissuresException {
+        LocalSeismogramImpl seis = null;
+        for (DataRecord dataRecord : seed) {
+            if (seis == null) {
+                seis = toFissures(dataRecord);
+            } else {
+                append(seis, dataRecord);
+            }
+        }
+        return seis;
+    }
+    
     /**
      * assume all records from same channel and in time order with no
      * gaps/overlaps.
@@ -344,7 +383,7 @@ public class FissuresConvert {
                 fakeB1000.setDataRecordLength((byte)30);// should be huge and we
                                                         // will never write this
                                                         // out
-                seedCopy[i].setRecordSize(8184); // make this bug enough for the
+                seedCopy[i].setRecordSize(seed[i].getRecordSize()*2); // make this bug enough for the
                                                  // extra blockette
                 seedCopy[i].addBlockette(fakeB1000);
             } else {
@@ -376,8 +415,7 @@ public class FissuresConvert {
         EncodedData[] edata = bits.encoded_values();
         for (int j = 0; j < edata.length; j++) {
             if (edata[j] == null) {
-                System.err.println("encoded data is null " + j);
-                System.exit(1);
+                throw new RuntimeException("encoded data is null " + j);
             }
             seis.append_encoded(edata[j]);
         }
