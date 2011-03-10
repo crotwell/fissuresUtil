@@ -42,6 +42,8 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.seisFile.sac.SacConstants;
+import edu.sc.seis.seisFile.sac.SacHeader;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
@@ -81,22 +83,22 @@ public class SacToFissures {
     public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac,
                                                     SeismogramAttr attr)
             throws FissuresException {
-        LocalSeismogramImpl seis = new LocalSeismogramImpl(attr, sac.y);
-        if(seis.getNumPoints() != sac.npts) {
-            seis.num_points = sac.npts;
-        } // end of if (seis.getNumPoints() != sac.npts)
+        LocalSeismogramImpl seis = new LocalSeismogramImpl(attr, sac.getY());
+        if(seis.getNumPoints() != sac.getHeader().getNpts()) {
+            seis.num_points = sac.getHeader().getNpts();
+        }
         Sampling samp = seis.getSampling();
         TimeInterval period = ((SamplingImpl)samp).getPeriod();
-        if(sac.delta != 0) {
-            double error = (period.convertTo(UnitImpl.SECOND).getValue() - sac.delta)
-                    / sac.delta;
+        if(sac.getHeader().getDelta() != 0) {
+            double error = (period.convertTo(UnitImpl.SECOND).getValue() - sac.getHeader().getDelta())
+                    / sac.getHeader().getDelta();
             if(error > 0.01) {
                 seis.sampling_info = new SamplingImpl(1,
-                                                      new TimeInterval(sac.delta,
+                                                      new TimeInterval(sac.getHeader().getDelta(),
                                                                        UnitImpl.SECOND));
-            } // end of if (error > 0.01)
-        } // end of if (samp.getPeriod().getValue() != sac.delta)
-        if(sac.b != -12345) {
+            } 
+        }
+        if( ! SacConstants.isUndef(sac.getHeader().getB())) {
             MicroSecondDate beginTime = getSeismogramBeginTime(sac);
             double error = seis.getBeginTime()
                     .subtract(beginTime)
@@ -112,7 +114,7 @@ public class SacToFissures {
     public static LocalSeismogramImpl getSeismogram(SacTimeSeries sac)
             throws FissuresException {
         TimeSeriesDataSel data = new TimeSeriesDataSel();
-        data.flt_values(sac.y);
+        data.flt_values(sac.getY());
         return new LocalSeismogramImpl(getSeismogramAttr(sac), data);
     }
     
@@ -122,21 +124,22 @@ public class SacToFissures {
         edu.iris.Fissures.Time time = beginTime.getFissuresTime();
         ChannelId chanId = getChannelId(sac);
         String evtName = "   ";
-        if(!sac.kevnm.equals(sac.STRING16_UNDEF)) {
-            evtName += sac.kevnm.trim() + " ";
+        SacHeader header = sac.getHeader();
+        if( ! SacConstants.isUndef(header.getKevnm())) {
+            evtName += header.getKevnm().trim() + " ";
         }
-        if(sac.evla != sac.FLOAT_UNDEF && sac.evlo != sac.FLOAT_UNDEF
-                && sac.evdp != sac.FLOAT_UNDEF) {
-            evtName += "lat: " + sac.evla + " lon: " + sac.evlo + " depth: "
-                    + (sac.evdp / 1000) + " km";
+        if( ! SacConstants.isUndef(header.getEvla()) &&  ! SacConstants.isUndef(header.getEvlo())
+                &&  ! SacConstants.isUndef(header.getEvdp())) {
+            evtName += "lat: " + header.getEvla() + " lon: " + header.getEvlo() + " depth: "
+                    + (header.getEvdp() / 1000) + " km";
         }
-        if(sac.gcarc != sac.FLOAT_UNDEF) {
+        if( ! SacConstants.isUndef(sac.getHeader().getGcarc())) {
             DecimalFormat df = new DecimalFormat("##0.#");
-            evtName += "  " + df.format(sac.gcarc) + " deg.";
+            evtName += "  " + df.format(header.getGcarc()) + " deg.";
         }
-        if(sac.az != sac.FLOAT_UNDEF) {
+        if( ! SacConstants.isUndef(sac.getHeader().getAz())) {
             DecimalFormat df = new DecimalFormat("##0.#");
-            evtName += "  az " + df.format(sac.az) + " deg.";
+            evtName += "  az " + df.format(header.getAz()) + " deg.";
         }
         // seis id can be anything, so set to net:sta:site:chan:begin
         String seisId = chanId.network_id.network_code + ":"
@@ -144,35 +147,43 @@ public class SacToFissures {
                 + chanId.channel_code + ":" + time.date_time;
         return new SeismogramAttrImpl(seisId,
                                        time,
-                                       sac.npts,
+                                       sac.getHeader().getNpts(),
                                        new SamplingImpl(1,
-                                                        new TimeInterval(sac.delta,
+                                                        new TimeInterval(sac.getHeader().getDelta(),
                                                                          UnitImpl.SECOND)),
                                        UnitImpl.COUNT,
                                        chanId);
     }
 
     public static ChannelId getChannelId(SacTimeSeries sac) {
-        if(!sac.khole.equals(sac.STRING8_UNDEF)
-                && sac.khole.trim().length() == 2) { return getChannelId(sac,
-                                                                         sac.khole.trim()); }
-        return getChannelId(sac, "  ");
+        return getChannelId(sac.getHeader());
+    }
+
+    public static ChannelId getChannelId(SacHeader header) {
+        if( ! SacConstants.isUndef(header.getKhole())
+                && header.getKhole().trim().length() == 2) { return getChannelId(header,
+                                                                                 header.getKhole().trim()); }
+        return getChannelId(header, "  ");
     }
 
     public static ChannelId getChannelId(SacTimeSeries sac, String siteCode) {
-        MicroSecondDate nzTime = getNZTime(sac);
+        return getChannelId(sac.getHeader(), siteCode);
+    }
+
+    public static ChannelId getChannelId(SacHeader header, String siteCode) {
+        MicroSecondDate nzTime = getNZTime(header);
         Time fisTime = nzTime.getFissuresTime();
         String netCode = "XX";
-        if(!sac.knetwk.trim().equals("-12345")) {
-            netCode = sac.knetwk.trim().toUpperCase();
+        if( ! SacConstants.isUndef(header.getKnetwk())) {
+            netCode = header.getKnetwk().trim().toUpperCase();
         }
         String staCode = "XXXXX";
-        if(!sac.kstnm.trim().equals("-12345")) {
-            staCode = sac.kstnm.trim().toUpperCase();
+        if( ! SacConstants.isUndef(header.getKstnm())) {
+            staCode = header.getKstnm().trim().toUpperCase();
         }
         String chanCode = "XXX";
-        if(!sac.kcmpnm.trim().equals("-12345")) {
-            chanCode = sac.kcmpnm.trim().toUpperCase();
+        if( ! SacConstants.isUndef(header.getKcmpnm())) {
+            chanCode = header.getKcmpnm().trim().toUpperCase();
             if(chanCode.length() == 5) {
                 // site code is first 2 chars of kcmpnm
                 siteCode = chanCode.substring(0, 2);
@@ -189,23 +200,27 @@ public class SacToFissures {
     }
 
     public static ChannelImpl getChannel(SacTimeSeries sac) {
-        ChannelId chanId = getChannelId(sac);
-        float stel = sac.stel;
+        return getChannel(sac.getHeader());
+    }
+    
+    public static ChannelImpl getChannel(SacHeader header) {
+        ChannelId chanId = getChannelId(header);
+        float stel = header.getStel();
         if(stel == -12345.0f) {
             stel = 0;
         } // end of if (stel == -12345.0f)
-        float stdp = sac.stdp;
+        float stdp = header.getStdp();
         if(stdp == -12345.0f) {
             stdp = 0;
         } // end of if (stdp == -12345.0f)
-        Location loc = new Location(sac.stla,
-                                    sac.stlo,
-                                    new QuantityImpl(sac.stel, UnitImpl.METER),
-                                    new QuantityImpl(sac.stdp, UnitImpl.METER),
+        Location loc = new Location(header.getStla(),
+                                    header.getStlo(),
+                                    new QuantityImpl(header.getStel(), UnitImpl.METER),
+                                    new QuantityImpl(header.getStdp(), UnitImpl.METER),
                                     LocationType.GEOGRAPHIC);
-        Orientation orient = new Orientation(sac.cmpaz, sac.cmpinc - 90);
+        Orientation orient = new Orientation(header.getCmpaz(), header.getCmpinc() - 90);
         SamplingImpl samp = new SamplingImpl(1,
-                                             new TimeInterval(sac.delta,
+                                             new TimeInterval(header.getDelta(),
                                                               UnitImpl.SECOND));
         TimeRange effective = new TimeRange(chanId.network_id.begin_time,
                                             new Time(edu.iris.Fissures.TIME_UNKNOWN.value,
@@ -244,19 +259,28 @@ public class SacToFissures {
      * NZHOUR, NZMIN, NZSEC, NZMSEC. If any of these are UNDEF (-12345), then ClockUtil.wayPast
      */
     public static MicroSecondDate getNZTime(SacTimeSeries sac) {
-        if (sac.nzyear == SacTimeSeries.INT_UNDEF ||
-            sac.nzjday == SacTimeSeries.INT_UNDEF ||
-            sac.nzhour == SacTimeSeries.INT_UNDEF ||
-            sac.nzmin == SacTimeSeries.INT_UNDEF ||
-            sac.nzsec == SacTimeSeries.INT_UNDEF ||
-            sac.nzmsec == SacTimeSeries.INT_UNDEF) {
+        return getNZTime(sac.getHeader());
+    }
+
+
+    /**
+     * calculates the reference (NZ) time from the sac headers NZYEAR, NZJDAY,
+     * NZHOUR, NZMIN, NZSEC, NZMSEC. If any of these are UNDEF (-12345), then ClockUtil.wayPast
+     */
+    public static MicroSecondDate getNZTime(SacHeader header) {
+        if ( SacConstants.isUndef(header.getNzyear()) ||
+                SacConstants.isUndef(header.getNzjday()) ||
+                SacConstants.isUndef(header.getNzhour()) ||
+                SacConstants.isUndef(header.getNzmin()) ||
+                SacConstants.isUndef(header.getNzsec()) ||
+                SacConstants.isUndef(header.getNzmsec())) {
             return ClockUtil.wayPast();
         }
-        ISOTime isoTime = new ISOTime(sac.nzyear,
-                                      sac.nzjday,
-                                      sac.nzhour,
-                                      sac.nzmin,
-                                      sac.nzsec + sac.nzmsec / 1000f);
+        ISOTime isoTime = new ISOTime(header.getNzyear(),
+                                      header.getNzjday(),
+                                      header.getNzhour(),
+                                      header.getNzmin(),
+                                      header.getNzsec() + header.getNzmsec() / 1000f);
         MicroSecondDate originTime = isoTime.getDate();
         return originTime;
     }
@@ -266,8 +290,12 @@ public class SacToFissures {
      * NZHOUR, NZMIN, NZSEC, NZMSEC.
      */
     public static MicroSecondDate getEventOriginTime(SacTimeSeries sac) {
-        MicroSecondDate originTime = getNZTime(sac);
-        TimeInterval sacOMarker = new TimeInterval(sac.o, UnitImpl.SECOND);
+        return getEventOriginTime(sac.getHeader());
+    }
+
+    public static MicroSecondDate getEventOriginTime(SacHeader header) {
+        MicroSecondDate originTime = getNZTime(header);
+        TimeInterval sacOMarker = new TimeInterval(header.getO(), UnitImpl.SECOND);
         originTime = originTime.add(sacOMarker);
         return originTime;
     }
@@ -277,30 +305,42 @@ public class SacToFissures {
      * NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
      */
     public static MicroSecondDate getSeismogramBeginTime(SacTimeSeries sac) {
-        MicroSecondDate bTime = getNZTime(sac);
-        TimeInterval sacBMarker = new TimeInterval(sac.b, UnitImpl.SECOND);
+        return getSeismogramBeginTime(sac.getHeader());
+    }
+
+    /**
+     * calculates the seismogram begin time from the sac headers B, NZYEAR,
+     * NZJDAY, NZHOUR, NZMIN, NZSEC, NZMSEC.
+     */
+    public static MicroSecondDate getSeismogramBeginTime(SacHeader header ) {
+        MicroSecondDate bTime = getNZTime(header);
+        TimeInterval sacBMarker = new TimeInterval(header.getB(), UnitImpl.SECOND);
         bTime = bTime.add(sacBMarker);
         return bTime;
     }
 
     public static CacheEvent getEvent(SacTimeSeries sac) {
-        if(sac.o != sac.FLOAT_UNDEF && sac.evla != sac.FLOAT_UNDEF
-                && sac.evlo != sac.FLOAT_UNDEF && sac.evdp != sac.FLOAT_UNDEF) {
-            MicroSecondDate beginTime = getEventOriginTime(sac);
+        return getEvent(sac.getHeader());
+    }
+
+    public static CacheEvent getEvent(SacHeader header) {
+        if(! SacConstants.isUndef(header.getO()) && ! SacConstants.isUndef(header.getEvla())
+                &&  ! SacConstants.isUndef(header.getEvlo()) &&  ! SacConstants.isUndef(header.getEvdp())) {
+            MicroSecondDate beginTime = getEventOriginTime(header);
             EventAttr attr = new EventAttrImpl("SAC Event");
             OriginImpl[] origins = new OriginImpl[1];
             Location loc;
-            if(sac.evdp > 1000) {
-                loc = new Location(sac.evla,
-                                   sac.evlo,
+            if(header.getEvdp() > 1000) {
+                loc = new Location(header.getEvla(),
+                                   header.getEvlo(),
                                    new QuantityImpl(0, UnitImpl.METER),
-                                   new QuantityImpl(sac.evdp, UnitImpl.METER),
+                                   new QuantityImpl(header.getEvdp(), UnitImpl.METER),
                                    LocationType.GEOGRAPHIC);
             } else {
-                loc = new Location(sac.evla,
-                                   sac.evlo,
+                loc = new Location(header.getEvla(),
+                                   header.getEvlo(),
                                    new QuantityImpl(0, UnitImpl.METER),
-                                   new QuantityImpl(sac.evdp,
+                                   new QuantityImpl(header.getEvdp(),
                                                     UnitImpl.KILOMETER),
                                    LocationType.GEOGRAPHIC);
             } // end of else

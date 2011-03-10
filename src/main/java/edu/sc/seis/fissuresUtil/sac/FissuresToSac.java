@@ -23,6 +23,8 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.bag.DistAz;
 import edu.sc.seis.fissuresUtil.cache.InstrumentationLoader;
 import edu.sc.seis.seisFile.sac.Complex;
+import edu.sc.seis.seisFile.sac.SacConstants;
+import edu.sc.seis.seisFile.sac.SacHeader;
 import edu.sc.seis.seisFile.sac.SacPoleZero;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
@@ -49,7 +51,6 @@ public class FissuresToSac {
 	 */
 	public static SacTimeSeries getSAC(LocalSeismogramImpl seis)
 			throws CodecException {
-		SacTimeSeries sac = new SacTimeSeries();
 		float[] floatSamps;
 		try {
 			if (seis.can_convert_to_long()) {
@@ -68,35 +69,29 @@ public class FissuresToSac {
 				throw new CodecException(e.the_error.error_description);
 			}
 		}
-		sac.y = floatSamps;
-
-		sac.npts = sac.y.length;
-		sac.b = 0;
-		sac.iztype = sac.IB;
+		SacHeader header = SacHeader.createEmptyEvenSampledTimeSeriesHeader();
+        SacTimeSeries sac = new SacTimeSeries(header, floatSamps);
+		header.setIztype( SacConstants.IB);
 		SamplingImpl samp = (SamplingImpl) seis.sampling_info;
 		QuantityImpl period = samp.getPeriod();
 		period = period.convertTo(UnitImpl.SECOND);
 		float f = (float) period.get_value();
-		sac.e = (sac.npts-1) * f;
-		sac.iftype = sac.ITIME;
-		sac.leven = sac.TRUE;
-		sac.delta = f;
-		sac.idep = sac.IUNKN;
+		header.setDelta( f);
 
 		UnitImpl yUnit = (UnitImpl) seis.y_unit;
 		QuantityImpl min = (QuantityImpl) seis.getMinValue();
-		sac.depmin = (float) min.convertTo(yUnit).value;
+		header.setDepmin( (float) min.convertTo(yUnit).value);
 		QuantityImpl max = (QuantityImpl) seis.getMaxValue();
-		sac.depmax = (float) max.convertTo(yUnit).value;
+		header.setDepmax( (float) max.convertTo(yUnit).value);
 		QuantityImpl mean = (QuantityImpl) seis.getMeanValue();
-		sac.depmen = (float) mean.convertTo(yUnit).value;
+		header.setDepmen( (float) mean.convertTo(yUnit).value);
 
 		setKZTime(sac, new MicroSecondDate(seis.begin_time));
 
-		sac.knetwk = seis.channel_id.network_id.network_code;
-		sac.kstnm = seis.channel_id.station_code;
-		sac.kcmpnm = seis.channel_id.channel_code;
-		sac.khole = seis.channel_id.site_code;
+		header.setKnetwk(seis.channel_id.network_id.network_code);
+		header.setKstnm( seis.channel_id.station_code);
+		header.setKcmpnm( seis.channel_id.channel_code);
+		header.setKhole( seis.channel_id.site_code);
 
 		return sac;
 	}
@@ -160,10 +155,10 @@ public class FissuresToSac {
 		}
 		if (origin != null && channel != null) {
 			DistAz distAz = new DistAz(channel, origin);
-			sac.gcarc = (float) distAz.getDelta();
-			sac.dist = (float) distAz.getDelta() * 111.19f;
-			sac.az = (float) distAz.getAz();
-			sac.baz = (float) distAz.getBaz();
+			sac.getHeader().setGcarc( (float) distAz.getDelta());
+			sac.getHeader().setDist( (float) distAz.getDelta() * 111.19f);
+			sac.getHeader().setAz( (float) distAz.getAz());
+			sac.getHeader().setBaz( (float) distAz.getBaz());
 		}
 		return sac;
 	}
@@ -178,17 +173,18 @@ public class FissuresToSac {
 	 *            a <code>Channel</code>
 	 */
 	public static void addChannel(SacTimeSeries sac, Channel channel) {
-		sac.stla = (float) channel.getSite().getLocation().latitude;
-		sac.stlo = (float) channel.getSite().getLocation().longitude;
+	    SacHeader header = sac.getHeader();
+	    header.setStla( (float) channel.getSite().getLocation().latitude);
+	    header.setStlo( (float) channel.getSite().getLocation().longitude);
 		QuantityImpl z = (QuantityImpl) channel.getSite().getLocation().elevation;
-		sac.stel = (float) z.convertTo(UnitImpl.METER).value;
+		header.setStel( (float) z.convertTo(UnitImpl.METER).value);
 		z = (QuantityImpl) channel.getSite().getLocation().depth;
-		sac.stdp = (float) z.convertTo(UnitImpl.METER).value;
+		header.setStdp( (float) z.convertTo(UnitImpl.METER).value);
 
-		sac.cmpaz = channel.getOrientation().azimuth;
+		header.setCmpaz( channel.getOrientation().azimuth);
 		// sac vert. is 0, fissures and seed vert. is -90
 		// sac hor. is 90, fissures and seed hor. is 0
-		sac.cmpinc = 90 + channel.getOrientation().dip;
+		header.setCmpinc( 90 + channel.getOrientation().dip);
 	}
 
 	/**
@@ -200,37 +196,39 @@ public class FissuresToSac {
 	 *            an <code>Origin</code> value
 	 */
 	public static void addOrigin(SacTimeSeries sac, Origin origin) {
-		sac.evla = origin.getLocation().latitude;
-		sac.evlo = origin.getLocation().longitude;
+        SacHeader header = sac.getHeader();
+        header.setEvla( origin.getLocation().latitude);
+        header.setEvlo( origin.getLocation().longitude);
 		QuantityImpl z = (QuantityImpl) origin.getLocation().elevation;
-		sac.evel = (float) z.convertTo(UnitImpl.METER).value;
+		header.setEvel( (float) z.convertTo(UnitImpl.METER).value);
 		z = (QuantityImpl) origin.getLocation().depth;
-		sac.evdp = (float) z.convertTo(UnitImpl.METER).value;
+		header.setEvdp( (float) z.convertTo(UnitImpl.METER).value);
 
-		ISOTime isoTime = new ISOTime(sac.nzyear, sac.nzjday, sac.nzhour,
-				sac.nzmin, sac.nzsec + sac.nzmsec / 1000f);
+		ISOTime isoTime = new ISOTime(header.getNzyear(), header.getNzjday(), header.getNzhour(),
+		                              header.getNzmin(), header.getNzsec() + header.getNzmsec() / 1000f);
 		MicroSecondDate beginTime = isoTime.getDate();
 		MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
 		setKZTime(sac, originTime);
 		TimeInterval sacBMarker = (TimeInterval) beginTime.subtract(originTime);
 		sacBMarker = (TimeInterval) sacBMarker.convertTo(UnitImpl.SECOND);
-		sac.b = (float) sacBMarker.value;
-		sac.o = 0;
-		sac.iztype = SacTimeSeries.IO;
+		header.setB( (float) sacBMarker.value);
+		header.setO( 0);
+		header.setIztype( SacConstants.IO);
 		if (origin.getMagnitudes().length > 0) {
-			sac.mag = origin.getMagnitudes()[0].value;
+		    header.setMag( origin.getMagnitudes()[0].value);
 		}
 	}
 
 	public static void setKZTime(SacTimeSeries sac, MicroSecondDate date) {
+        SacHeader header = sac.getHeader();
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTime(date);
-		sac.nzyear = cal.get(Calendar.YEAR);
-		sac.nzjday = cal.get(Calendar.DAY_OF_YEAR);
-		sac.nzhour = cal.get(Calendar.HOUR_OF_DAY);
-		sac.nzmin = cal.get(Calendar.MINUTE);
-		sac.nzsec = cal.get(Calendar.SECOND);
-		sac.nzmsec = cal.get(Calendar.MILLISECOND);
+		header.setNzyear( cal.get(Calendar.YEAR));
+		header.setNzjday( cal.get(Calendar.DAY_OF_YEAR));
+		header.setNzhour( cal.get(Calendar.HOUR_OF_DAY));
+		header.setNzmin( cal.get(Calendar.MINUTE));
+		header.setNzsec( cal.get(Calendar.SECOND));
+		header.setNzmsec( cal.get(Calendar.MILLISECOND));
 	}
 
 	public static SacPoleZero getPoleZero(Response response)
