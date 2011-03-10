@@ -637,17 +637,21 @@ public class FissuresConvert {
         return btime;
     }
 
-    static final byte RECORD_SIZE_4096_POWER = 12;
+    public static final byte RECORD_SIZE_4096_POWER = 12;
 
-    static int RECORD_SIZE_4096 = (int)Math.pow(2, RECORD_SIZE_4096_POWER);
+    public static int RECORD_SIZE_4096 = (int)Math.pow(2, RECORD_SIZE_4096_POWER);
 
-    static final byte RECORD_SIZE_1024_POWER = 10;
+    public static final byte RECORD_SIZE_1024_POWER = 10;
 
-    static int RECORD_SIZE_1024 = (int)Math.pow(2, RECORD_SIZE_1024_POWER);
+    public static int RECORD_SIZE_1024 = (int)Math.pow(2, RECORD_SIZE_1024_POWER);
     
-    static final byte RECORD_SIZE_512_POWER = 9;
+    public static final byte RECORD_SIZE_512_POWER = 9;
 
-    static int RECORD_SIZE_512 = (int)Math.pow(2, RECORD_SIZE_512_POWER);
+    public static int RECORD_SIZE_512 = (int)Math.pow(2, RECORD_SIZE_512_POWER);
+    
+    public static final byte RECORD_SIZE_256_POWER = 8;
+
+    public static int RECORD_SIZE_256 = (int)Math.pow(2, RECORD_SIZE_256_POWER);
 
     public static final TimeInterval DAY = new TimeInterval(1, UnitImpl.DAY);
     
