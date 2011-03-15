@@ -235,7 +235,9 @@ public class RT130ReportGenerator {
             FissuresException {
         SacTimeSeries sacTime = new SacTimeSeries();
         try {
-            sacTime.readHeader(new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc))));
+            DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(fileLoc)));
+            sacTime = new SacTimeSeries(dis);
+            dis.close();
         } catch(EOFException e) {
             report.addFileFormatException(fileLoc, fileName
                     + " seems to be an invalid sac file." + "\n"
