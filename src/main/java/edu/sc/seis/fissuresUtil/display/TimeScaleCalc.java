@@ -1,5 +1,4 @@
 package edu.sc.seis.fissuresUtil.display;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -7,6 +6,7 @@ import java.util.TimeZone;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
@@ -129,7 +129,6 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
             setTimeFormat("MM/dd");
             majTickTime = WEEK;
         }
-        borderFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         double numTicksDbl = ((timeIntv/(double)majTickTime) * majTickRatio);
         numTicks = (int)numTicksDbl;
         if(beginTime > 0){
@@ -149,7 +148,7 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
     
     private void setTimeFormat(String newFormat){
         if(!borderFormat.toPattern().equals(newFormat)){
-            borderFormat = new SimpleDateFormat(newFormat);
+            borderFormat = new ThreadSafeSimpleDateFormat(newFormat);
         }
     }
     
@@ -233,13 +232,13 @@ public class TimeScaleCalc implements ScaleMapper, TimeListener {
         setTimes(event.getTime().getBeginTime(), event.getTime().getEndTime());
     }
     
-    private SimpleDateFormat borderFormat = new SimpleDateFormat("MM/dd/yyy");
+    private ThreadSafeSimpleDateFormat borderFormat = new ThreadSafeSimpleDateFormat("MM/dd/yyy", TimeZone.getTimeZone("GMT"));
     
     private boolean daysInBorder = false;
     
     private MicroSecondTimeRange time;
     
-    private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy");
+    private ThreadSafeSimpleDateFormat axisFormat = new ThreadSafeSimpleDateFormat("MM/dd/yyyy");
     //Five days before the epoch to 10 after
     public static MicroSecondTimeRange roundTheEpoch = new MicroSecondTimeRange(new MicroSecondDate(0),
                                                                                 new TimeInterval(20, UnitImpl.DAY));
