@@ -2,9 +2,7 @@ package edu.sc.seis.fissuresUtil.rt130;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -14,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.CalibrationParameterPacket;
@@ -237,10 +236,7 @@ public class PacketType {
         }
     }
 
-    private static DateFormat df = new SimpleDateFormat("yyDDDHHmmssSSS");
-    static {
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    private static ThreadSafeSimpleDateFormat df = new ThreadSafeSimpleDateFormat("yyDDDHHmmssSSS", TimeZone.getTimeZone("GMT"));
     
     public MicroSecondDate getBeginTimeOfSeismogram(){
         return begin_time_of_seismogram;

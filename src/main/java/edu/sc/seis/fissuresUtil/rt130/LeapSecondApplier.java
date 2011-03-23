@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -19,6 +18,7 @@ import java.util.TimeZone;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 public class LeapSecondApplier {
@@ -27,10 +27,8 @@ public class LeapSecondApplier {
 
     private static List leapSecondOccurrences = new LinkedList();
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy:DDD:HH:mm:ss:SSS");
-    static {
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    private static ThreadSafeSimpleDateFormat format = new ThreadSafeSimpleDateFormat("yyyy:DDD:HH:mm:ss:SSS", TimeZone.getTimeZone("GMT"));
+    
 
     public static void addLeapSeconds(String correctionFileLoc)
             throws IOException, ParseException {

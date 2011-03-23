@@ -16,6 +16,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
@@ -36,7 +37,6 @@ public class TimeBorder extends Border implements TitleProvider {
         this.disp = disp;
         setPreferredSize(new Dimension(BasicSeismogramDisplay.PREFERRED_WIDTH,
                                        50));
-        axisFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
     public RelativeTimeConfig getRelative(TimeConfig tc) {
@@ -187,8 +187,7 @@ public class TimeBorder extends Border implements TitleProvider {
                                 int ticksPerDivision) {
             super(labelInterval.convertTo(UnitImpl.MILLISECOND).getValue(),
                   ticksPerDivision);
-            this.format = new SimpleDateFormat(format);
-            this.format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.format = new ThreadSafeSimpleDateFormat(format, TimeZone.getTimeZone("GMT"));
         }
 
         public String getLabel(double value) {
@@ -199,7 +198,7 @@ public class TimeBorder extends Border implements TitleProvider {
             return format.format(FULL_DATE);
         }
 
-        private DateFormat format;
+        private ThreadSafeSimpleDateFormat format;
     }
 
     public Color getTitleColor() {
@@ -216,7 +215,7 @@ public class TimeBorder extends Border implements TitleProvider {
 
     private Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
-    private SimpleDateFormat axisFormat = new SimpleDateFormat("MM/dd/yyyy (zzz)");
+    private ThreadSafeSimpleDateFormat axisFormat = new ThreadSafeSimpleDateFormat("MM/dd/yyyy (zzz)", TimeZone.getTimeZone("GMT"));
 
     // Five days before the epoch to 10 after
     public static MicroSecondTimeRange roundTheEpoch = new MicroSecondTimeRange(new MicroSecondDate(0),

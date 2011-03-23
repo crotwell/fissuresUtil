@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,6 +38,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.EventBoxes;
 import edu.sc.seis.fissuresUtil.display.drawable.EventFlag;
@@ -65,7 +65,6 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
         super();
         totalWidth = pixelsPerDay;
         rowWidth = totalWidth / rows;
-        dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
         removeAll();
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                                                      BorderFactory.createLoweredBevelBorder()));
@@ -751,7 +750,7 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
 
     private double rowScale;
 
-    private static SimpleDateFormat dateFormater = new SimpleDateFormat("EEEE, d MMMM yyyy");
+    private static ThreadSafeSimpleDateFormat dateFormater = new ThreadSafeSimpleDateFormat("EEEE, d MMMM yyyy", TimeZone.getTimeZone("GMT"));
 
     private static Logger logger = LoggerFactory.getLogger(PlottableDisplay.class);
 }

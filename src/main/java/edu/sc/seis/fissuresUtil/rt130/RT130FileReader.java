@@ -7,8 +7,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /*
@@ -243,10 +242,7 @@ public class RT130FileReader {
         }
     }
 
-    private static DateFormat df = new SimpleDateFormat("yyyyDDD");
-    static {
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+    private static ThreadSafeSimpleDateFormat df = new ThreadSafeSimpleDateFormat("yyyyDDD", TimeZone.getTimeZone("GMT"));
 
     private boolean processData;
 

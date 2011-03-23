@@ -1,12 +1,12 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 
 /**
  * AbsTimeScaleMapper.java
@@ -25,17 +25,9 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
                               MicroSecondDate beginTime,
                               MicroSecondDate endTime) {
         super(totalPixels, hintPixels, beginTime, endTime);
-	dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
-                                                        DateFormat.FULL);
-	dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	dateFormat = DateFormat.getDateInstance(DateFormat.FULL);
-	dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	longTimeFormat = new SimpleDateFormat("HH:MM:ss.S");
-	longTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	mediumTimeFormat = new SimpleDateFormat("MM:ss.S");
-	mediumTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-	shortTimeFormat = new SimpleDateFormat("ss.S");
-	shortTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        longTimeFormat = new ThreadSafeSimpleDateFormat("HH:MM:ss.S", TimeZone.getTimeZone("GMT"));
+        mediumTimeFormat = new ThreadSafeSimpleDateFormat("MM:ss.S", TimeZone.getTimeZone("GMT"));
+        shortTimeFormat = new ThreadSafeSimpleDateFormat("ss.S", TimeZone.getTimeZone("GMT"));
         this.calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         calculateTicks();
     }
@@ -219,11 +211,9 @@ public class AbsTimeScaleMapper extends TimeScaleMapper {
         return retValue;
     }
 
-    protected java.text.DateFormat dateFormat;
-    protected java.text.DateFormat dateTimeFormat;
-    protected java.text.SimpleDateFormat longTimeFormat;
-    protected java.text.SimpleDateFormat mediumTimeFormat;
-    protected java.text.SimpleDateFormat shortTimeFormat;
+    protected ThreadSafeSimpleDateFormat longTimeFormat;
+    protected ThreadSafeSimpleDateFormat mediumTimeFormat;
+    protected ThreadSafeSimpleDateFormat shortTimeFormat;
     protected Calendar calendar;
     protected int firstMajorTick;
 

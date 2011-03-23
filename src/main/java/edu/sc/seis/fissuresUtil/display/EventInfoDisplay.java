@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -28,6 +27,7 @@ import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.VelocityModel;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -37,13 +37,12 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
  * Created: Fri May 31 10:01:21 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version $Id: EventInfoDisplay.java 22054 2011-02-16 16:51:38Z crotwell $
+ * @version $Id: EventInfoDisplay.java 22222 2011-03-23 18:13:42Z crotwell $
  */
 
 public class EventInfoDisplay extends TextInfoDisplay{
 
     public EventInfoDisplay (){
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         taup = TauPUtil.getTauPUtil();
     }
 
@@ -333,7 +332,7 @@ public class EventInfoDisplay extends TextInfoDisplay{
 
     TauPUtil taup;
     DecimalFormat twoDecimal = new DecimalFormat("0.00");
-    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
+    ThreadSafeSimpleDateFormat dateFormat = new ThreadSafeSimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z", TimeZone.getTimeZone("GMT"));
 
     static Logger logger = LoggerFactory.getLogger(EventInfoDisplay.class);
 }// EventInfoDisplay

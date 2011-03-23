@@ -2,7 +2,6 @@ package edu.sc.seis.fissuresUtil.display;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TimeZone;
@@ -25,6 +24,7 @@ import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
@@ -41,7 +41,6 @@ import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
 public class SeismogramInfoDisplay extends TextInfoDisplay {
     public SeismogramInfoDisplay (LinkedList format){
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.format = format;
     }
 
@@ -141,7 +140,7 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
 
     public void dropActionChanged(DropTargetDragEvent e) {}
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z");
+    ThreadSafeSimpleDateFormat dateFormat = new ThreadSafeSimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z", TimeZone.getTimeZone("GMT"));
 
     protected LinkedList format;
 
