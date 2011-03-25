@@ -1,7 +1,10 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import org.omg.CORBA_2_3.ORB;
+
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.InstrumentationHelper;
+import edu.iris.Fissures.model.AllVTFactory;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
@@ -24,7 +27,7 @@ public class InstrumentationBlob {
     
     protected void setInstrumentationAsBlob(byte[] instBytes) {
         if (instBytes.length > 0) {
-            org.jacorb.orb.CDRInputStream cdrIn = new org.jacorb.orb.CDRInputStream(Initializer.getORB(), instBytes);
+            org.jacorb.orb.CDRInputStream cdrIn = new org.jacorb.orb.CDRInputStream(getORB(), instBytes);
             inst = InstrumentationHelper.read(cdrIn);
         } else {
             inst = null;
@@ -55,4 +58,19 @@ public class InstrumentationBlob {
     public void setDbid(int dbid) {
         this.dbid = dbid;
     }
+    
+    public static ORB getORB() {
+        if (orb == null) {
+            // better if it is set, but...
+            orb = Initializer.getORB();
+            new AllVTFactory().register(orb);
+        }
+        return orb;
+    }
+    
+    public static void setORB(ORB o) {
+        orb = o;
+    }
+    
+    static ORB orb = null;
 }
