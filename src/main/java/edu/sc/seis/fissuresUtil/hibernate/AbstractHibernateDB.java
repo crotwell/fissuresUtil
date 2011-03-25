@@ -25,7 +25,7 @@ import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public abstract class AbstractHibernateDB {
 
-    public static boolean DEBUG_SESSION_CREATION = false;
+    public static boolean DEBUG_SESSION_CREATION = true;
     
     public static int DEBUG_SESSION_CREATION_SECONDS = 300;
     
@@ -43,7 +43,8 @@ public abstract class AbstractHibernateDB {
             for(int i = 0; i < unitsToAdd.length; i++) {
                 if ( ! getUnitCache().contains(unitsToAdd[i])) {
                     getUnitCache().add(unitsToAdd[i]);
-                    getSession().save(unitsToAdd[i]);
+                    logger.debug("save "+unitsToAdd[i]+" to database");
+                    getSession().saveOrUpdate(unitsToAdd[i]);
                 }
             }
                 
@@ -71,6 +72,10 @@ public abstract class AbstractHibernateDB {
         return HibernateUtil.getSessionFactory().openStatelessSession();
     }
 
+    public static boolean isSessionOpen() {
+        return sessionTL.get() != null;
+    }
+    
     public static Session getSession() {
         Session s = (Session)sessionTL.get();
         if(s == null) {
@@ -169,13 +174,7 @@ public abstract class AbstractHibernateDB {
         }
     };
 
-    private static ThreadLocal<Session> sessionTL = new ThreadLocal<Session>() {
-
-        protected synchronized Session initialValue() {
-            logger.debug("new hibernate session");
-            return createSession();
-        }
-    };
+    private static ThreadLocal<Session> sessionTL = new ThreadLocal<Session>();
     
     private static List<SessionStackTrace> knownSessions = Collections.synchronizedList(new LinkedList<SessionStackTrace>());
 
@@ -203,6 +202,7 @@ public abstract class AbstractHibernateDB {
         });
 
         if (DEBUG_SESSION_CREATION) {
+            logger.info("zombie session checker started");
             Timer t = new Timer("zombie session checker", true);
             t.schedule(new TimerTask() {
                 public void run() {
