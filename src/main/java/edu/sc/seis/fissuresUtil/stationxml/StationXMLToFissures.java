@@ -53,6 +53,7 @@ public class StationXMLToFissures {
                                                        new QuantityImpl(xml.getElevation(), UnitImpl.METER),
                                                        new QuantityImpl(0, UnitImpl.METER),
                                                        LocationType.GEOGRAPHIC),
+                                          effectiveTime,
                                           UNKNOWN, UNKNOWN, UNKNOWN,
                                           netAttr);
     }
