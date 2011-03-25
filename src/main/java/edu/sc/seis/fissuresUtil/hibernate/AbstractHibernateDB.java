@@ -64,7 +64,6 @@ public abstract class AbstractHibernateDB {
             knownSessions.add(new SessionStackTrace(cacheSession, 
                                                     Thread.currentThread().getStackTrace()));
         }
-        loadUnits(cacheSession);
         return cacheSession;
     }
 
