@@ -44,7 +44,7 @@ public abstract class AbstractHibernateDB {
                 if ( ! getUnitCache().contains(unitsToAdd[i])) {
                     getUnitCache().add(unitsToAdd[i]);
                     logger.debug("save "+unitsToAdd[i]+" to database");
-                    getSession().saveOrUpdate(unitsToAdd[i]);
+                    s.saveOrUpdate(unitsToAdd[i]);
                 }
             }
                 
