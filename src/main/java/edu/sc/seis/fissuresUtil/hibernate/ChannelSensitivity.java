@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelImpl;
 
 
@@ -7,7 +8,7 @@ public class ChannelSensitivity {
     
     public ChannelSensitivity() {}
 
-    public ChannelSensitivity(ChannelImpl channel, float overallGain, float frequency, String inputUnits) {
+    public ChannelSensitivity(ChannelImpl channel, float overallGain, float frequency, UnitImpl inputUnits) {
         super();
         this.channel = channel;
         this.overallGain = overallGain;
@@ -27,7 +28,7 @@ public class ChannelSensitivity {
         return frequency;
     }
     
-    public String getInputUnits() {
+    public UnitImpl getInputUnits() {
         return inputUnits;
     }
     
@@ -46,7 +47,7 @@ public class ChannelSensitivity {
     }
 
     
-    protected void setInputUnits(String inputUnits) {
+    protected void setInputUnits(UnitImpl inputUnits) {
         this.inputUnits = inputUnits;
     }
 
@@ -62,6 +63,6 @@ public class ChannelSensitivity {
 
     ChannelImpl channel;
     float overallGain, frequency;
-    String inputUnits;
+    UnitImpl inputUnits;
     int dbid;
 }
