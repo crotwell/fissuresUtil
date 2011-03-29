@@ -403,9 +403,26 @@ public class NetworkDB extends AbstractHibernateDB {
         }
         throw new ChannelNotFound(); // instBlob null, so never seen this channel before
     }
-
-    public Sensitivity getSensitivity(ChannelImpl chan) throws ChannelNotFound {
-        return getInstrumentation(chan).the_response.the_sensitivity;
+    
+    public ChannelSensitivity getSensitivity(ChannelImpl chan) {
+        Query query = getSession().createQuery("from "+ChannelSensitivity.class.getName()+" where channel = :chan");
+        query.setEntity("chan", chan);
+        Iterator it = query.iterate();
+        if (it.hasNext()) {
+            ChannelSensitivity sense = (ChannelSensitivity)it.next();
+            return sense;
+        }
+        return null; 
+    }
+    
+    public void putSensitivity(ChannelSensitivity sensitivity) {
+        ChannelSensitivity inDb = getSensitivity(sensitivity.getChannel());
+        if (inDb != null) {
+            sensitivity.setDbid(inDb.getDbid());
+            getSession().evict(inDb);
+        }
+        sensitivity.setInputUnits(intern(sensitivity.getInputUnits()));
+        getSession().saveOrUpdate(sensitivity);
     }
     
     public void putInstrumentation(ChannelImpl chan, Instrumentation inst) {
