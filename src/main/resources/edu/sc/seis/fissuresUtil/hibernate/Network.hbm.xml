@@ -223,5 +223,23 @@
 			foreign-key="FK_inst_channel" unique-key="inst_chan_key" index="inst_chan_idx" />
 		<property name="instrumentationAsBlob" type="binary" />
 	</class>
-
+	
+	
+    
+    <class name="edu.sc.seis.fissuresUtil.hibernate.ChannelSensitivity"
+        table="sensitivity" lazy="false">
+        
+        <id name="dbid" type="integer">
+            <generator class="native" />
+        </id>
+        <many-to-one name="channel"
+            class="edu.iris.Fissures.network.ChannelImpl" column="channel"
+            foreign-key="FK_sens_channel" unique-key="inst_sens_key" index="sens_chan_idx" />
+        <property name="overallGain" type="float" />
+        <many-to-one name="inputUnits"
+                        class="edu.iris.Fissures.model.UnitImpl" column="sens_unit_id"
+                        foreign-key="FK_SENS_UNIT_ID"  lazy="false"/>
+        <property name="frequency" type="float" />
+    </class>
+    
 </hibernate-mapping>
