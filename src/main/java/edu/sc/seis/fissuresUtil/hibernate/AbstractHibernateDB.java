@@ -33,22 +33,41 @@ public abstract class AbstractHibernateDB {
         logger.debug("init "+this);
     }
 
+
+    /** check common units to make sure in db
+     * 
+     */
+    private static synchronized void saveCommonUnits() {
+        Session s = HibernateUtil.getSessionFactory().openSession();
+        s.beginTransaction();
+        Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
+        List<UnitImpl> result = q.list();
+        if (result.size() == 0) {
+            // only save if no units in database
+            saveCommonUnit(s, UnitImpl.METER);
+            saveCommonUnit(s, UnitImpl.KILOMETER);
+            saveCommonUnit(s, UnitImpl.SECOND);
+            saveCommonUnit(s, UnitImpl.METER_PER_SECOND);
+        }
+        s.getTransaction().commit();
+        s.close();
+        commonUnitsSaved = true;
+    }
+    
+    private static synchronized void saveCommonUnit(Session s, UnitImpl unitToAdd) {
+        if ( ! unitToAdd.isBaseUnit()) {
+            for (UnitImpl subU : unitToAdd.getSubUnitsList()) {
+                saveCommonUnit(s, subU);
+            }
+        }
+        s.saveOrUpdate(unitToAdd);
+        logger.debug("save "+unitToAdd+" to database");
+    }
+    
     private static void loadUnits(Session s) {
         Query q = s.createQuery("From edu.iris.Fissures.model.UnitImpl");
         List<UnitImpl> result = q.list();
         getUnitCache().addAll(result);
-        // check common units to make sure in db
-        synchronized(AbstractHibernateDB.class) {
-            UnitImpl[] unitsToAdd = new UnitImpl[] {UnitImpl.METER, UnitImpl.KILOMETER, UnitImpl.SECOND};
-            for(int i = 0; i < unitsToAdd.length; i++) {
-                if ( ! getUnitCache().contains(unitsToAdd[i])) {
-                    getUnitCache().add(unitsToAdd[i]);
-                    logger.debug("save "+unitsToAdd[i]+" to database");
-                    s.saveOrUpdate(unitsToAdd[i]);
-                }
-            }
-                
-        }
     }
 
     public static void deploySchema() {
@@ -57,6 +76,10 @@ public abstract class AbstractHibernateDB {
     }
 
     protected static Session createSession() {
+        if (commonUnitsSaved == false) {
+            // only do this the first time
+            saveCommonUnits();
+        }
         final Session cacheSession = HibernateUtil.getSessionFactory().openSession();
         cacheSession.beginTransaction();
         //logger.debug("TRANSACTION Begin on " + cacheSession);
@@ -130,6 +153,10 @@ public abstract class AbstractHibernateDB {
     }
 
     protected static UnitImpl intern(UnitImpl unit) {
+        // make sure unit not already in db
+        if (unit == null || (unit.getDbid() != null && unit.getDbid() != 0)) {
+            return unit;
+        }
         HashSet<UnitImpl> unitCache = getUnitCache();
         if(unitCache.size() == 0) {
             loadUnits(getSession());
@@ -172,6 +199,8 @@ public abstract class AbstractHibernateDB {
             return new HashSet<UnitImpl>();
         }
     };
+    
+    private static boolean commonUnitsSaved = false;
 
     private static ThreadLocal<Session> sessionTL = new ThreadLocal<Session>();
     
