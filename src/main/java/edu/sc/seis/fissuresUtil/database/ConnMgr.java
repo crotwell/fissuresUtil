@@ -292,6 +292,12 @@ public class ConnMgr {
         } else {
             logger.debug("using default url of " + getURL());
         }
+        if (dbProperties.containsKey(DBUSER_KEY)) {
+            getProps().put("user", dbProperties.get(DBUSER_KEY));
+        }
+        if (dbProperties.containsKey(DBPASSWORD_KEY)) {
+            getProps().put("password", dbProperties.get(DBPASSWORD_KEY));
+        }
     }
 
     public static Properties readDbProperties(String[] args) {
@@ -362,6 +368,8 @@ public class ConnMgr {
     public static final String DB_SERVER_PORT = "server.port";
 
     public static final String DBURL_KEY = "fissuresUtil.database.url";
+    public static final String DBUSER_KEY = "fissuresUtil.database.user";
+    public static final String DBPASSWORD_KEY = "fissuresUtil.database.password";
 
     private static String DB_NAME = HSQL;
 
