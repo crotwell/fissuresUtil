@@ -21,7 +21,7 @@ public class MapProjectExecute {
                                   double[][] points) throws IOException,
             InterruptedException {
         String command = "mapproject -Dp -J" + projection + " -R" + region;
-        //logger.debug("executing command: " + command);
+//        logger.debug("executing command: " + command);
         StringBuffer buf = new StringBuffer();
         for(int i = 0; i < points.length; i++) {
             for(int j = 0; j < points[i].length; j++) {
@@ -38,7 +38,8 @@ public class MapProjectExecute {
                                       new StringReader(buf.toString()),
                                       baOutputStream,
                                       System.err);
-        StringTokenizer tok = new StringTokenizer(baOutputStream.toString());
+        String execOutput = baOutputStream.toString();
+        StringTokenizer tok = new StringTokenizer(execOutput);
         int[][] pixelLocs = new int[points.length][2];
         try {
             for(int i = 0; i < points.length; i++) {
@@ -48,7 +49,7 @@ public class MapProjectExecute {
             return pixelLocs;
         } catch(NoSuchElementException e) {
             GlobalExceptionHandler.handle("problem translating points.  input was\n"
-                    + buf.toString(), e);
+                    + buf.toString()+"\nexecOutput: "+execOutput, e);
         }
         throw new IOException("there was a problem using mapproject");
     }
