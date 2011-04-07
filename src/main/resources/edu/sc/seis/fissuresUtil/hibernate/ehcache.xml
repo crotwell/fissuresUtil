@@ -1,6 +1,6 @@
 <ehcache>
 
-    <diskStore path="java.io.tmpdir"/>
+    <diskStore path="ehcache"/>
 
     <defaultCache
         maxElementsInMemory="1000"
