@@ -60,6 +60,16 @@ public class ChannelSensitivity {
     protected void setDbid(int dbid) {
         this.dbid = dbid;
     }
+    
+    public static boolean isNonChannelSensitivity(ChannelSensitivity sensitivity) {
+        return sensitivity.getOverallGain() == 0 &&
+        sensitivity.getFrequency() == 0 &&
+        sensitivity.getInputUnits() == null;
+    }
+    
+    public static ChannelSensitivity createNonChannelSensitivity(ChannelImpl chan) {
+        return new ChannelSensitivity(chan, 0, 0, null);
+    }
 
     ChannelImpl channel;
     float overallGain, frequency;
