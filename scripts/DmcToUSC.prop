@@ -8,7 +8,7 @@ edu.sc.seis.fissuresUtil.nameServiceCorbaLoc=corbaloc:iiop:dmc.iris.washington.e
 nameServiceCopy.copyTo=corbaloc:iiop:nameservice.seis.sc.edu:6371/NameService
 
 # start of log4j configuration
-log4j.rootLogger=debug, C
+log4j.rootLogger=info, C
 
 log4j.appender.C=org.apache.log4j.ConsoleAppender
 log4j.appender.C.layout=org.apache.log4j.PatternLayout
