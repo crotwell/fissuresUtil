@@ -18,7 +18,7 @@ dependencies {
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
 //    compile "org.hsqldb:hsqldb:2.0.0"
-    compile "postgresql:postgresql:8.3-604.jdbc3"
+    compile "postgresql:postgresql:9.0-801.jdbc3"
     compile "mysql:mysql-connector-java:5.1.9"
     compile "xerces:xercesImpl:2.10.0"
     compile "xalan:xalan:2.7.1"
@@ -109,7 +109,9 @@ def getDExtras() {
 
 task makeScript(dependsOn: copyToLib) << { task ->
     dExtras = getDExtras()
-//    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
+    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
+    ScriptBuilder.create('seis', 'edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient', task.project, dExtras:dExtras)
+    ScriptBuilder.create('event', 'edu.sc.seis.fissuresUtil.simple.SimpleEventClient', task.project, dExtras:dExtras)
     ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', task.project, dExtras:dExtras)
     ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', task.project, dExtras:dExtras)
     ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', task.project, dExtras:dExtras)
