@@ -11,8 +11,7 @@
 		<id name="dbid" type="integer">
 			<generator class="native" />
 		</id>
-		<property name="baseUnitInt" type="integer"
-			unique-key="unique_unit">
+		<property name="baseUnitInt" type="integer">
 			<column name="base" />
 		</property>
 		<list name="subUnitsList" table="SubUnits" >
@@ -21,13 +20,10 @@
 			<many-to-many column="unit_id"
 				class="edu.iris.Fissures.model.UnitImpl" />
 		</list>
-		<property name="power" type="integer" access="field"
-			unique-key="unique_unit" />
-		<property name="name" access="field" unique-key="unique_unit" />
-		<property name="multi_factor" type="double" access="field"
-			unique-key="unique_unit" />
-		<property name="exponent" type="integer" access="field"
-			unique-key="unique_unit" />
+		<property name="power" type="integer" access="field" />
+		<property name="name" access="field"  />
+		<property name="multi_factor" type="double" access="field" />
+		<property name="exponent" type="integer" access="field" />
 	</class>
 
 </hibernate-mapping>
