@@ -129,6 +129,19 @@ public class HibernateUtil {
         }
     }
     
+    public static String getDialectForURL(String url) {
+        if (url.startsWith("jdbc:hsql")) {
+            return org.hibernate.dialect.HSQLDialect.class.getName();
+        } else if (url.startsWith("jdbc:postgresql")) {
+            return org.hibernate.dialect.PostgreSQLDialect.class.getName();
+        } else if (url.startsWith("jdbc:mysql")) {
+            return org.hibernate.dialect.MySQL5Dialect.class.getName();
+        } else if (url.startsWith("jdbc:oracle")) {
+            return org.hibernate.dialect.Oracle10gDialect.class.getName();
+        }
+        throw new RuntimeException("Unable to determine database dialect from URL: "+url);
+    }
+    
     public static final URL DEFAULT_EHCACHE_CONFIG = HibernateUtil.class.getClassLoader().getResource("edu/sc/seis/fissuresUtil/hibernate/ehcache.xml");
 
 }
