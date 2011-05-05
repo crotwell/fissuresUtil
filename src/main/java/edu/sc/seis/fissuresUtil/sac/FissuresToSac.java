@@ -70,7 +70,6 @@ public class FissuresToSac {
 			}
 		}
 		SacHeader header = SacHeader.createEmptyEvenSampledTimeSeriesHeader();
-        SacTimeSeries sac = new SacTimeSeries(header, floatSamps);
 		header.setIztype( SacConstants.IB);
 		SamplingImpl samp = (SamplingImpl) seis.sampling_info;
 		QuantityImpl period = samp.getPeriod();
@@ -86,14 +85,14 @@ public class FissuresToSac {
 		QuantityImpl mean = (QuantityImpl) seis.getMeanValue();
 		header.setDepmen( (float) mean.convertTo(yUnit).value);
 
-		setKZTime(sac, new MicroSecondDate(seis.begin_time));
+		setKZTime(header, new MicroSecondDate(seis.begin_time));
 
 		header.setKnetwk(seis.channel_id.network_id.network_code);
 		header.setKstnm( seis.channel_id.station_code);
 		header.setKcmpnm( seis.channel_id.channel_code);
 		header.setKhole( seis.channel_id.site_code);
 
-		return sac;
+        return new SacTimeSeries(header, floatSamps);
 	}
 
 	/**
@@ -110,7 +109,7 @@ public class FissuresToSac {
 	public static SacTimeSeries getSAC(LocalSeismogramImpl seis, Channel channel)
 			throws CodecException {
 		SacTimeSeries sac = getSAC(seis);
-		addChannel(sac, channel);
+		addChannel(sac.getHeader(), channel);
 		return sac;
 	}
 
@@ -128,7 +127,7 @@ public class FissuresToSac {
 	public static SacTimeSeries getSAC(LocalSeismogramImpl seis, Origin origin)
 			throws CodecException {
 		SacTimeSeries sac = getSAC(seis);
-		addOrigin(sac, origin);
+		addOrigin(sac.getHeader(), origin);
 		return sac;
 	}
 
@@ -148,10 +147,10 @@ public class FissuresToSac {
 			Channel channel, Origin origin) throws CodecException {
 		SacTimeSeries sac = getSAC(seis);
 		if (channel != null) {
-			addChannel(sac, channel);
+			addChannel(sac.getHeader(), channel);
 		}
 		if (origin != null) {
-			addOrigin(sac, origin);
+			addOrigin(sac.getHeader(), origin);
 		}
 		if (origin != null && channel != null) {
 			DistAz distAz = new DistAz(channel, origin);
@@ -172,8 +171,7 @@ public class FissuresToSac {
 	 * @param channel
 	 *            a <code>Channel</code>
 	 */
-	public static void addChannel(SacTimeSeries sac, Channel channel) {
-	    SacHeader header = sac.getHeader();
+	public static void addChannel(SacHeader header, Channel channel) {
 	    header.setStla( (float) channel.getSite().getLocation().latitude);
 	    header.setStlo( (float) channel.getSite().getLocation().longitude);
 		QuantityImpl z = (QuantityImpl) channel.getSite().getLocation().elevation;
@@ -195,8 +193,7 @@ public class FissuresToSac {
 	 * @param origin
 	 *            an <code>Origin</code> value
 	 */
-	public static void addOrigin(SacTimeSeries sac, Origin origin) {
-        SacHeader header = sac.getHeader();
+	public static void addOrigin(SacHeader header, Origin origin) {
         header.setEvla( origin.getLocation().latitude);
         header.setEvlo( origin.getLocation().longitude);
 		QuantityImpl z = (QuantityImpl) origin.getLocation().elevation;
@@ -208,7 +205,7 @@ public class FissuresToSac {
 		                              header.getNzmin(), header.getNzsec() + header.getNzmsec() / 1000f);
 		MicroSecondDate beginTime = isoTime.getDate();
 		MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
-		setKZTime(sac, originTime);
+		setKZTime(header, originTime);
 		TimeInterval sacBMarker = (TimeInterval) beginTime.subtract(originTime);
 		sacBMarker = (TimeInterval) sacBMarker.convertTo(UnitImpl.SECOND);
 		header.setB( (float) sacBMarker.value);
@@ -219,8 +216,7 @@ public class FissuresToSac {
 		}
 	}
 
-	public static void setKZTime(SacTimeSeries sac, MicroSecondDate date) {
-        SacHeader header = sac.getHeader();
+    public static void setKZTime(SacHeader header, MicroSecondDate date) {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTime(date);
 		header.setNzyear( cal.get(Calendar.YEAR));
