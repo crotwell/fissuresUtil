@@ -20,7 +20,6 @@ import javax.swing.text.StyleContext;
  * Created: Fri May 31 10:04:14 2002
  *
  * @author <a href="mailto:">Philip Crotwell</a>
- * @version
  */
 
 public abstract class TextInfoDisplay extends JPanel{
