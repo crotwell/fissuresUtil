@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
+import edu.iris.Fissures.IfNetwork.FilterType;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Response;
@@ -142,6 +143,11 @@ public class InstrumentationLoader extends Thread
                 throw new InvalidResponse("response is not valid, sensitivity frequency negative");
             } else if (resp.the_sensitivity.sensitivity_factor == -1) {
                 throw new InvalidResponse("response is not valid, sensitivity factor = -1");
+            } else if (resp.stages[0].the_gain.gain_factor == 1 && 
+                    resp.stages[0].filters[0].discriminator().equals(FilterType.POLEZERO) &&
+                    resp.stages[0].filters[0].pole_zero_filter().poles.length == 0 &&
+                    resp.stages[0].filters[0].pole_zero_filter().zeros.length == 0 ) {
+                throw new InvalidResponse("response is not valid, stage[0] gain = 1, no poles, no zeros, marker for \"UNKNOWN\"");
             }
         }
     }
