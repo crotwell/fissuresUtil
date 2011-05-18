@@ -1,8 +1,14 @@
 package edu.sc.seis.fissuresUtil;
 
-import java.io.*;
-import java.util.*;
-import java.lang.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Properties;
 
 import org.omg.CORBA.LocalObject;
 import org.omg.IOP.ServiceContext;
@@ -11,8 +17,8 @@ import org.omg.PortableInterceptor.ClientRequestInterceptor;
 import org.omg.PortableInterceptor.ForwardRequest;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Robert Casey, IRIS DMC
@@ -59,15 +65,15 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
                 if (key.equals(IRIS_PASSWORD_FILE)) {
 	   	    String passFileName = props.getProperty(key);
 		    if (passFileName != null) {
-                        //logger.info("reading from IRIS password file: " + key);
+                        logger.info("reading from IRIS password file: " + key);
                         try {
                             BufferedReader br = new BufferedReader(new FileReader(passFileName));
                             String inStr;
                             while ((inStr = br.readLine()) != null) {
                                 String[] parts = inStr.split(" ");
                                 if (parts.length < 5) {
-                                    //logger.debug("password file error at line: " + inStr);
-                                    //logger.debug("Skipping ...");
+                                    logger.debug("password file error at line: " + inStr);
+                                    logger.debug("Skipping ...");
                                     continue;
                                 }
                                 if (inStr.trim().length() > 0) {
@@ -76,17 +82,17 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
                             }
                             br.close();
                         } catch (Exception e) {
-			    //logger.error("Exception thrown while reading IRIS password file",e);
+			    logger.error("Exception thrown while reading IRIS password file",e);
                         }
                     } else {  // no password filename in property
-                        //logger.debug("IRIS password file property with empty entry...skipping");
+                        logger.debug("IRIS password file property with empty entry...skipping");
                     }
                 } else {
                     // IRIS properties need to be reformatted for server compatibility
                     StringBuffer sb = new StringBuffer(32);
                     String[] keyBits = key.split("\\.");  // split on the periods in the key
                     if (keyBits.length < 4) {
-                        //logger.info("improperly formatted key (rejecting): " + key);
+                        logger.info("improperly formatted key (rejecting): " + key);
                         continue;
                     }
                     for (int i = 1; i < keyBits.length; i++) { // skip element 0, containing 'irisDmc'
@@ -98,12 +104,12 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
                     // now append password:email with space separation
                     String authVal = props.getProperty(key);
                     if (authVal == null) {
-                        //logger.info("empty auth property (rejecting)");
+                        logger.info("empty auth property (rejecting)");
                         continue;
                     }
                     String[] authBits = authVal.split("\\:");
                     if (authBits.length < 2) {
-                        //logger.info("improperly formatted auth values (rejecting): " + authVal);
+                        logger.info("improperly formatted auth values (rejecting): " + authVal);
                         continue;
                     }
                     sb.append(authBits[0]);
@@ -134,12 +140,12 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
             // if any authentication properties were pulled out...
             if ( (uscPropBytes != null && uscPropBytes.length != 0) || (irisPropBytes != null && irisPropBytes.length != 0)  ) {
                 info.add_client_request_interceptor(this);     // add ourselves as a client request interceptor instance
-                //logger.debug("Dissendium registered with orb");
+                logger.info("Dissendium registered with orb");
             } else {
-                //logger.debug("Dissendium NOT registered with orb as no passwords specified.");
+                logger.info("Dissendium NOT registered with orb as no passwords specified.");
             }
         } catch(Throwable t) {
-            //logger.error("Exception adding Dissendium to orb", t);
+            logger.error("Exception adding Dissendium to orb", t);
         }
     }
 
@@ -183,18 +189,18 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
             Properties props;
             if (darkFileName != null) {
                 // pulling passwords from the alternate password file
-                //logger.info("Loading darkMagic passwords from " + darkFileName);
+                logger.info("Loading darkMagic passwords from " + darkFileName);
                 props = new Properties();
                 props.load(new BufferedInputStream(new FileInputStream(darkFileName)));
             } else {
-                //logger.info("Loading darkMagic passwords from system properties");
+                logger.info("Loading darkMagic passwords from system properties");
                 props = baseProperties;  // use the default system properties instead
             }
             Iterator it = props.keySet().iterator();
             while(it.hasNext()) {
                 String key = (String)it.next();
                 if(key.startsWith("darkMagic.") && !key.equals(DARK_MAGIC_PASSWORD_FILE)) {
-                    //logger.info("Adding password for " + key);
+                    logger.info("Adding password for " + key);
                     returnProps.put(key, props.getProperty(key));
                 }
             }
@@ -202,12 +208,12 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
         } else if (keyPrefix.equals("irisDmc")) {
 
 	    // let's just pull back all of the irisDmc-related properties, to be reformatted later
-            //logger.info("Loading IRIS passwords from system properties");
+            logger.info("Loading IRIS passwords from system properties");
             Iterator it = baseProperties.keySet().iterator();
             while(it.hasNext()) {
                 String key = (String)it.next();
                 if (key.startsWith("irisDmc.")){
-                    //logger.info("Found IRIS property " + key);
+                    logger.info("Found IRIS property " + key);
                     returnProps.put(key, baseProperties.getProperty(key));
                 }
             }
@@ -233,6 +239,6 @@ public class Dissendium extends LocalObject implements ClientRequestInterceptor,
     private static final String IRIS_PASSWORD_FILE = "irisDmc.passwordFile";
     public static final String DISSENDIUM_ORB_PROP_NAME = "org.omg.PortableInterceptor.ORBInitializerClass.edu.sc.seis.fissuresUtil.Dissendium";
     public static final String DISSENDIUM_ORB_PROP_VALUE = "edu.sc.seis.fissuresUtil.Dissendium";
-    //private static final Logger logger = LoggerFactory.getLogger(Dissendium.class);
+    private static final Logger logger = LoggerFactory.getLogger(Dissendium.class);
 
 }
