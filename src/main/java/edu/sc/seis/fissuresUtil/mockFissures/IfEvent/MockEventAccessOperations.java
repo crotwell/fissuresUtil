@@ -23,6 +23,10 @@ public class MockEventAccessOperations {
         return createEvent(MockOrigin.create(), MockEventAttr.create());
     }
 
+    public static CacheEvent createEvent(MicroSecondDate time, float lat, float lon) {
+        return createEvent(MockOrigin.create(time, lat, lon), MockEventAttr.create());
+    }
+
     public static CacheEvent createFallEvent() {
         return createEvent(MockOrigin.createWallFallOrigin(),
                            MockEventAttr.createWallFallAttr());
