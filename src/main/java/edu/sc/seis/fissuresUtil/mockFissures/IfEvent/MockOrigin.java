@@ -14,6 +14,16 @@ public class MockOrigin {
         return create(Defaults.EPOCH, MockMagnitude.createMagnitudes());
     }
 
+    public static OriginImpl create(MicroSecondDate time, float lat, float lon) {
+        return new OriginImpl("latlon event",
+                              "Test Data",
+                              "Charlie Groves",
+                              time.getFissuresTime(),
+                              MockLocation.create(lat, lon),
+                              MockMagnitude.createMagnitudes(),
+                              MockParameterRef.createParams());
+    }
+
     public static OriginImpl create(MicroSecondDate time, Magnitude[] mags) {
         return new OriginImpl("Epoch in Central Alaska",
                               "Test Data",

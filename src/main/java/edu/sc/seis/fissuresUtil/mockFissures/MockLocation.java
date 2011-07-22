@@ -14,6 +14,11 @@ public class MockLocation {
         return create(52.31f, 13.24f, Defaults.TEN_K, Defaults.TEN_K);
     }
 
+    /** just to avoid all those little "f"s, casts double to float. */
+    public static Location create(double lat, double lon) {
+        return create((float)lat, (float)lon);
+    }
+    
     public static Location create(float lat, float lon) {
         return create(lat, lon, Defaults.ZERO_K, Defaults.ZERO_K);
     }
