@@ -134,14 +134,14 @@ return retryDC;
      * retry less frequently as the number of failures in a row increases.
      */
     public static void retrySleep(int count) {
-        if(count > 3) {
+        if(count > 1) {
             try {
                 if(count > 30) {
-                    Thread.sleep(60 * sleepSeconds * 1000);
+                    Thread.sleep((defaultTimeoutSeconds+ 300)* sleepSeconds * 1000);
                 } else if(count > 10) {
-                        Thread.sleep(10 * sleepSeconds * 1000);
+                        Thread.sleep((defaultTimeoutSeconds+ 10 * count) * sleepSeconds * 1000);
                 } else {
-                    Thread.sleep(sleepSeconds * 1000);
+                    Thread.sleep(defaultTimeoutSeconds * sleepSeconds * 1000);
                 }
             } catch(InterruptedException e) {
                 // oh well
@@ -149,6 +149,8 @@ return retryDC;
         }
     }
 
+    protected static int defaultTimeoutSeconds = 60;
+    
     protected static int sleepSeconds = 1;
 
     private static int defaultNumRetry = 3;
