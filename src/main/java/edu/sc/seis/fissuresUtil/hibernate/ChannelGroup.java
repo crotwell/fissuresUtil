@@ -54,6 +54,11 @@ public class ChannelGroup {
             if(channels[i].getOrientation().dip == -90) {
                 return channels[i];
             }
+            if(channels[i].getOrientation().dip == 90) {
+                // flipped Z, often happens in seed as people think of channel up having positive value
+                // even though convention is 90 dip is down
+                return channels[i];
+            }
         }
         return null;
     }
