@@ -68,6 +68,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
     
     public URLDataSetSeismogram getDataSetSeismogram(ChannelId chan, CacheEvent event, RequestFilter rf) {
         logger.debug("getDataSetSeismogram: "+getTXID()+"  "+ChannelIdUtil.toStringNoDates(chan)+"  "+event+"  "+rf.start_time.date_time+"  "+rf.end_time.date_time);
+        PrintIfNotCalledOff delayMessage = new PrintIfNotCalledOff(" long running getDataSetSeismogram: "+getTXID()+"  "+ChannelIdUtil.toStringNoDates(chan)+"  "+event+"  "+rf.start_time.date_time+"  "+rf.end_time.date_time);
         String query = "from "
             + EventSeismogramFileReference.class.getName()
             + " where event = :event and "
@@ -91,7 +92,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
                 throw new RuntimeException("Should not happen as only valid file types should get into the db via hibernate.", e);
             }
         }
-        logger.debug("getDataSetSeismogram Done: "+ChannelIdUtil.toStringNoDates(chan)+"  "+event+"  "+rf.start_time.date_time+"  "+rf.end_time.date_time);
+        delayMessage.callOff();
         return new URLDataSetSeismogram(urlList.toArray(new URL[0]),
                                         ftList.toArray(new SeismogramFileTypes[0]),
                                         null,
