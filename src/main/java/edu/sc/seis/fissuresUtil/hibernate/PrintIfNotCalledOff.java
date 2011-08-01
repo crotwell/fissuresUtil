@@ -29,5 +29,5 @@ class PrintIfNotCalledOff extends TimerTask {
 
     boolean calledOff = false;
 
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractHibernateDB.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PrintIfNotCalledOff.class);
 }
