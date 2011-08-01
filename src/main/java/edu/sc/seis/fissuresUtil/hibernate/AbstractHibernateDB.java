@@ -128,11 +128,12 @@ public abstract class AbstractHibernateDB {
             logger.info("Commit session before creation, nothing to do");
             return;
         }
-        logger.debug("TRANSACTION Commit on " + s+"  "+getTXID());
+        PrintIfNotCalledOff delayMessage = new PrintIfNotCalledOff("TRANSACTION Commit on " + s+"  "+getTXID());
         sessionTL.set(null);
         unitCacheTL.set(null);
         s.getTransaction().commit();
         s.close();
+        delayMessage.callOff();
     }
 
     /** rolls back the current session that is associated with the current thread. */
@@ -273,3 +274,4 @@ class SessionStackTrace {
     StackTraceElement[] stackTrace;
     MicroSecondDate createTime;
 }
+
