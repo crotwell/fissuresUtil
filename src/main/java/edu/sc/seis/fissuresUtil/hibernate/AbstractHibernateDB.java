@@ -33,7 +33,11 @@ public abstract class AbstractHibernateDB {
         logger.debug("init "+this);
     }
 
-
+    public Object getTXID() {
+        Query query = getSession().createSQLQuery("select virtualtransaction from pg_locks where pid = pg_backend_pid()");
+        return query.list().get(0);
+    }
+    
     /** check common units to make sure in db
      * 
      */

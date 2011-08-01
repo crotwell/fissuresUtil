@@ -67,6 +67,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
     }
     
     public URLDataSetSeismogram getDataSetSeismogram(ChannelId chan, CacheEvent event, RequestFilter rf) {
+        logger.debug("getDataSetSeismogram: "+getTXID()+"  "+ChannelIdUtil.toStringNoDates(chan)+"  "+event+"  "+rf.start_time.date_time+"  "+rf.end_time.date_time);
         String query = "from "
             + EventSeismogramFileReference.class.getName()
             + " where event = :event and "
@@ -77,7 +78,9 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
         q.setString("staCode", chan.station_code);
         q.setString("siteCode", chan.site_code);
         q.setString("chanCode", chan.channel_code);
+        logger.debug("Before query for event: "+event.getDbid()+"  "+ChannelIdUtil.toStringNoDates(chan));
         List<EventSeismogramFileReference> esRefList = q.list();
+        logger.debug("After query for event: "+event.getDbid()+"  "+ChannelIdUtil.toStringNoDates(chan)+"  found:"+esRefList.size());
         List<URL> urlList = new ArrayList<URL>();
         List<SeismogramFileTypes> ftList = new ArrayList<SeismogramFileTypes>();
         for (EventSeismogramFileReference esRef : esRefList) {
@@ -88,6 +91,7 @@ public class SeismogramFileRefDB extends AbstractHibernateDB {
                 throw new RuntimeException("Should not happen as only valid file types should get into the db via hibernate.", e);
             }
         }
+        logger.debug("getDataSetSeismogram Done: "+ChannelIdUtil.toStringNoDates(chan)+"  "+event+"  "+rf.start_time.date_time+"  "+rf.end_time.date_time);
         return new URLDataSetSeismogram(urlList.toArray(new URL[0]),
                                         ftList.toArray(new SeismogramFileTypes[0]),
                                         null,
