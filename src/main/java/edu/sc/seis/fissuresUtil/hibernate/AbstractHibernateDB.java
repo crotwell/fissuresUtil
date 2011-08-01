@@ -34,7 +34,7 @@ public abstract class AbstractHibernateDB {
     }
 
     /** this should probably only be called for postgres databases. */
-    public Object getTXID() {
+    public static Object getTXID() {
         Query query = getSession().createSQLQuery("select virtualtransaction from pg_locks where pid = pg_backend_pid()");
         return query.list().get(0);
     }
@@ -128,7 +128,7 @@ public abstract class AbstractHibernateDB {
             logger.info("Commit session before creation, nothing to do");
             return;
         }
-        //logger.debug("TRANSACTION Commit on " + s);
+        logger.debug("TRANSACTION Commit on " + s+"  "+getTXID());
         sessionTL.set(null);
         unitCacheTL.set(null);
         s.getTransaction().commit();
