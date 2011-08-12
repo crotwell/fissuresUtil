@@ -94,23 +94,27 @@ public class ChannelGroup {
     }
 
     /**
-     * Gets the horizontals as X and Y, so that the first channel's azimuth is
-     * the seconds + 90 degrees, ie x -> east and y -> north. If this is not possible, then a zero length
-     * array is returned.
+     * Gets the horizontals as X and Y, so that the first channel's azimuth is equal to
+     * the seconds + 90 degrees, ie x -> east (90) and y -> north (0). If this is not possible, within 2 degrees,
+     *  then a zero length array is returned.
      */
     public ChannelImpl[] getHorizontalXY() {
         ChannelImpl[] out = getHorizontal();
+        System.out.println("ChannelGroup.getHorizontalXY() pre "+out[0].getOrientation().azimuth+" "+out[1].getOrientation().azimuth);
+        
         if(out.length != 2) {
             out = new ChannelImpl[0];
-        } else if((out[1].getOrientation().azimuth + 90) % 360 == out[0].getOrientation().azimuth % 360) {
+        } else if(Math.abs(((360+out[0].getOrientation().azimuth - out[1].getOrientation().azimuth) % 360) - 90) < 2 ) {
             // in right order
-        } else if((out[0].getOrientation().azimuth + 90) % 360 == out[1].getOrientation().azimuth % 360) {
+        } else if(Math.abs(((360+out[1].getOrientation().azimuth - out[0].getOrientation().azimuth) % 360) - 90) < 2 ) {
             ChannelImpl tmp = out[0];
             out[0] = out[1];
             out[1] = tmp;
         } else {
+            System.out.println("ChannelGroup.getHorizontalXY() bad "+out[0].getOrientation().azimuth+" "+out[1].getOrientation().azimuth+"  "+((out[0].getOrientation().azimuth - out[1].getOrientation().azimuth) % 360)+"  "+((out[1].getOrientation().azimuth - out[0].getOrientation().azimuth) % 360));
             out = new ChannelImpl[0];
         }
+        System.out.println("ChannelGroup.getHorizontalXY() post "+out[0].getOrientation().azimuth+" "+out[1].getOrientation().azimuth);
         return out;
     }
 
