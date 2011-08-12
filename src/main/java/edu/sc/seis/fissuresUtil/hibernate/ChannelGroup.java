@@ -100,7 +100,6 @@ public class ChannelGroup {
      */
     public ChannelImpl[] getHorizontalXY() {
         ChannelImpl[] out = getHorizontal();
-        System.out.println("ChannelGroup.getHorizontalXY() pre "+out[0].getOrientation().azimuth+" "+out[1].getOrientation().azimuth);
         
         if(out.length != 2) {
             out = new ChannelImpl[0];
@@ -111,10 +110,8 @@ public class ChannelGroup {
             out[0] = out[1];
             out[1] = tmp;
         } else {
-            System.out.println("ChannelGroup.getHorizontalXY() bad "+out[0].getOrientation().azimuth+" "+out[1].getOrientation().azimuth+"  "+((out[0].getOrientation().azimuth - out[1].getOrientation().azimuth) % 360)+"  "+((out[1].getOrientation().azimuth - out[0].getOrientation().azimuth) % 360));
             out = new ChannelImpl[0];
         }
-        System.out.println("ChannelGroup.getHorizontalXY() post "+out[0].getOrientation().azimuth+" "+out[1].getOrientation().azimuth);
         return out;
     }
 
