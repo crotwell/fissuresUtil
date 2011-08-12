@@ -20,6 +20,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.fissuresUtil.database.ConnMgr;
 import edu.sc.seis.fissuresUtil.exceptionHandler.DefaultExtractor;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
@@ -35,8 +36,11 @@ public abstract class AbstractHibernateDB {
 
     /** this should probably only be called for postgres databases. */
     public static Object getTXID() {
+        if (ConnMgr.getDB_TYPE().equals(ConnMgr.POSTGRES)) {
         Query query = getSession().createSQLQuery("select virtualtransaction from pg_locks where pid = pg_backend_pid()");
         return query.list().get(0);
+        }
+        return "";
     }
     
     /** check common units to make sure in db
