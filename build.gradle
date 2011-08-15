@@ -11,8 +11,8 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
-    compile "org.hibernate:hibernate-ehcache:3.6.3.Final"
-    compile "org.hibernate:hibernate-parent:3.6.3.Final"
+    compile "org.hibernate:hibernate-ehcache:3.6.6.Final"
+    compile "org.hibernate:hibernate-parent:3.6.6.Final"
     compile "javassist:javassist:3.9.0.GA"
     compile "isti:isti.util:1.0.3USC"
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
