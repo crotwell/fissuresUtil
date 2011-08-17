@@ -11,8 +11,7 @@ class PrintIfNotCalledOff extends TimerTask {
 
     PrintIfNotCalledOff(String msg, int delaySeconds) {
         this.msg = msg;
-        Timer t = new Timer();
-        t.schedule(this, delaySeconds * 1000);
+        timer.schedule(this, delaySeconds * 1000);
     }
 
     public void callOff() {
@@ -24,6 +23,8 @@ class PrintIfNotCalledOff extends TimerTask {
             logger.info(msg);
         }
     }
+    
+    static Timer timer = new Timer("PrintIfNotCalledOff", true);
 
     String msg;
 
