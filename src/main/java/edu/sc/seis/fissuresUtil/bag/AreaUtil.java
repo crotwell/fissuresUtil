@@ -163,8 +163,9 @@ public class AreaUtil {
     public static Location[] loadPolygon(BufferedReader in) throws IOException {
         ArrayList<Location> out = new ArrayList<Location>();
         String line;
-        while((line = in.readLine().trim()) != null && line.length() > 2) {
-            if (line.startsWith("#")) {
+        while((line = in.readLine()) != null) {
+            line = line.trim();
+            if (line.startsWith("#") || line.length() < 3) {
                 continue;
             }
             StringTokenizer tokenizer = new StringTokenizer(line);
