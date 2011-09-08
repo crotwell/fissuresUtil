@@ -169,7 +169,7 @@ public class BorderConfiguration implements Cloneable {
     }
 
     public BorderTitleConfiguration[] getTitles() {
-        return (BorderTitleConfiguration[])titles.toArray(new BorderTitleConfiguration[0]);
+        return titles.toArray(new BorderTitleConfiguration[0]);
     }
 
     public String toString() {
@@ -217,7 +217,7 @@ public class BorderConfiguration implements Cloneable {
             DESCENDING = "descending", TRIANGLE = "triangle",
             ELAPSED = "elapsed";
 
-    private List titles = new ArrayList();
+    private List<BorderTitleConfiguration> titles = new ArrayList<BorderTitleConfiguration>();
 
     private Color[] colors = new Color[] {Color.BLACK};
 }
