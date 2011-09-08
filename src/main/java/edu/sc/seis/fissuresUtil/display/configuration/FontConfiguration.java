@@ -23,7 +23,9 @@ public class FontConfiguration implements Cloneable {
 
     public static FontConfiguration create(Element el) {
         FontConfiguration c = null;
-        if(defs.referencesDefinition(el)) {
+        if (el == null) {
+            return new FontConfiguration();
+        } else if(defs.referencesDefinition(el)) {
             try {
                 FontConfiguration base = (FontConfiguration)defs.getDefinition(el);
                 c = (FontConfiguration)base.clone();
