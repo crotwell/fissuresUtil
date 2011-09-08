@@ -14,9 +14,11 @@ public class FontConfiguration implements Cloneable {
     private FontConfiguration() {}
 
     public void configure(Element el) {
-        size = DOMHelper.extractText(el, "size", size);
-        name = DOMHelper.extractText(el, "name", name);
-        styleString = DOMHelper.extractText(el, "style", styleString);
+        if (el != null) {
+            size = DOMHelper.extractText(el, "size", size);
+            name = DOMHelper.extractText(el, "name", name);
+            styleString = DOMHelper.extractText(el, "style", styleString);
+        }
     }
 
     public static FontConfiguration create(Element el) {
