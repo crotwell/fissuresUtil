@@ -110,7 +110,7 @@ public class MockChannel {
         return new ChannelGroup( createMotionVector());
     }
     
-    private static final Orientation VERTICAL = new Orientation(0, 90);
+    private static final Orientation VERTICAL = new Orientation(0, -90);
 
     private static final Orientation EAST = new Orientation(90, 0);
 
