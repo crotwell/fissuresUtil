@@ -247,13 +247,13 @@ public class GlobalExceptionHandler {
 
     private static Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private static List reporters = Collections.synchronizedList(new ArrayList());
+    private static List<ExceptionReporter> reporters = Collections.synchronizedList(new ArrayList<ExceptionReporter>());
 
-    private static List extractors = Collections.synchronizedList(new ArrayList());
+    private static List<Extractor> extractors = Collections.synchronizedList(new ArrayList<Extractor>());
 
-    private static List interceptors = Collections.synchronizedList(new ArrayList());
+    private static List<ExceptionInterceptor> interceptors = Collections.synchronizedList(new ArrayList<ExceptionInterceptor>());
     
-    private static List postProcessors = Collections.synchronizedList(new ArrayList());
+    private static List<PostProcess> postProcessors = Collections.synchronizedList(new ArrayList<PostProcess>());
 
     private static boolean showSysInfo = true;
 
