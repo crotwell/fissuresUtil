@@ -100,7 +100,6 @@ public class ChannelGroup {
      */
     public ChannelImpl[] getHorizontalXY() {
         ChannelImpl[] out = getHorizontal();
-        
         if(out.length != 2) {
             out = new ChannelImpl[0];
         } else if(Math.abs(((360+out[0].getOrientation().azimuth - out[1].getOrientation().azimuth) % 360) - 90) < 2 ) {
