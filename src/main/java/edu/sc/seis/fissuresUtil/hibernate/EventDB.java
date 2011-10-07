@@ -46,7 +46,9 @@ public class EventDB extends AbstractHibernateDB {
 				+ " e WHERE " + "e.preferred.originTime.time = :originTime "
 				+ "AND e.preferred.location.latitude = :lat "
 				+ "AND e.preferred.location.longitude = :lon "
-				+ "AND e.preferred.location.depth.value = :depth";
+                + "AND e.preferred.location.depth.value = :depth "
+                + "AND e.preferred.catalog = :catalog "
+                + "AND e.preferred._id = :originid ";
 		eventByTimeAndDepth = "From " + getEventClass().getName()
         + " e WHERE " + "e.preferred.originTime.time between :minTime and :maxTime "
         + "AND e.preferred.location.depth.value between :minDepth and :maxDepth";
@@ -136,6 +138,8 @@ public class EventDB extends AbstractHibernateDB {
 		Query query = session.createQuery(getIdenticalEventString);
 		query.setMaxResults(1);
 		try {
+            query.setString("catalog", e.get_preferred_origin().getCatalog());
+            query.setString("originid", e.get_preferred_origin().get_id());
 			query.setTimestamp("originTime", new MicroSecondDate(e
 					.get_preferred_origin().getOriginTime()).getTimestamp());
 			query.setDouble("depth",
