@@ -399,9 +399,11 @@ public class NetworkDB extends AbstractHibernateDB {
     public Instrumentation getInstrumentation(ChannelImpl chan) throws ChannelNotFound {
         InstrumentationBlob ib = getInstrumentationBlob(chan);
         if (ib != null) {
-            return ib.getInstrumentation(); // might be null, meaning no inst exists, but blob in DB so we tried before
+            Instrumentation inst =  ib.getInstrumentation(); // might be null, meaning no inst exists, but blob in DB so we tried before
+            if (inst == null) { throw new ChannelNotFound(); }
+            return inst;
         }
-        throw new ChannelNotFound(); // instBlob null, so never seen this channel before
+        return null; // instBlob null, so never seen this channel before
     }
     
     public ChannelSensitivity getSensitivity(ChannelImpl chan) {
