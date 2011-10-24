@@ -187,7 +187,47 @@ public class PhaseRequest  {
         }
         return interval;
     }
-
+    
+    public String getBeginPhase() {
+        return beginPhase;
+    }
+    
+    public String getEndPhase() {
+        return endPhase;
+    }
+    
+    public TimeInterval getBeginOffset() {
+        return beginOffset;
+    }
+    
+    public TimeInterval getEndOffset() {
+        return endOffset;
+    }
+    
+    public double getBeginOffsetRatio() {
+        return beginOffsetRatio;
+    }
+    
+    public double getEndOffsetRatio() {
+        return endOffsetRatio;
+    }
+    
+    public TimeInterval getBeginOffsetRatioMinimum() {
+        return beginOffsetRatioMinimum;
+    }
+    
+    public TimeInterval getEndOffsetRatioMinimum() {
+        return endOffsetRatioMinimum;
+    }
+    
+    public boolean isNegateBeginOffsetRatio() {
+        return negateBeginOffsetRatio;
+    }
+    
+    public boolean isNegateEndOffsetRatio() {
+        return negateEndOffsetRatio;
+    }
+    
     private String beginPhase, endPhase;
 
     private TimeInterval beginOffset, endOffset;
