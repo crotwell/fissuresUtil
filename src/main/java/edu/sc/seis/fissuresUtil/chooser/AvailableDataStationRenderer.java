@@ -200,12 +200,6 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         return c;
     }
 
-    public RequestFilter[] createFakeRequest(Channel[] chan) {
-        MicroSecondDate now = ClockUtil.now();
-        Channel[] nowChan = BestChannelUtil.pruneChannels(chan, now);
-        return createFakeRequestBHZ(nowChan);
-    }
-
     /**
      * Creates a request filter with several common channel ids to try and check
      * for a station existing in a data center.
