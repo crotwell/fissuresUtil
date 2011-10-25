@@ -11,15 +11,28 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
+import com.sun.mail.iap.ResponseInputStream;
+
 import edu.iris.Fissures.Location;
 import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfNetwork.ChannelId;
+import edu.iris.Fissures.IfNetwork.ComplexNumberErrored;
+import edu.iris.Fissures.IfNetwork.Decimation;
+import edu.iris.Fissures.IfNetwork.Filter;
+import edu.iris.Fissures.IfNetwork.Gain;
 import edu.iris.Fissures.IfNetwork.NetworkId;
+import edu.iris.Fissures.IfNetwork.Normalization;
+import edu.iris.Fissures.IfNetwork.PoleZeroFilter;
+import edu.iris.Fissures.IfNetwork.RecordingStyle;
+import edu.iris.Fissures.IfNetwork.Response;
+import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.SiteId;
+import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.IfNetwork.StationId;
+import edu.iris.Fissures.IfNetwork.TransferType;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
@@ -28,17 +41,31 @@ import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
+import edu.iris.Fissures.network.ClockImpl;
+import edu.iris.Fissures.network.DataAcqSysImpl;
+import edu.iris.Fissures.network.InstrumentationImpl;
 import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
+import edu.iris.Fissures.network.SensorImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
+import edu.sc.seis.seisFile.stationxml.AbstractResponseType;
 import edu.sc.seis.seisFile.stationxml.Channel;
+import edu.sc.seis.seisFile.stationxml.Coefficients;
 import edu.sc.seis.seisFile.stationxml.Epoch;
+import edu.sc.seis.seisFile.stationxml.FIR;
+import edu.sc.seis.seisFile.stationxml.GainSensitivity;
+import edu.sc.seis.seisFile.stationxml.InstrumentSensitivity;
+import edu.sc.seis.seisFile.stationxml.Pole;
+import edu.sc.seis.seisFile.stationxml.PoleZero;
+import edu.sc.seis.seisFile.stationxml.PolesZeros;
+import edu.sc.seis.seisFile.stationxml.ResponseList;
 import edu.sc.seis.seisFile.stationxml.StaMessage;
 import edu.sc.seis.seisFile.stationxml.Station;
 import edu.sc.seis.seisFile.stationxml.StationEpoch;
 import edu.sc.seis.seisFile.stationxml.StationIterator;
 import edu.sc.seis.seisFile.stationxml.StationXMLException;
+import edu.sc.seis.seisFile.stationxml.Zero;
 
 
 public class StationXMLToFissures {
@@ -174,6 +201,127 @@ public class StationXMLToFissures {
             out.add(new ChannelSensitivityBundle(chan, sensitivity));
         }
         return out;
+    }
+    
+    public static InstrumentationImpl convert(ChannelImpl chan, Epoch xmlChan) throws StationXMLException {
+        ClockImpl clock = new ClockImpl(0,
+                                        "unknown",
+                                        "unknown",
+                                        "unknown",
+                                        "unknown");
+        SensorImpl sensor = new SensorImpl(0,
+                                           "unknown",
+                                           "unknown",
+                                           "unknown",
+                                           0, 0);
+        if (xmlChan.getSensor() != null) {
+            sensor = new SensorImpl(0,
+                                    xmlChan.getSensor().getManufacturer(),
+                                    xmlChan.getSensor().getSerialNumber(),
+                                    xmlChan.getSensor().getModel(),
+                                    0, 0);
+        }
+        DataAcqSysImpl dataLogger = new DataAcqSysImpl(0,
+                                                       "unknown",
+                                                       "unknown",
+                                                       "unknown",
+                                                       RecordingStyle.UNKNOWN);
+        if (xmlChan.getDataLogger() != null) {
+            dataLogger = new DataAcqSysImpl(0,
+                                            xmlChan.getDataLogger().getManufacturer(),
+                                            xmlChan.getDataLogger().getSerialNumber(),
+                                            xmlChan.getDataLogger().getModel(),
+                                            RecordingStyle.UNKNOWN);
+        }
+        InstrumentationImpl out = new InstrumentationImpl(convert(xmlChan.getResponseList(), xmlChan.getInstrumentSensitivity()),
+                                                          chan.getEffectiveTime(),
+                                                          clock,
+                                                          sensor,
+                                                          dataLogger);
+        return out;
+        
+    }
+    
+    public static Response convert(List<edu.sc.seis.seisFile.stationxml.Response> respList, InstrumentSensitivity overallGain) throws StationXMLException {
+        Sensitivity sense = null;
+        if (overallGain != null) {
+        sense = new Sensitivity(overallGain.getSensitivityValue(), overallGain.getFrequency());
+        } else {
+            for (edu.sc.seis.seisFile.stationxml.Response response : respList) {
+                if (response.getStage() == 0) {
+                    sense = new Sensitivity(response.getStageSensitivity().getSensitivityValue(), 
+                                            response.getStageSensitivity().getFrequency());
+                    break;
+                }
+            }
+        }
+        // assume stages are in order, but maybe should sort???
+        List<Stage> stages = new ArrayList<Stage>();
+        for (edu.sc.seis.seisFile.stationxml.Response response : respList) {
+            if (response.getStage() != 0) {
+                stages.add(new Stage(getTransferType(response),
+                                     convertUnit(response.getResponseItem().getInputUnits()),
+                                     convertUnit(response.getResponseItem().getOutputUnits()),
+                                     new Normalization[0],
+                                     new Gain(response.getStageSensitivity().getSensitivityValue(),
+                                              response.getStageSensitivity().getFrequency()),
+                                     new Decimation[] {convertDecimation(response.getDecimation())},
+                                     new Filter[] {convertFilter(response.getResponseItem())}));
+            }
+        }
+        return new Response(sense,
+                            stages.toArray(new Stage[0]));
+    }
+    
+    public static Decimation convertDecimation(edu.sc.seis.seisFile.stationxml.Decimation dec) {
+        return new Decimation(new SamplingImpl(1, new TimeInterval(1/dec.getInputSampleRate(), UnitImpl.SECOND)),
+                              dec.getFactor(),
+                              dec.getOffset(),
+                              new TimeInterval(dec.getDelay(), UnitImpl.SECOND),
+                              new TimeInterval(dec.getCorrection(), UnitImpl.SECOND));
+    }
+    
+    public static Filter convertFilter(AbstractResponseType resp) throws StationXMLException {
+        Filter out = new Filter();
+        if (resp instanceof PolesZeros) {
+            PolesZeros pz = (PolesZeros)resp;
+            ComplexNumberErrored[] poles = new ComplexNumberErrored[pz.getPoleList().size()];
+            int i=0;
+            for (Pole p : pz.getPoleList()) {
+                poles[i++] = convertComplex(p);
+            }
+            ComplexNumberErrored[] zeros = new ComplexNumberErrored[pz.getZeroList().size()];
+            i = 0;
+            for (Zero p : pz.getZeroList()) {
+                zeros[i++] = convertComplex(p);
+            }
+            out.pole_zero_filter(new PoleZeroFilter(poles, zeros));
+        } else if (resp instanceof Coefficients) {
+            throw new StationXMLException("Can only handle PolesZeros or FIR response types. "+resp.getClass());   
+        } else if (resp instanceof ResponseList) {
+            throw new StationXMLException("Can only handle PolesZeros or FIR response types. "+resp.getClass());   
+        } else {
+            throw new StationXMLException("Can only handle PolesZeros or FIR response types. "+resp.getClass());   
+        }
+        return out;
+    }
+    
+    public static ComplexNumberErrored convertComplex(PoleZero pz) {
+        return new ComplexNumberErrored((float)pz.getReal(), 0, (float)pz.getImaginary(), 0);
+    }
+    
+    public static TransferType getTransferType(edu.sc.seis.seisFile.stationxml.Response response) throws StationXMLException {
+        if (response.getResponseItem() instanceof PolesZeros) {
+            return TransferType.ANALOG;
+        } else if (response.getResponseItem() instanceof Coefficients) {
+                return TransferType.ANALOG;
+        } else if (response.getResponseItem() instanceof FIR) {
+            return TransferType.DIGITAL;
+        } else if (response.getResponseItem() == null && response.getDecimation() != null) {
+            return TransferType.DIGITAL;
+        } else {
+            throw new StationXMLException("Can only handle PolesZeros, Coefficients or FIR response types. "+response.getResponseItem().getClass());   
+        }
     }
     
     public static UnitImpl convertUnit(String xml) throws StationXMLException {
