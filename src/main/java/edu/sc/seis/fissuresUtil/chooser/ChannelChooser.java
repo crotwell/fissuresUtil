@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,6 +40,7 @@ import edu.iris.Fissures.IfNetwork.NetworkNotFound;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.ChannelImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.fissuresUtil.cache.CacheNetworkAccess;
@@ -817,10 +819,10 @@ public class ChannelChooser extends JPanel {
         selectedStations = (Station[])outStations.toArray(new Station[outStations.size()]);
         logger.debug(selectedStations.length + " stations after pruning");
         Object[] selectedChannelCodes = channelList.getSelectedValues();
-        String[] siteCodeHeuristic = BestChannelUtil.getSiteCodeHeuristic();
+        String[] siteCodeHeuristic = bestChanUtil.getSiteCodeHeuristic();
         for(int staNum = 0; staNum < selectedStations.length; staNum++) {
             NetworkAccess net = (NetworkAccess)netIdToNetMap.get(NetworkIdUtil.toString(selectedStations[staNum].get_id().network_id));
-            Channel[] staChans = net.retrieve_for_station(selectedStations[staNum].get_id());
+            ChannelImpl[] staChans = ChannelImpl.implize(net.retrieve_for_station(selectedStations[staNum].get_id()));
             if(!showSites) {
                 if(orientationList.getSelectedValue()
                         .equals("INDIVIDUAL_CHANNELS")) {
@@ -849,9 +851,12 @@ public class ChannelChooser extends JPanel {
                         } else if(orientation.equals("HORIZONTAL_ONLY")) {
                             chans = getHorizontalChannels(staChans, bc);
                         } else if(orientation.equals("THREE_COMPONENT")) {
-                            chans = BestChannelUtil.getBestMotionVector(staChans, bc);
+                            chans =  bestChanUtil.getBestMotionVector(bestChanUtil.getAllBand(Arrays.asList(staChans), bc));
                         } else if(orientation.equals("BEST_CHANNELS")) {
-                            chans = getBest(staChans, bc);
+                            chans =  bestChanUtil.getBestMotionVector(bestChanUtil.getAllBand(Arrays.asList(staChans), bc));
+                            if (chans == null || chans.length == 0) {
+                                chans = new Channel[] {bestChanUtil.getBestChannel(bestChanUtil.getAllBand(Arrays.asList(staChans), bc))};
+                            }
                         }
                         if(chans != null) {
                             for(int j = 0; j < chans.length; j++) {
@@ -865,8 +870,8 @@ public class ChannelChooser extends JPanel {
                 }
             } else {
                 // pay attention to selected Sites
-                Channel[] inChannels = getChannels();
-                inChannels = BestChannelUtil.pruneChannels(inChannels, when);
+                ChannelImpl[] inChannels = ChannelImpl.implize(getChannels());
+                inChannels = BestChannelUtil.pruneChannels(Arrays.asList(inChannels), when).toArray(new ChannelImpl[0]);
                 Object[] selectedSiteCodes = siteList.getSelectedValues();
                 search : for(int i = 0; i < inChannels.length; i++) {
                     for(int j = 0; j < selectedSiteCodes.length; j++) {
@@ -887,22 +892,15 @@ public class ChannelChooser extends JPanel {
         return (Channel[])outChannels.toArray(new Channel[0]);
     }
 
-    private Channel[] getBest(Channel[] staChans, String bc) {
-        Channel[] chans = BestChannelUtil.getBestMotionVector(staChans, bc);
-        if(chans == null) {
-            chans = BestChannelUtil.getChannels(staChans, bc);
-        }
-        return chans;
+    private ChannelImpl[] getVerticalChannel(ChannelImpl[] chanArray, String bandCode) {
+        return new ChannelImpl[] {bestChanUtil.getBestChannel(BestChannelUtil.getAllBand(Arrays.asList(chanArray),
+                                                                                  bandCode))};
     }
 
-    private Channel[] getVerticalChannel(Channel[] chanArray, String bandCode) {
-        return new Channel[] {BestChannelUtil.getVerticalChannel(chanArray,
-                                                                 bandCode)};
-    }
-
-    private Channel[] getHorizontalChannels(Channel[] allChannels,
+    private ChannelImpl[] getHorizontalChannels(ChannelImpl[] allChannels,
                                             String bandCode) {
-        return BestChannelUtil.getHorizontalChannels(allChannels, bandCode);
+        ChannelImpl[] vector = bestChanUtil.getBestMotionVector(BestChannelUtil.getAllBand(Arrays.asList(allChannels), bandCode));
+        return bestChanUtil.getAllHorizontal(Arrays.asList(vector)).toArray(new ChannelImpl[0]);
     }
 
     /**
@@ -965,6 +963,9 @@ public class ChannelChooser extends JPanel {
     }
 
     /* ================Class Variables=============== */
+    
+    protected BestChannelUtil bestChanUtil = new BestChannelUtil();
+    
     protected boolean showCodes = false;
 
     protected boolean showNames = true;
