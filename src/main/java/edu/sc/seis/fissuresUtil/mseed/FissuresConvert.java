@@ -41,12 +41,14 @@ import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
 import edu.iris.dmc.seedcodec.B1000Types;
 import edu.sc.seis.fissuresUtil.database.DataCenterUtil;
 import edu.sc.seis.fissuresUtil.display.IntRange;
+import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
 import edu.sc.seis.seisFile.mseed.Blockette;
 import edu.sc.seis.seisFile.mseed.Blockette100;
 import edu.sc.seis.seisFile.mseed.Blockette1000;
 import edu.sc.seis.seisFile.mseed.Btime;
+import edu.sc.seis.seisFile.mseed.BtimeRange;
 import edu.sc.seis.seisFile.mseed.DataHeader;
 import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
@@ -635,6 +637,10 @@ public class FissuresConvert {
         btime.min = cal.get(Calendar.MINUTE);
         btime.sec = cal.get(Calendar.SECOND);
         return btime;
+    }
+    
+    public static MicroSecondTimeRange getTimeRange(BtimeRange bTime) {
+        return new MicroSecondTimeRange(getMicroSecondTime(bTime.getBegin()), getMicroSecondTime(bTime.getEnd()));
     }
 
     public static final byte RECORD_SIZE_4096_POWER = 12;
