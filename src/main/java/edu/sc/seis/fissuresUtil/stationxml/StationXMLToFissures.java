@@ -48,6 +48,7 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SensorImpl;
 import edu.iris.Fissures.network.SiteImpl;
+import edu.iris.Fissures.network.StationIdUtil;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.seisFile.stationxml.AbstractResponseType;
 import edu.sc.seis.seisFile.stationxml.Channel;
@@ -56,6 +57,7 @@ import edu.sc.seis.seisFile.stationxml.Epoch;
 import edu.sc.seis.seisFile.stationxml.FIR;
 import edu.sc.seis.seisFile.stationxml.GainSensitivity;
 import edu.sc.seis.seisFile.stationxml.InstrumentSensitivity;
+import edu.sc.seis.seisFile.stationxml.Network;
 import edu.sc.seis.seisFile.stationxml.Pole;
 import edu.sc.seis.seisFile.stationxml.PoleZero;
 import edu.sc.seis.seisFile.stationxml.PolesZeros;
@@ -70,6 +72,13 @@ import edu.sc.seis.seisFile.stationxml.Zero;
 
 public class StationXMLToFissures {
     
+    public static NetworkAttrImpl convert(Network net) {
+        return new NetworkAttrImpl(new NetworkId(net.getNetCode(), convertTime(net.getStartDate())),
+                                   "",
+                                   net.getDescription(),
+                                   UNKNOWN,
+                                   new TimeRange(convertTime(net.getStartDate()), convertTime(net.getEndDate())));
+    }
     
     public static StationImpl convert(StationEpoch xml, NetworkAttrImpl netAttr, String staCode) {
         TimeRange effectiveTime = new TimeRange(new Time(xml.getStartDate(), -1), 
@@ -121,13 +130,16 @@ public class StationXMLToFissures {
         }
         if (attr == null) {
             // didn't find it
-            attr = new NetworkAttrImpl(new NetworkId(xml.getNetCode(), TimeUtils.timeUnknown), UNKNOWN, UNKNOWN, UNKNOWN);
             throw new StationXMLException("Can't find network for "+xml.getNetCode());
         }
-        MicroSecondDate minStationStart = null;
-        if ( ! TimeUtils.areEqual(attr.getBeginTime(), TimeUtils.timeUnknown)) {
-            minStationStart = new MicroSecondDate(attr.getBeginTime());
-        }
+        return convert(xml, attr, extractChannels);
+    }
+    
+    public static List<StationChannelBundle> convert(Station xml, Network net, boolean extractChannels) throws StationXMLException {
+        return convert(xml, convert(net), extractChannels);
+    }
+    
+    public static List<StationChannelBundle> convert(Station xml, NetworkAttrImpl attr, boolean extractChannels) throws StationXMLException {
         List<StationChannelBundle> out = new ArrayList<StationChannelBundle>();
         Iterator<StationEpoch> it = xml.getStationEpochs().iterator();
         while (it.hasNext()) {
@@ -135,10 +147,6 @@ public class StationXMLToFissures {
             StationImpl sta = convert(staEpoch, attr, xml.getStaCode());
             StationChannelBundle bundle = new StationChannelBundle(sta);
             out.add(bundle);
-            MicroSecondDate staBegin = new MicroSecondDate(sta.getBeginTime());
-            if (minStationStart == null || minStationStart.after(staBegin)) {
-                minStationStart = staBegin;
-            }
             if (extractChannels) {
                 for (Channel xmlChan : staEpoch.getChannelList()) {
                     List<ChannelSensitivityBundle> chans = convert(xmlChan, sta);
@@ -150,7 +158,6 @@ public class StationXMLToFissures {
                 }
             }
         }
-        attr.setBeginTime(minStationStart.getFissuresTime());
         return out;
     }
     
