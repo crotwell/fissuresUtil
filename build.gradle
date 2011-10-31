@@ -11,13 +11,14 @@ dependencies {
     compile project(':fissuresImpl') { transitive = true }
     compile project(':seisFile') { transitive = true }
     compile project(':TauP') { transitive = true }
-    compile "org.hibernate:hibernate-ehcache:3.6.6.Final"
-    compile "org.hibernate:hibernate-parent:3.6.6.Final"
-    compile "javassist:javassist:3.9.0.GA"
+    compile "org.hibernate:hibernate-ehcache:3.6.7.Final"
+    compile "org.hibernate:hibernate-core:3.6.7.Final"
+    runtime "org.hibernate:hibernate-c3p0:3.6.7.Final"
+    compile "javassist:javassist:3.12.1.GA" // ideally should be a hibernate dep
     compile "isti:isti.util:1.0.3USC"
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
-//    compile "org.hsqldb:hsqldb:2.0.0"
+//    compile "org.hsqldb:hsqldb:2.2.4"
     compile "postgresql:postgresql:9.0-801.jdbc3"
     compile "mysql:mysql-connector-java:5.1.9"
     compile "xerces:xercesImpl:2.10.0"
