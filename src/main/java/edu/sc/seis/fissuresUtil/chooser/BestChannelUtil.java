@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -148,7 +149,7 @@ public class BestChannelUtil {
                 for (int k = 0; k < gainCodeHeuristic.length; k++) {
                     List<ChannelImpl> gainChans = new ArrayList<ChannelImpl>();
                     for (ChannelImpl c : bandChans) {
-                        if (ChannelIdUtil.getGainCode(c.getId()).equals(gainCodeHeuristic[j])) {
+                        if (ChannelIdUtil.getGainCode(c.getId()).equals(gainCodeHeuristic[k])) {
                             gainChans.add(c);
                         }
                     }
@@ -340,6 +341,10 @@ public class BestChannelUtil {
         return null;
     }
 
+    public static <T> List<T> asList(T...elems){
+        return Arrays.asList( elems );
+    }
+    
     private static Logger logger = LoggerFactory.getLogger(BestChannelUtil.class.getName());
 
 }
