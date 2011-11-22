@@ -44,6 +44,7 @@ import edu.sc.seis.fissuresUtil.display.IntRange;
 import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
+import edu.sc.seis.fissuresUtil.time.RangeTool;
 import edu.sc.seis.seisFile.mseed.Blockette;
 import edu.sc.seis.seisFile.mseed.Blockette100;
 import edu.sc.seis.seisFile.mseed.Blockette1000;
@@ -326,11 +327,39 @@ public class FissuresConvert {
                                 }
      */
 
+
+    /**
+     * assume all records from same channel and in time order. Separate seismograms created if there are
+     * gaps/overlaps.
+     */
+    public static List<LocalSeismogramImpl> toFissures(List<DataRecord> seed) throws SeedFormatException, FissuresException {
+        List<LocalSeismogramImpl> out = new ArrayList<LocalSeismogramImpl>();
+        List<DataRecord> contiguous = new ArrayList<DataRecord>();
+        DataRecord prev = null;
+        for (DataRecord dr : seed) {
+            if (prev != null && ! RangeTool.areContiguous(FissuresConvert.getTimeRange(prev.getHeader().getBtimeRange()), 
+                                                          FissuresConvert.getTimeRange(dr.getHeader().getBtimeRange()),
+                                                          FissuresConvert.convertSampleRate(prev).getPeriod())) {
+                // probably should also check for chan match
+                LocalSeismogramImpl seis = FissuresConvert.toFissuresSeismogram(contiguous);
+                out.add(seis);
+                contiguous.clear();
+            }
+            contiguous.add(dr);
+            prev = dr;
+        }
+        if (contiguous.size() != 0) {
+            LocalSeismogramImpl seis = FissuresConvert.toFissuresSeismogram(contiguous);
+            out.add(seis);
+        }
+        return out;
+    }
+   
     /**
      * assume all records from same channel and in time order with no
      * gaps/overlaps.
      */
-    public static LocalSeismogramImpl toFissures(List<DataRecord> seed) throws SeedFormatException, FissuresException {
+    public static LocalSeismogramImpl toFissuresSeismogram(List<DataRecord> seed) throws SeedFormatException, FissuresException {
         LocalSeismogramImpl seis = null;
         for (DataRecord dataRecord : seed) {
             if (seis == null) {
