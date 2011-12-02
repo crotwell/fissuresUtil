@@ -29,11 +29,11 @@ import org.jfree.data.gantt.Task;
 import org.jfree.data.gantt.TaskSeries;
 import org.jfree.data.gantt.TaskSeriesCollection;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.pdf.DefaultFontMapper;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.DefaultFontMapper;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfTemplate;
+import com.itextpdf.text.pdf.PdfWriter;
 
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
@@ -224,7 +224,7 @@ public class RT130Report {
                                  int height,
                                  String fileName) {
         try {
-            Document document = new Document(new com.lowagie.text.Rectangle(width,
+            Document document = new Document(new com.itextpdf.text.Rectangle(width,
                                                                             height));
             PdfWriter writer = PdfWriter.getInstance(document,
                                                      new FileOutputStream(fileName));
