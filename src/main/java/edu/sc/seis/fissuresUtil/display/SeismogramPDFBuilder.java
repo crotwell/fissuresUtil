@@ -230,8 +230,8 @@ public class SeismogramPDFBuilder {
             if(seisOnCurPage != 0) {
                 // finish writing to the Graphics2D
                 cb.addTemplate(tpTraces, 0, 0);
-                g2Traces.dispose();
             }
+            g2Traces.dispose();
         } catch(DocumentException ex) {
             GlobalExceptionHandler.handle("problem saving to pdf", ex);
         }
