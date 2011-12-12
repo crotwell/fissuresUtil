@@ -351,13 +351,13 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         for(int i = 0; i < drawables.size(); i++) {
             Drawable current = (Drawable)drawables.get(i);
             Dimension drawSize = size;
-            if(current instanceof DrawableSeismogram && isPDF) {
-                g2.scale(0.25, 0.25);
-                drawSize = new Dimension(size.width * 4, size.height * 4);
+            if(current instanceof DrawableSeismogram && isPDF()) {
+                g2.scale(1/PDF_SCALE, 1/PDF_SCALE);
+                drawSize = new Dimension(Math.round(size.width * PDF_SCALE), Math.round(size.height * PDF_SCALE));
             }
             current.draw(g2, drawSize, currentTimeEvent, currentAmpEvent);
-            if(current instanceof DrawableSeismogram && isPDF) {
-                g2.scale(4, 4);
+            if(current instanceof DrawableSeismogram && isPDF()) {
+                g2.scale(PDF_SCALE, PDF_SCALE);
             }
             if(current instanceof TimeAmpLabel && !PRINTING) {
                 TimeAmpLabel taPlotter = (TimeAmpLabel)current;
@@ -445,6 +445,8 @@ public class BasicSeismogramDisplay extends SeismogramDisplay implements
         getCenter().setBorder(BorderFactory.createLineBorder(color));
         super.setOutlineColor(c);
     }
+    
+    public static final float PDF_SCALE = 8;
 
     public final static int PREFERRED_HEIGHT = 150;
 

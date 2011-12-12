@@ -209,13 +209,13 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
                             boolean landscape,
                             boolean separate,
                             TitleBorder header) {
-        isPDF = true;
+        setPDF(true);
         SeismogramPDFBuilder builder = new SeismogramPDFBuilder(landscape,
                                                                 pdfSeismogramsPerPage,
                                                                 separate);
         builder.setHeader(header);
         builder.createPDF(this, os);
-        isPDF = false;
+        setPDF(false);
     }
 
     private int pdfSeismogramsPerPage = 1;
@@ -282,6 +282,14 @@ public abstract class SeismogramDisplay extends BorderedDisplay implements
 
     public void setPdfSeismogramsPerPage(int pdfSeismogramsPerPage) {
         this.pdfSeismogramsPerPage = pdfSeismogramsPerPage;
+    }
+
+    public boolean isPDF() {
+        return isPDF;
+    }
+
+    public void setPDF(boolean isPDF) {
+        this.isPDF = isPDF;
     }
 
     private static SDMouseMotionForwarder motionForwarder;

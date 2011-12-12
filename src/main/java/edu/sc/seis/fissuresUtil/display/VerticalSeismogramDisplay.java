@@ -278,6 +278,17 @@ public abstract class VerticalSeismogramDisplay extends SeismogramDisplay {
         return tc;
     }
 
+    @Override
+    public void setPDF(boolean isPDF) {
+        super.setPDF(isPDF);
+        for (Object o : getDisplays()) {
+            if (o instanceof SeismogramDisplay) {
+                SeismogramDisplay disp = (SeismogramDisplay)o;
+                disp.setPDF(isPDF);
+            }
+        }
+    }
+
     public void reset() {
         tc.reset();
         ac.reset();
