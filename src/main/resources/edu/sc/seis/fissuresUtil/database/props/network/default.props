@@ -1,0 +1,254 @@
+network.create=CREATE TABLE network (net_id int NOT NULL, \
+                                       net_code varchar(2) NOT NULL, \
+                                       net_begin_id int NOT NULL, \
+                                       net_end_id int, \
+                                       net_name varchar, \
+                                       net_owner varchar, \
+                                       net_description varchar, \
+                                       PRIMARY KEY (net_id), \
+                                       FOREIGN KEY(net_begin_id) \
+                                       REFERENCES time (time_id), \
+                                       FOREIGN KEY(net_end_id) \
+                                       REFERENCES time (time_id))
+
+network.getByCode=SELECT * FROM network WHERE net_code = ?
+
+station.create = CREATE TABLE station ( sta_id int NOT NULL, \
+                                        net_id int NOT NULL, \
+                                        sta_code varchar(5), \
+                                        sta_begin_id int, \
+                                        sta_end_id int, \
+                                        sta_name varchar, \
+                                        sta_operator varchar, \
+                                        sta_description varchar, \
+                                        sta_comment varchar, \
+                                        loc_id int, \
+                                        FOREIGN KEY(sta_begin_id) \
+                                        REFERENCES time (time_id), \
+                                        FOREIGN KEY(sta_end_id) \
+                                        REFERENCES time (time_id),\
+                                        FOREIGN KEY(net_id) \
+                                        REFERENCES network (net_id), \
+                                        FOREIGN KEY(loc_id) \
+                                        REFERENCES location(loc_id), \
+                                        PRIMARY KEY(sta_id))
+
+station.index_station_net_id=create index station_net_id_idx on station (net_id)
+                                        
+#set ( $station_neededForStationId = "sta_id, station.net_id, sta_code, sta_begin_id" )
+
+#set ( $station_neededForStation = "$station_neededForStationId, sta_end_id, sta_name, station.loc_id, sta_operator, sta_description, sta_comment" )
+
+station.getAllQuery = SELECT $station_neededForStationId FROM station
+
+station.getAllForNet = SELECT $station_neededForStationId FROM station \
+                 WHERE station.net_id = ?
+
+station.getAllStations = SELECT $station_neededForStation FROM station
+
+station.getByDBId = SELECT $station_neededForStation \
+                FROM station WHERE sta_id = ?                 
+
+station.getStationIdByDBId = SELECT $station_neededForStationId \
+          FROM station WHERE sta_id = ?                   
+
+station.getDBIdsForNetAndCode = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ?
+
+station.putAll = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id, sta_end_id, \
+                                      sta_name, sta_operator, sta_description, sta_comment, loc_id) \
+                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                      
+station.putId = INSERT INTO station (sta_id, net_id, sta_code, sta_begin_id) VALUES (?, ?, ?, ?)
+
+station.putChanIdBits = INSERT INTO station (sta_id, net_id, sta_code) VALUES (?, ?, ?)
+
+station.getByChanIdBits = SELECT sta_id FROM station \
+                          WHERE net_id = ? AND \
+                          sta_code = ? AND \
+                          sta_begin_id IS NULL
+
+station.getIfNameExists = SELECT sta_id FROM station WHERE sta_id = ? AND sta_name IS NOT NULL
+
+station.getDBId = SELECT sta_id FROM station WHERE net_id = ? AND sta_code = ? AND sta_begin_id = ?
+
+station.updateSta = UPDATE station SET sta_end_id = ?, sta_name = ?, sta_operator = ?, \
+                    sta_description = ? , sta_comment = ? , loc_id = ? WHERE sta_id = ?
+
+station.deleteStation = DELETE FROM station WHERE sta_id = ?
+
+site.create = CREATE TABLE site ( site_id int, \
+                                  sta_id int, \
+                                  site_code varchar(2), \
+                                  site_begin_id int, \
+                                  site_end_id int, \
+                                  site_comment varchar, \
+                                  loc_id int, \
+                                  FOREIGN KEY (sta_id) \
+                                  REFERENCES station (sta_id), \
+                                  FOREIGN KEY (loc_id) \
+                                  REFERENCES location (loc_id), \
+                                  FOREIGN KEY (site_begin_id) \
+                                  REFERENCES time (time_id), \
+                                  FOREIGN KEY (site_end_id) \
+                                  REFERENCES time (time_id), \
+                                  PRIMARY KEY(site_id))
+
+site.index_site_sta_id=create index site_sta_id_idx on site (sta_id)
+
+site.getDBIdsForStaAndCode = SELECT site_id FROM site WHERE sta_id = ? and site_code = ?
+
+site.putAll = INSERT INTO site (site_id, sta_id, site_code, site_begin_id, site_end_id, site_comment, loc_id) \
+                               VALUES (?, ?, ?, ?, ?, ?, ?)
+                               
+
+site.putChanIdBits = INSERT INTO site (site_id, sta_id, site_code) VALUES (?, ?, ?)
+
+site.getByChanIdBits = SELECT site_id FROM site \
+                          WHERE sta_id = ? AND \
+                          site_code = ? AND \
+                          site_begin_id IS NULL
+                               
+site.getIfCommentExists = SELECT site_id FROM site WHERE site_id = ? AND site_comment IS NOT NULL
+
+site.getByDBId = SELECT * FROM site WHERE site_id = ?
+
+site.getSiteIdByDBId = SELECT site_id, sta_id, site_code, site_begin_id FROM site WHERE site_id = ?
+
+site.getDBId = SELECT site_id FROM site WHERE sta_id = ? AND site_code = ? AND site_begin_id = ?
+
+site.updateSite = UPDATE site SET site_end_id = ?, site_comment = ?, loc_id = ? WHERE site_id = ?
+
+site.deleteSite = DELETE FROM site WHERE site_id = ?
+
+site.count = SELECT count(*) FROM site
+
+site.getAllForStationDbId = SELECT * FROM site where sta_id = ?
+
+channel.create = CREATE TABLE channel (chan_id int, \
+                                       site_id int, \
+                                       chan_code varchar(3), \
+                                       chan_begin_id int, \
+                                       chan_end_id int, \
+                                       chan_name varchar, \
+                                       chan_orientation_az float, \
+                                       chan_orientation_dip float, \
+                                       chan_sampling_interval_id int, \
+                                       chan_sampling_numpoints int, \
+                                       PRIMARY KEY(chan_id), \
+                                       FOREIGN KEY (site_id) \
+                                       REFERENCES site (site_id), \
+                                       FOREIGN KEY (chan_sampling_interval_id) \
+                                       REFERENCES quantity (quantity_id), \
+                                       FOREIGN KEY (chan_begin_id) \
+                                       REFERENCES time (time_id), \
+                                       FOREIGN KEY (chan_end_id) \
+                                       REFERENCES time (time_id))
+
+channel.index_channel_site_id=create index channel_site_id_idx on channel (site_id)
+
+#set ( $channel_neededForChanId = "chan_id, channel.site_id, chan_code, chan_begin_id" )
+
+#set ( $channel_neededForChannel = "$channel_neededForChanId, chan_end_id, chan_name, chan_sampling_numpoints, chan_sampling_interval_id, chan_orientation_dip, chan_orientation_az" )
+
+#set ( $channel_getAllIdsQuery = "SELECT $channel_neededForChanId FROM channel" )
+
+channel.getAllIds = $channel_getAllIdsQuery
+
+channel.getAllIdsForSite = $channel_getAllIdsQuery \
+                WHERE site_id = ?
+
+channel.getAllIdsForStation = $channel_getAllIdsQuery , site \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = ?
+
+channel.getAllIdsForNetwork = $channel_getAllIdsQuery \
+                , site, station \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND station.net_id = ?
+
+#set ( $channel_getAllQuery = "SELECT $channel_neededForChannel FROM channel" )
+
+channel.getAllChans = $channel_getAllQuery
+
+#set ( $channel_allForStationCriteria = "site WHERE channel.site_id = site.site_id AND site.sta_id = ?" )
+
+#set ( $channel_allForStation = "$channel_getAllQuery , $channel_allForStationCriteria" )
+
+channel.getAllChansForStation = $channel_allForStation
+
+channel.getFirstChanForStation = $channel_allForStation LIMIT 1
+                
+#set ( $channel_allForStationOnDate = "$channel_getAllQuery , time as chan_begin, time as chan_end, $channel_allForStationCriteria AND channel.chan_begin_id = chan_begin.time_id AND channel.chan_end_id = chan_end.time_id AND chan_begin.time_stamp < ? AND chan_end.time_stamp > ?" )
+
+channel.getAllChansForStationOnDate = $channel_allForStationOnDate
+
+channel.getFirstChanForStationOnDate = $channel_allForStationOnDate LIMIT 1
+
+channel.getByCodes = $channel_getAllQuery, site, station \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND \
+                station.net_id = ? AND \
+                station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ?
+                
+channel.getIdsByCodes = $channel_getAllIdsQuery, site, station \
+			   WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND \
+                station.net_id = ? AND \
+                station.sta_code = ? AND site.site_code = ? AND channel.chan_code = ?
+
+channel.getAllChansForNetwork = $channel_getAllQuery , site, station \
+                WHERE channel.site_id = site.site_id AND \
+                site.sta_id = station.sta_id AND station.net_id = ?
+
+channel.getStationDbId = SELECT sta_id FROM channel, site where Channel.site_id = site.site_id AND chan_id = ?
+
+channel.putAll = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id, \
+                 chan_end_id, chan_name, chan_orientation_az, chan_orientation_dip, \
+                 chan_sampling_interval_id, chan_sampling_numpoints) \
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+channel.updateNonId = UPDATE channel set site_id = ? , chan_end_id = ?, chan_name= ?, \
+                      chan_orientation_az = ?, chan_orientation_dip = ?, \
+                      chan_sampling_interval_id = ?, chan_sampling_numpoints = ? \
+                      WHERE chan_id = ?
+                 
+channel.putId = INSERT INTO channel (chan_id, site_id, chan_code, chan_begin_id) VALUES (?, ?, ?, ?)
+
+channel.getByDBId = SELECT * FROM channel WHERE chan_id = ?
+
+channel.views=netchan
+
+netchan.create=CREATE VIEW netchan AS \
+    SELECT network.net_id, network.net_code, network.net_begin_id, network.net_end_id, \
+    network.net_name, network.net_owner, network.net_description, \
+    net_begin.time_stamp AS net_begin_time_stamp, net_begin.time_nanos AS net_begin_nanos, net_begin.time_leapsec AS net_begin_leapsec, \
+    net_end.time_stamp AS net_end_time_stamp, net_end.time_nanos AS net_end_nanos, net_end.time_leapsec AS net_end_leapsec, \
+    station.sta_id, station.sta_code, station.sta_begin_id, station.sta_end_id, station.sta_name, \
+    station.sta_operator, station.sta_description, station.sta_comment, station.loc_id AS sta_loc_id, \
+    stalocation.loc_lat AS sta_loc_lat, stalocation.loc_lon AS sta_loc_lon, stalocation.loc_elev_id AS sta_loc_elev_id, stalocation.loc_depth_id AS sta_loc_depth_id, stalocation.loc_type AS sta_loc_type, \
+    sta_begin.time_stamp AS sta_begin_time_stamp, sta_begin.time_nanos AS sta_begin_nanos, sta_begin.time_leapsec AS sta_begin_leapsec, \
+    sta_end.time_stamp AS sta_end_time_stamp, sta_end.time_nanos AS sta_end_nanos, sta_end.time_leapsec AS sta_end_leapsec, \
+    site.site_id, site.site_code, site.site_begin_id, site.site_end_id, site.site_comment, \
+    site.loc_id AS site_loc_id, sitelocation.loc_lat AS site_loc_lat, sitelocation.loc_lon AS site_loc_lon,  sitelocation.loc_elev_id AS site_loc_elev_id, sitelocation.loc_depth_id AS site_loc_depth_id, sitelocation.loc_type AS site_loc_type,\
+    site_begin.time_stamp AS site_begin_time_stamp, site_begin.time_nanos AS site_begin_nanos, site_begin.time_leapsec AS site_begin_leapsec, \
+    site_end.time_stamp AS site_end_time_stamp, site_end.time_nanos AS site_end_nanos, site_end.time_leapsec AS site_end_leapsec, \
+    channel.chan_id, channel.chan_code, channel.chan_begin_id, channel.chan_end_id, channel.chan_name, \
+    channel.chan_orientation_az, channel.chan_orientation_dip, channel.chan_sampling_interval_id, \
+    channel.chan_sampling_numpoints, \
+    chan_begin.time_stamp AS chan_begin_time_stamp, chan_begin.time_nanos AS chan_begin_nanos, chan_begin.time_leapsec AS chan_begin_leapsec, \
+    chan_end.time_stamp AS chan_end_time_stamp, chan_end.time_nanos AS chan_end_nanos, chan_end.time_leapsec AS chan_end_leapsec \
+   FROM network \
+   JOIN time net_begin ON net_begin_id = net_begin.time_id \
+   JOIN time net_end ON net_end_id = net_end.time_id \
+   JOIN station ON network.net_id = station.net_id \
+   JOIN time sta_begin ON sta_begin_id = sta_begin.time_id \
+   JOIN time sta_end ON sta_end_id = sta_end.time_id \
+   JOIN site ON station.sta_id = site.sta_id \
+   JOIN time site_begin ON site_begin_id = site_begin.time_id \
+   JOIN time site_end ON site_end_id = site_end.time_id \
+   JOIN channel ON site.site_id = channel.site_id \
+   JOIN time chan_begin ON chan_begin_id = chan_begin.time_id \
+   JOIN time chan_end ON chan_end_id = chan_end.time_id \
+   JOIN location stalocation ON station.loc_id = stalocation.loc_id \
+   JOIN location sitelocation ON site.loc_id = sitelocation.loc_id
+

@@ -1,0 +1,27 @@
+<unit>
+    <the_unit_base>
+        <value>8</value>
+    </the_unit_base>
+    <elements>
+        <the_unit_base>
+            <value>0</value>
+        </the_unit_base>
+        <power>0</power>
+        <name>METER</name>
+        <multi_factor>1.0</multi_factor>
+        <exponent>1</exponent>
+    </elements>
+    <elements>
+        <the_unit_base>
+            <value>2</value>
+        </the_unit_base>
+        <power>0</power>
+        <name/>
+        <multi_factor>1.0</multi_factor>
+        <exponent>-1</exponent>
+    </elements>
+    <power>0</power>
+    <name/>
+    <multi_factor>1.0</multi_factor>
+    <exponent>1</exponent>
+</unit>

@@ -1,0 +1,6 @@
+#if(!$tablename)
+#set($tablename="table")
+#end
+
+${tablename}.create=CREATE TABLE $tablename ( field int, \
+								  oField int)
