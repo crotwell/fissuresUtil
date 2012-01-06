@@ -194,14 +194,8 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
 
     public List getDataCenter(String networkCode) {
         LinkedList out = new LinkedList();
-        if(networkCode.equals("SP")) {
-            out.add(getSceppDC());
-        } else if (networkCode.equals("XE")) {
-            out.add(getSnepDC());
-        } else {
             out.add(getBudDC());
             out.add(getPondDC());
-        }
         return out;
     }
 
@@ -321,7 +315,7 @@ public class HardCodeDataCenterRouter extends DataCenterRouter implements
     protected ProxySeismogramDC loadPondDC() {
         if(pondDC == null) {
             pondDC = BulletproofVestFactory.vestSeismogramDC("edu/iris/dmc",
-                                                             "IRIS_PondDataCenter",
+                                                             "IRIS_DataCenter",
                                                              fissuresNamingService,
                                                              1);
         }
