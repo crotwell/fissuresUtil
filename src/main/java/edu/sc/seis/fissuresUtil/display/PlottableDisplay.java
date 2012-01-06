@@ -38,6 +38,7 @@ import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.sc.seis.TauP.Arrival;
+import edu.sc.seis.fissuresUtil.bag.Statistics;
 import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.borders.TitleBorder;
 import edu.sc.seis.fissuresUtil.display.drawable.EventBoxes;
@@ -550,15 +551,23 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
             minandmax[1] = 1;
             return minandmax;
         } // end of if (arrayplottable.length == 0)
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
+        
+        int totLen = 0;
         for(int arrayi = 0; arrayi < arrayplottable.length; arrayi++) {
-            for(int ploti = 0; ploti < arrayplottable[arrayi].y_coor.length; ploti++) {
-                min = Math.min(min, arrayplottable[arrayi].y_coor[ploti]);
-                max = Math.max(max, arrayplottable[arrayi].y_coor[ploti]);
-            }
+            totLen += arrayplottable[arrayi].y_coor.length;
         }
-        int[] minandmax = {min, max};
+        int[] allY = new int[totLen];
+        int allYIndex = 0;
+        for(int arrayi = 0; arrayi < arrayplottable.length; arrayi++) {
+            System.arraycopy(arrayplottable[arrayi].y_coor, 0, allY, allYIndex, arrayplottable[arrayi].y_coor.length);
+            allYIndex += arrayplottable[arrayi].y_coor.length;
+        }
+        Statistics stat = new Statistics(allY);
+        double stddev = stat.stddev();
+        double mean = stat.mean();
+
+        int[] minandmax = {(int)Math.round(mean-2*stddev), (int)Math.round(mean+2*stddev)};
+        
         return minandmax;
     }
 

@@ -115,4 +115,5 @@ task makeScript(dependsOn: copyToLib) << { task ->
     ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', task.project, dExtras:dExtras)
     ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', task.project, dExtras:dExtras)
     ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', task.project, dExtras:dExtras)
+    ScriptBuilder.create('mseedtest', 'edu.sc.seis.fissuresUtil.mseed.MSeedFileRead', task.project, dExtras:dExtras)
 }
