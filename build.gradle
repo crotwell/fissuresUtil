@@ -117,3 +117,8 @@ task makeScript(dependsOn: copyToLib) << { task ->
     ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', task.project, dExtras:dExtras)
     ScriptBuilder.create('mseedtest', 'edu.sc.seis.fissuresUtil.mseed.MSeedFileRead', task.project, dExtras:dExtras)
 }
+
+javadoc.options.links('http://wiki.fissuresidl.googlecode.com/hg/javadoc/')
+javadoc.options.links('http://wiki.fissuresimpl.googlecode.com/hg/javadoc/')
+javadoc.options.links('http://wiki.seedcodec.googlecode.com/hg/javadoc/')
+javadoc.options.links('http://wiki.seisfile.googlecode.com/hg/javadoc/')
