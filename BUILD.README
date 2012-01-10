@@ -1,7 +1,0 @@
-
-We use maven for building, generating documentation, etc. Maven reads the 
-project.xml file for all of its configuration information and puts the 
-output into the target directory. It is available from 
-http://maven.apache.org
-
-
