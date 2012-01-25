@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -7,10 +8,12 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
 
+import com.isti.util.IstiVersion;
 import com.isti.util.updatechecker.LocationUpdate;
 import com.isti.util.updatechecker.UpdateAction;
 import com.isti.util.updatechecker.UpdateInformation;
 import com.isti.util.updatechecker.XMLUpdateCheckerClient;
+import com.isti.util.updatechecker.XMLUpdateCheckerServer;
 
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
@@ -66,8 +69,10 @@ public class UpdateCheckerJob extends AbstractJob {
             return;
         }
         setStatus("Connect to server");
-        XMLUpdateCheckerClient updateChecker = new XMLUpdateCheckerClient(version,
-                                                                          updateURL);
+        Properties httpHeaders = new Properties();
+        httpHeaders.put("User-Agent", programName+"-"+version);
+        XMLUpdateCheckerClient updateChecker = new XMLUpdateCheckerClient(new IstiVersion(version),
+                                                                          new XMLUpdateCheckerServer(updateURL, httpHeaders));
         setStatus("Check for update");
         if(updateChecker.isUpdateAvailable()) {
             UpdateInformation[] updates = updateChecker.getUpdates();
