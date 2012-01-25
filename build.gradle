@@ -15,7 +15,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:3.6.9.Final"
     runtime "org.hibernate:hibernate-c3p0:3.6.9.Final"
     compile "javassist:javassist:3.12.1.GA" // ideally should be a hibernate dep
-    compile "isti:isti.util:1.0.3USC"
+    compile "com.isti:isti.util:20120120"
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
 //    compile "org.hsqldb:hsqldb:2.2.4"
