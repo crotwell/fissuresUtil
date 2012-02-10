@@ -434,8 +434,12 @@ public class XMLDataSet implements DataSet, Serializable {
             // caching here so that further caching wont be necessary when we
             // call
             // getDataSet.added by srinivasa.
+            if (ds != null) {
             dataSetCache.put(ds.getId(), ds);
             names[i] = ds.getName();
+            } else {
+                names[i] = "null";
+            }
         } // end of for (int i=0; i<ids.length; i++)
         return names;
     }
