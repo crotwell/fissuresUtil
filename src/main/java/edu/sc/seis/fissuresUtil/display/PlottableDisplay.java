@@ -545,17 +545,17 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
     }
 
     public int[] findMinMax(Plottable[] arrayplottable) {
-        if(arrayplottable.length == 0) {
+        int totLen = 0;
+        for(int arrayi = 0; arrayi < arrayplottable.length; arrayi++) {
+            totLen += arrayplottable[arrayi].y_coor.length;
+        }
+        if(totLen == 0) {
             int[] minandmax = new int[2];
             minandmax[0] = -1;
             minandmax[1] = 1;
             return minandmax;
         } // end of if (arrayplottable.length == 0)
         
-        int totLen = 0;
-        for(int arrayi = 0; arrayi < arrayplottable.length; arrayi++) {
-            totLen += arrayplottable[arrayi].y_coor.length;
-        }
         int[] allY = new int[totLen];
         int allYIndex = 0;
         for(int arrayi = 0; arrayi < arrayplottable.length; arrayi++) {
