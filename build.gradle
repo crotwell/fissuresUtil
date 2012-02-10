@@ -1,6 +1,6 @@
 
 group = 'edu.sc.seis'
-version = '1.1.1'
+version = '1.1.2-SNAPSHOT'
 
 configurations {
     all*.exclude group: 'xml-apis',  module: 'xml-apis'
@@ -15,7 +15,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:3.6.9.Final"
     runtime "org.hibernate:hibernate-c3p0:3.6.9.Final"
     compile "javassist:javassist:3.12.1.GA" // ideally should be a hibernate dep
-    compile "com.isti:isti.util:20120120"
+    compile "com.isti:isti.util:20120201"
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "hsqldb:hsqldb:1.8.0.10"
 //    compile "org.hsqldb:hsqldb:2.2.4"
