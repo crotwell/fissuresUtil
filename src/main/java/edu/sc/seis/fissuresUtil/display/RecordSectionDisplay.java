@@ -359,6 +359,10 @@ public class RecordSectionDisplay extends SeismogramDisplay implements
                 Dimension drawSize = new Dimension((isPDF ? 4 : 1) * width,
                                                    (int)((isPDF ? 4.0 : 1.0) * drawHeight));
                 DrawableSeismogram cur = toDrawable(current.getSeis());
+                if (cur == null) {
+                    // must have been removed
+                    continue;
+                }
                 cur.draw(g2, drawSize, timeEvent, ampEvent);
                 if(isPDF) {
                     g2.scale(4.0, 4.0);
