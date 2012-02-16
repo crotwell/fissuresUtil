@@ -81,7 +81,13 @@ public abstract class AbstractHibernateDB {
 
     public static void deploySchema() {
         SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
+        update.setHaltOnError(true);
         update.execute(false, true);
+        List exceptions = update.getExceptions();
+        for (Object o : exceptions) {
+            Throwable t = (Throwable)o;
+            logger.error("problem in deploySchema: ", t);
+        }
     }
 
     protected static Session createSession() {
