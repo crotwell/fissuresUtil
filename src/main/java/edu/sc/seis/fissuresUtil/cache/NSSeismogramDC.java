@@ -193,6 +193,11 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
             throws FissuresException {
         try {
             return getDataCenter().retrieve_seismograms(a_filterseq);
+        } catch(FissuresException e) {
+            // handle this differently as it is likely the server is trying to tell us something
+            // prepend the server dns/name to the description so we can tell who we were talking to
+            e.the_error.error_description = "["+getServerDNS()+"/"+getServerName()+"]"+e.the_error.error_description;
+            throw e;
         } catch(Throwable e) {
             reset();
             try {
@@ -214,7 +219,7 @@ public class NSSeismogramDC implements ServerNameDNS, ProxySeismogramDC {
 
     protected String serverDNS, serverName;
 
-    private ThreadLocal dc = new ThreadLocal();
+    private ThreadLocal<DataCenter> dc = new ThreadLocal<DataCenter>();
 
     protected FissuresNamingService nameService;
     
