@@ -398,6 +398,10 @@ public class Statistics  {
         return binarySumDevSqr(0, getLength(), mean) /
         (getLength()-1);
     }
+    
+    public double rms() {
+        return Math.sqrt(var(0));
+    }
 
     /**
      * Calulates the standard deviation. This is a shortcut for Math.sqrt(var());
