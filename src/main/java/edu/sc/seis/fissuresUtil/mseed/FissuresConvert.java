@@ -265,28 +265,11 @@ public class FissuresConvert {
         return list;
     }
 
+    /** calculates the seed representation of a sample rate as factor and multiplier. */
     public static short[] calcSeedMultipilerFactor(SamplingImpl sampling) {
         TimeInterval sampPeriod = sampling.getPeriod();
         double sps = 1 / sampPeriod.convertTo(UnitImpl.SECOND).getValue();
-        if (sps >= 1) {
-            // don't get too close to the max for a short, use ceil as neg
-            int divisor = (int)Math.ceil((Short.MIN_VALUE + 2) / sps);
-            // don't get too close to the max for a short
-            if (divisor < Short.MIN_VALUE + 2) {
-                divisor = Short.MIN_VALUE + 2;
-            }
-            int factor = (int)Math.round(-1 * sps * divisor);
-            return new short[] {(short)factor, (short)divisor};
-        } else {
-            // don't get too close to the max for a short, use ceil as neg
-            int factor = -1 * (int)Math.round(Math.floor(1.0 * sps * (Short.MAX_VALUE - 2)) / sps);
-            // don't get too close to the max for a short
-            if (factor > Short.MAX_VALUE - 2) {
-                factor = Short.MAX_VALUE - 2;
-            }
-            int divisor = (int)Math.round(-1 * factor * sps);
-            return new short[] {(short)factor, (short)divisor};
-        }
+        return DataHeader.calcSeedMultipilerFactor(sps);
     }
 
     public static LocalSeismogramImpl toFissures(String filename) throws SeedFormatException, IOException,
