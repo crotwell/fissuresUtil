@@ -8,9 +8,9 @@ configurations {
 }
 
 dependencies {
-    compile project(':fissuresImpl') { transitive = true }
-    compile project(':seisFile') { transitive = true }
-    compile project(':TauP') { transitive = true }
+    compile project(':fissuresImpl')
+    compile project(':seisFile')
+    compile project(':TauP')
     compile "org.hibernate:hibernate-ehcache:3.6.9.Final"
     compile "org.hibernate:hibernate-core:3.6.9.Final"
     runtime "org.hibernate:hibernate-c3p0:3.6.9.Final"
@@ -36,7 +36,7 @@ dependencies {
     testCompile "junit-addons:junit-addons:1.4"
 }
 
-binDistFiles = copySpec {
+def binDistFiles = copySpec {
     from('build/output') {
         fileMode=0755
         include('bin/**')
@@ -46,7 +46,7 @@ binDistFiles = copySpec {
     }
 }
 
-distFiles = copySpec {
+def distFiles = copySpec {
     with(binDistFiles)
     from('build/docs') {
         include('javadoc/**')
@@ -87,7 +87,7 @@ task explodeDist(type: Sync, dependsOn: ['makeScript', 'javadoc', 'wrapper', 'cr
 
 
 task tarDist(type: Tar, dependsOn: ['makeScript', 'javadoc', 'wrapper', 'createBuildScript']) {
-    dirName = project.name+'-'+version
+    def dirName = project.name+'-'+version
     compression = Compression.GZIP
     into(dirName) {
         with distFiles
