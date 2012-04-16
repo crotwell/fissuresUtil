@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.Location;
+import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
@@ -13,6 +14,7 @@ import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.LocationUtil;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.sc.seis.TauP.Arrival;
@@ -94,6 +96,7 @@ public class PhaseRequest  {
 
         synchronized(this) {
             if(prevRequestFilter != null
+                    && TimeUtils.areEqual(origin.getOriginTime(), prevOriginTime)
                     && LocationUtil.areEqual(origin.getLocation(), prevOriginLoc)
                     && LocationUtil.areEqual(channel.getSite().getLocation(), prevSiteLoc)) {
                 // don't need to do any work
@@ -137,6 +140,7 @@ public class PhaseRequest  {
         synchronized(this) {
             prevOriginLoc = origin.getLocation();
             prevSiteLoc = channel.getSite().getLocation();
+            prevOriginTime = origin.getOriginTime();
             prevRequestFilter = new RequestFilter(channel.get_id(),
                                                   bDate.getFissuresTime(),
                                                   eDate.getFissuresTime());
@@ -244,6 +248,8 @@ public class PhaseRequest  {
     private RequestFilter prevRequestFilter;
 
     private Location prevOriginLoc, prevSiteLoc;
+    
+    private Time prevOriginTime;
 
     private static Logger logger = LoggerFactory.getLogger(PhaseRequest.class);
 
