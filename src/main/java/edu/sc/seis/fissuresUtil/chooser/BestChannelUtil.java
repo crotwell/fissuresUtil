@@ -107,7 +107,7 @@ public class BestChannelUtil {
                 for (int k = 0; k < gainCodeHeuristic.length; k++) {
                     List<ChannelImpl> gainChans = new ArrayList<ChannelImpl>();
                     for (ChannelImpl c : bandChans) {
-                        if (ChannelIdUtil.getGainCode(c.getId()).equals(gainCodeHeuristic[j])) {
+                        if (ChannelIdUtil.getGainCode(c.getId()).equals(gainCodeHeuristic[k])) {
                             gainChans.add(c);
                         }
                     }
