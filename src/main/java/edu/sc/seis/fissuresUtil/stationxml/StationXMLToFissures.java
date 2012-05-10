@@ -71,8 +71,20 @@ public class StationXMLToFissures {
     public static StationImpl convert(StationEpoch xml, NetworkAttrImpl netAttr, String staCode) {
         TimeRange effectiveTime = new TimeRange(new Time(xml.getStartDate(), -1), 
                                                 new Time(xml.getEndDate(), -1));
+        String name = xml.getSite().getName();
+        if (name == null) {
+            name = (xml.getSite().getTown() != null ? xml.getSite().getTown() : "") +
+                    (xml.getSite().getState() != null ? xml.getSite().getState() : "") +
+                    (xml.getSite().getCountry() != null ? xml.getSite().getCountry() : "");
+        }
+        if ("".equals(name)) {
+            name = xml.getSite().getDescription();
+        }
+        if ("".equals(name)) {
+            name = "";
+        }
         return new StationImpl(new StationId(netAttr.getId(), staCode, effectiveTime.start_time),
-                                          xml.getSite().getCountry(),
+                                          name,
                                           new Location(xml.getLat(), xml.getLon(),
                                                        new QuantityImpl(xml.getElevation(), UnitImpl.METER),
                                                        new QuantityImpl(0, UnitImpl.METER),
