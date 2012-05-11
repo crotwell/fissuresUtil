@@ -73,14 +73,15 @@ public class StationXMLToFissures {
                                                 new Time(xml.getEndDate(), -1));
         String name = xml.getSite().getName();
         if (name == null) {
-            name = (xml.getSite().getTown() != null ? xml.getSite().getTown() : "") +
-                    (xml.getSite().getState() != null ? xml.getSite().getState() : "") +
+            name = (xml.getSite().getTown() != null ? xml.getSite().getTown()+" " : "") +
+                    (xml.getSite().getState() != null ? xml.getSite().getState()+" " : "") +
                     (xml.getSite().getCountry() != null ? xml.getSite().getCountry() : "");
+            name = name.trim();
         }
         if ("".equals(name)) {
             name = xml.getSite().getDescription();
         }
-        if ("".equals(name)) {
+        if (null == name || "".equals(name)) {
             name = "";
         }
         return new StationImpl(new StationId(netAttr.getId(), staCode, effectiveTime.start_time),
