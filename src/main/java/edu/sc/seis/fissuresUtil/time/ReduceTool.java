@@ -140,6 +140,10 @@ public class ReduceTool {
     public static MicroSecondTimeRange[] merge(MicroSecondTimeRange[] ranges) {
         return new MSTRMerger().merge(ranges);
     }
+    
+    public static List<MicroSecondTimeRange> mergeMicroSecondTimeRange(List<MicroSecondTimeRange> ranges) {
+            return Arrays.asList(new MSTRMerger().merge((MicroSecondTimeRange[])ranges.toArray()));
+    }
 
     /**
      * Unites all chunks in the given array into a single chunk if they're
