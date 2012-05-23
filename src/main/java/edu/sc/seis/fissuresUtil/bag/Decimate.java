@@ -1,6 +1,7 @@
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
+import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
@@ -60,4 +61,8 @@ public class Decimate implements LocalSeismogramFunction {
     }
 
     private int factor;
+
+    public int getFactor() {
+        return factor;
+    }
 }
