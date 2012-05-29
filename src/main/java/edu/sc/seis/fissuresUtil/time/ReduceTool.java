@@ -142,7 +142,7 @@ public class ReduceTool {
     }
     
     public static List<MicroSecondTimeRange> mergeMicroSecondTimeRange(List<MicroSecondTimeRange> ranges) {
-            return Arrays.asList(new MSTRMerger().merge((MicroSecondTimeRange[])ranges.toArray()));
+        return new MSTRMerger().merge(ranges);
     }
 
     /**
@@ -217,6 +217,11 @@ public class ReduceTool {
         public MicroSecondTimeRange[] merge(MicroSecondTimeRange[] ranges) {
             return (MicroSecondTimeRange[])internalMerge(ranges,
                                                          new MicroSecondTimeRange[0]);
+        }
+        
+        public List<MicroSecondTimeRange> merge(List<MicroSecondTimeRange> chunks) {
+            return Arrays.asList((MicroSecondTimeRange[])internalMerge(chunks.toArray(),
+                                                   new MicroSecondTimeRange[0]));
         }
     }
 
