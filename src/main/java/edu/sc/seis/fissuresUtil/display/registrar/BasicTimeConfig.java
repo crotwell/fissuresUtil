@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.model.TimeInterval;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 /**
  * BasicTimeConfig synchronizes all the seismograms it holds around their initial times. It gets the first added

@@ -18,7 +18,7 @@ import edu.iris.Fissures.IfSeismogramDC.DataCenterCallBack;
 import edu.iris.Fissures.IfSeismogramDC.DataCenterPOA;
 import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Nov 9, 2004

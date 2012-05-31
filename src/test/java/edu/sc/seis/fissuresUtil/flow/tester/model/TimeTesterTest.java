@@ -4,9 +4,9 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.tester.Tester;
 import edu.sc.seis.fissuresUtil.flow.tester.TesterTesterTesterTest;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class TimeTesterTest extends TesterTesterTesterTest{
 

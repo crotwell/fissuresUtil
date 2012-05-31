@@ -21,8 +21,8 @@ import edu.iris.Fissures.Plottable;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Oct 18, 2004

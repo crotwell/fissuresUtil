@@ -18,6 +18,7 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 /**
  * SimplePlotUtil.java Created: Thu Jul 8 11:22:02 1999

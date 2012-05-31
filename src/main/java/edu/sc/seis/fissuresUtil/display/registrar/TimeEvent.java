@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.display.registrar;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**

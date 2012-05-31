@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfTimeSeries.EncodedData;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.AuxiliaryDataParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.CalibrationParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.DataPacket;
@@ -23,6 +22,7 @@ import edu.sc.seis.fissuresUtil.rt130.packetTypes.EventTrailerPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.OperatingModeParameterPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.StateOfHealthPacket;
 import edu.sc.seis.fissuresUtil.rt130.packetTypes.StationChannelParameterPacket;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 /**
  * @author fenner Created on Jun 14, 2005

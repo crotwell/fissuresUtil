@@ -16,12 +16,12 @@ import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerFactory;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**

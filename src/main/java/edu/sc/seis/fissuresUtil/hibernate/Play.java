@@ -23,7 +23,6 @@ import edu.iris.Fissures.network.NetworkAttrImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.CacheEvent;
 import edu.sc.seis.fissuresUtil.database.ConnMgr;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.querier.EventFinderQuery;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockEventAttr;
 import edu.sc.seis.fissuresUtil.mockFissures.IfEvent.MockOrigin;
@@ -31,6 +30,7 @@ import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockNetworkAttr;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockStation;
 import edu.sc.seis.fissuresUtil.simple.TimeOMatic;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class Play {
 

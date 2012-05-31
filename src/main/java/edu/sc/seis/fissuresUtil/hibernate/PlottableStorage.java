@@ -3,7 +3,7 @@ package edu.sc.seis.fissuresUtil.hibernate;
 import java.util.List;
 
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 
 public interface PlottableStorage {

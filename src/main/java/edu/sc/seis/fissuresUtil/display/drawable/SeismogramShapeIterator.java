@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 /**
  * SeismogramShapeIterator encapsulates a single plotting of a SeismogramShape.
  *

@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.display;
 
 import junitx.extensions.EqualsHashCodeTestCase;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class MicroSecondTimeRangeTest extends EqualsHashCodeTestCase{
 

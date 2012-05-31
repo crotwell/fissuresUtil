@@ -7,11 +7,11 @@ import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.iris.Fissures.network.SiteIdUtil;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerFactory;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainerListener;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 
 /**
