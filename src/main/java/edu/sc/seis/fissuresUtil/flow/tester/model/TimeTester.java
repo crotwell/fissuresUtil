@@ -3,13 +3,13 @@ package edu.sc.seis.fissuresUtil.flow.tester.model;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.TimeUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.extractor.model.TimeExtractor;
 import edu.sc.seis.fissuresUtil.flow.tester.Fail;
 import edu.sc.seis.fissuresUtil.flow.tester.NoTestSubject;
 import edu.sc.seis.fissuresUtil.flow.tester.Pass;
 import edu.sc.seis.fissuresUtil.flow.tester.TestResult;
 import edu.sc.seis.fissuresUtil.flow.tester.Tester;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class TimeTester implements Tester {
 

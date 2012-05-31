@@ -5,7 +5,6 @@ import edu.iris.Fissures.Time;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.RequestFilterUtil;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannelId;
 
 /**

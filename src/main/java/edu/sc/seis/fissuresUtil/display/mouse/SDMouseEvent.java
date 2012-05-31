@@ -6,10 +6,10 @@ import java.awt.event.MouseEvent;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplayProvider;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class SDMouseEvent extends MouseEvent{
     public SDMouseEvent(SeismogramDisplay sd, MouseEvent me){

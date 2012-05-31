@@ -6,7 +6,7 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfEvent.EventAccess;
 import edu.iris.Fissures.IfEvent.EventAccessOperations;
 import edu.iris.Fissures.IfEvent.EventSeqIterHolder;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class TimeSensitiveMockEventFinder extends MockEventFinder {
 

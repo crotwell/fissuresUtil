@@ -19,11 +19,11 @@ import edu.iris.Fissures.model.UnitRangeImpl;
 import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.BasicSeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.registrar.RTTimeRangeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.RelativeTimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class TimeBorder extends Border implements TitleProvider {
 

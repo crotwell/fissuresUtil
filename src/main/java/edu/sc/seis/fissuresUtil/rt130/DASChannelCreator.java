@@ -35,7 +35,7 @@ import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.bag.OrientationUtil;
 import edu.sc.seis.fissuresUtil.database.seismogram.PopulationProperties;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class DASChannelCreator {
 
