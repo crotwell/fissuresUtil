@@ -1,4 +1,4 @@
-package edu.sc.seis.fissuresUtil.display;
+package edu.sc.seis.fissuresUtil.time;
 
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;

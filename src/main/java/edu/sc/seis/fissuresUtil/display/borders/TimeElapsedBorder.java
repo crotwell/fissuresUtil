@@ -2,9 +2,9 @@ package edu.sc.seis.fissuresUtil.display.borders;
 
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class TimeElapsedBorder extends UnitRangeBorder {
 

@@ -6,7 +6,6 @@ import java.util.List;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 
 /**
  * @author groves Created on Oct 28, 2004

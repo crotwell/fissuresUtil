@@ -10,6 +10,7 @@ import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeConfig;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeEvent;
 import edu.sc.seis.fissuresUtil.display.registrar.TimeListener;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 /**
  * TimeScaleCalc takes the total pixels of a given seismogram along with its

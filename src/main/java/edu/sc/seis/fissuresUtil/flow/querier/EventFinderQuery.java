@@ -4,7 +4,6 @@ import edu.iris.Fissures.Area;
 import edu.iris.Fissures.Quantity;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
-import edu.sc.seis.fissuresUtil.display.MicroSecondTimeRange;
 import edu.sc.seis.fissuresUtil.flow.tester.ANDTester;
 import edu.sc.seis.fissuresUtil.flow.tester.TestResult;
 import edu.sc.seis.fissuresUtil.flow.tester.Tester;
@@ -12,6 +11,7 @@ import edu.sc.seis.fissuresUtil.flow.tester.event.MagnitudeValueTester;
 import edu.sc.seis.fissuresUtil.flow.tester.model.AreaTester;
 import edu.sc.seis.fissuresUtil.flow.tester.model.DepthTester;
 import edu.sc.seis.fissuresUtil.flow.tester.model.TimeTester;
+import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
 
 public class EventFinderQuery implements Tester {
 
