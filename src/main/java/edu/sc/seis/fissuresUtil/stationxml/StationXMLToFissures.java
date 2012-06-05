@@ -230,9 +230,9 @@ public class StationXMLToFissures {
                                            0, 0);
         if (xmlChan.getSensor() != null) {
             sensor = new SensorImpl(0,
-                                    xmlChan.getSensor().getManufacturer(),
-                                    xmlChan.getSensor().getSerialNumber(),
-                                    xmlChan.getSensor().getModel(),
+                                    makeNoNull(xmlChan.getSensor().getManufacturer()),
+                                    makeNoNull(xmlChan.getSensor().getSerialNumber()),
+                                    makeNoNull(xmlChan.getSensor().getModel()),
                                     0, 0);
         }
         DataAcqSysImpl dataLogger = new DataAcqSysImpl(0,
@@ -242,9 +242,9 @@ public class StationXMLToFissures {
                                                        RecordingStyle.UNKNOWN);
         if (xmlChan.getDataLogger() != null) {
             dataLogger = new DataAcqSysImpl(0,
-                                            xmlChan.getDataLogger().getManufacturer(),
-                                            xmlChan.getDataLogger().getSerialNumber(),
-                                            xmlChan.getDataLogger().getModel(),
+                                            makeNoNull(xmlChan.getDataLogger().getManufacturer()),
+                                            makeNoNull(xmlChan.getDataLogger().getSerialNumber()),
+                                            makeNoNull(xmlChan.getDataLogger().getModel()),
                                             RecordingStyle.UNKNOWN);
         }
         TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate()),
@@ -419,6 +419,13 @@ public class StationXMLToFissures {
     
     public static Time convertTime(String xml) {
         return new MicroSecondDate(xml).getFissuresTime();
+    }
+    
+    public static String makeNoNull(String s) {
+        if (s == null) {
+            return "";
+        }
+        return s;
     }
 
     public static final Filter UNITY_POLE_ZERO = new Filter();
