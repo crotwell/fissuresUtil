@@ -1,0 +1,42 @@
+log4j.rootCategory=debug, everything, error
+
+log4j.appender.C=org.apache.log4j.ConsoleAppender
+log4j.appender.C.layout=org.apache.log4j.PatternLayout
+log4j.appender.C.layout.ConversionPattern=%c{2} - %m%n
+log4j.appender.C.Threshold=info
+
+log4j.appender.everything=org.apache.log4j.RollingFileAppender
+log4j.appender.everything.File=pop.log
+log4j.appender.everything.MaxFileSize=1000000KB
+log4j.appender.everything.MaxBackupIndex=1000
+log4j.appender.everything.layout=org.apache.log4j.PatternLayout
+log4j.appender.everything.layout.ConversionPattern=%d{ISO8601} %c{2} - %m%n
+
+log4j.appender.error=org.apache.log4j.RollingFileAppender
+log4j.appender.error.File=error_pop.log
+log4j.appender.error.MaxFileSize=50000KB
+log4j.appender.error.MaxBackupIndex=50
+log4j.appender.error.layout=org.apache.log4j.PatternLayout
+log4j.appender.error.layout.ConversionPattern=%d{ISO8601} %p %t %c{2} - %m%n
+log4j.appender.error.Threshold=error
+
+fissuresUtil.database.url=jdbc:hsqldb:hsql://localhost:9002/snep
+fissuresUtil.database.type=HSQL
+fissuresUtil.database.username=SA
+fissuresUtil.database.password=
+
+network.list=XE05
+network.remap.XX=XE05
+network.XE05.beginTime=2005-05-17T01:01:01.001Z
+network.XE05.name=Sierra Nevada EarthScope Project
+network.XE05.description=no_description
+network.XE05.owner=University of South Carolina
+dataStream.1=40
+dataStream.2=1
+leapSecondFile=LeapSeconds
+powerUpTimes=PowerUpTimes
+NCFile=snep.nc
+XYFile=SNEP_Sites.xy
+
+#Length of data is given in milliseconds.
+nominalLengthOfData=3600000

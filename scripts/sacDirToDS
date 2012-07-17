@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+#Usage: java edu.sc.seis.fissuresUtil.sac.SacDirToDataSet -base url -dir directoryPath -name datasetname [-exclude file] [-paramRef name file]
+#
+# example:
+# ./sacDirToDS -base http://www.seis.sc.edu/scepp/SCEPPRepository/ -dir AikenCounty_100801 -name Aiken_100801 -exclude HP -exclude anhinga.jar -exclude anhinga.prop -exclude f001.sgf -exclude Header.macro -paramRef Aiken Aiken.gif -paramRef AikenMap AikenMap.gif -paramRef Network Network.gif
+#
+
+# for pooh
+java -cp /seis/data0/crotwell/log4j/log4j.jar:/seis/data0/crotwell/xalan-j_2_3_1/bin/xml-apis.jar:/seis/data0/crotwell/xalan-j_2_3_1/bin/xercesImpl.jar:/seis/data0/crotwell/xalan-j_2_3_1/bin/xalan.jar:/seis/data0/crotwell/fissuresUtil/dist/lib/fissuresUtil.jar:/seis/data0/crotwell/fissures/dist/lib/FissuresIDL.jar:/seis/data0/crotwell/fissures/dist/lib/FissuresImpl.jar edu/sc/seis/fissuresUtil/sac/SacDirToDataSet $*
+
+
+# for home
+#java -cp ../../log4j/log4j.jar:../../xalan-j_2_3_1/bin/xml-apis.jar:../../xalan-j_2_3_1/bin/xercesImpl.jar:../../xalan-j_2_3_1/bin/xalan.jar:../../fissuresUtil/dist/lib/fissuresUtil.jar:../../fissures/dist/lib/FissuresIDL.jar:../../fissures/dist/lib/FissuresImpl.jar edu/sc/seis/fissuresUtil/sac/SacDirToDataSet $*
+#
+#

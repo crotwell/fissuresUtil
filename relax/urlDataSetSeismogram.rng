@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="base_definitions.rng"/>
+  <start combine="choice">
+    <element name="urlDataSetSeismogram">
+      <element name="name">
+        <text/>
+      </element>
+      <ref name="requestFilter"/>
+      <oneOrMore>
+        <element name="url">
+          <attribute name="type" ns="http://www.w3.org/1999/xlink"/>
+          <attribute name="href" ns="http://www.w3.org/1999/xlink"/>
+          <attribute name="role" ns="http://www.w3.org/1999/xlink"/>
+        </element>
+      </oneOrMore>
+      <zeroOrMore>
+        <element name="property">
+          <element name="name">
+            <text/>
+          </element>
+          <element name="value">
+            <text/>
+          </element>
+        </element>
+      </zeroOrMore>
+    </element>
+  </start>
+  <define name="requestFilter">
+    <element name="requestFilter">
+      <ref name="channelId"/>
+      <ref name="effective_time_contents"/>
+    </element>
+  </define>
+  <define name="channelId">
+    <element name="channelId">
+      <ref name="channel_id_contents"/>
+    </element>
+  </define>
+</grammar>

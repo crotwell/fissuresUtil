@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="base_definitions.rng"/>
+  <start combine="choice">
+    <element name="parameter">
+      <element name="name">
+        <value>edu.sc.seis.fissuresUtil.xml#EVENT</value>
+      </element>
+      <element name="type">
+        <element name="definition">
+          <text/>
+        </element>
+        <element name="name">
+          <text/>
+        </element>
+      </element>
+      <element name="value">
+        <element name="event">
+          <element name="name">
+            <text/>
+          </element>
+          <element name="region">
+            <element name="type">
+              <text/>
+            </element>
+            <element name="number">
+              <data type="integer"/>
+            </element>
+          </element>
+          <element name="preferred_origin">
+            <element name="id">
+              <data type="integer"/>
+            </element>
+            <element name="catalog">
+              <text/>
+            </element>
+            <element name="contributor">
+              <text/>
+            </element>
+            <optional>
+              <element name="origin_time">
+                <element name="date_time">
+                  <text/>
+                </element>
+                <element name="leap_seconds_version">
+                  <data type="integer"/>
+                </element>
+              </element>
+            </optional>
+            <ref name="my_location"/>
+            <zeroOrMore>
+              <element name="magnitude">
+                <element name="type">
+                  <text/>
+                </element>
+                <element name="value">
+                  <data type="decimal"/>
+                </element>
+                <element name="contributor">
+                  <text/>
+                </element>
+              </element>
+            </zeroOrMore>
+          </element>
+        </element>
+      </element>
+    </element>
+  </start>
+</grammar>

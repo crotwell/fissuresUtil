@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <element name="dataset" ns="http://www.seis.sc.edu/xschema/dataset/2.0">
+      <attribute name="schemaLocation" ns="http://www.w3.org/2001/XMLSchema-instance"/>
+      <attribute name="datasetid"/>
+      
+      <element name="name">
+        <text/>
+      </element>
+      <element name="owner">
+        <text/>
+      </element>
+      <zeroOrMore>
+        <choice>
+          <element name="datasetRef">
+            <attribute name="href" ns="http://www.w3.org/1999/xlink"/>
+            <attribute name="type" ns="http://www.w3.org/1999/xlink"/>
+            <attribute name="title" ns="http://www.w3.org/1999/xlink"/>
+          </element>
+          <externalRef href="event.rng"/>
+          <externalRef href="channel.rng"/>
+          <externalRef href="urlDataSetSeismogram.rng"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </start>
+</grammar>
