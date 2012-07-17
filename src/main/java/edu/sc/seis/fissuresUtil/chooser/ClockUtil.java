@@ -95,7 +95,7 @@ public class ClockUtil {
 
     public static TimeInterval getServerTimeOffset() throws IOException {
         HttpURLConnection conn = (HttpURLConnection)SEIS_SC_EDU_URL.openConnection();
-        conn.setReadTimeout(5000); // timeout after 5 seconds
+        conn.setReadTimeout(10000); // timeout after 10 seconds
         InputStream is = conn.getInputStream();
         InputStreamReader isReader = new InputStreamReader(is);
         BufferedReader bufferedReader = new BufferedReader(isReader);
