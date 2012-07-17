@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 import edu.iris.Fissures.model.ISOTime;
@@ -92,7 +94,9 @@ public class ClockUtil {
     }
 
     public static TimeInterval getServerTimeOffset() throws IOException {
-        InputStream is = SEIS_SC_EDU_URL.openStream();
+        HttpURLConnection conn = (HttpURLConnection)SEIS_SC_EDU_URL.openConnection();
+        conn.setReadTimeout(5000); // timeout after 5 seconds
+        InputStream is = conn.getInputStream();
         InputStreamReader isReader = new InputStreamReader(is);
         BufferedReader bufferedReader = new BufferedReader(isReader);
         String str;
