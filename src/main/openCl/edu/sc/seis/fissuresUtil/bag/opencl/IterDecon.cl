@@ -30,6 +30,7 @@ __kernel void sqr_floats(__global const float* a, __global float* out, int n)
     
     out[i] = a[i] * a[i];
 }
+
 __kernel void scalar_div(__global const float* a, float factor, __global float* out, int n) 
 {
     int i = get_global_id(0);
@@ -41,7 +42,7 @@ __kernel void scalar_div(__global const float* a, float factor, __global float* 
 
 
 /* applies a gaussian filter to the fft. Assumes n is the 1/2 the length of 
- fft, or the length of the original real array. */
+ fft, or the length of the original real array and fft data is in order of OregonDSP's fft.*/
 __kernel void gaussianFilter(__global const float* fft, __global float* out, int n, float gwidthFactor, float dt, __global float* gaussVals) 
 {
     int i = get_global_id(0);
@@ -52,19 +53,22 @@ __kernel void gaussianFilter(__global const float* fft, __global float* out, int
     float omega;
     float gauss;
     if (i == 0) {
-        gauss = 1;
+        out[0] = fft[0];
+        gaussVals[0] = 1;
+        // only worry about n/2 val and zero is mul by 1
+        omega = M_PI/dt;
+        gauss = exp(-omega*omega / (4*gwidthFactor*gwidthFactor));
+        out[n/2] = fft[n/2] * gauss;
     } else {
         omega = i*2*M_PI*df;
         gauss = exp(-omega*omega / (4*gwidthFactor*gwidthFactor));
-    }    
-    out[i*2] = fft[i*2] * gauss;
-    out[i*2+1] = fft[i*2+1] * gauss;
-      out[2*n-i*2] = fft[2*n-i*2] * gauss;
-      out[2*n-i*2+1] = fft[2*n-i*2+1] * gauss;
-    gaussVals[i] = gauss;
+        out[i] = fft[i] * gauss;
+        out[n-i] = fft[n-i] * gauss;
+        gaussVals[i] = gauss;
+    }
 }
 
-/* shortens a full complex fft to the format used in OregonDSP. Reals are in position i
+/* shortens a full complex fft to the format and sign convention used in OregonDSP. Reals are in position i
  and imaginary are in position n-i. shortLen is the length of the shortFft array, which
  should be 1/2 the length of the fft array.*/
 __kernel void shortenFFT(__global const float* fft, __global float* shortFft, int shortLen)
@@ -78,12 +82,30 @@ __kernel void shortenFFT(__global const float* fft, __global float* shortFft, in
         } else if (i % 2 == 0) { 
             shortFft[i/2] = f;   
         } else {
-            shortFft[shortLen-(i+1)/2] = f;
+            shortFft[shortLen-(i-1)/2] = -1*f;
         }
     }
-    if (i=0) {
-        
-        shortFft[shortLen/2] = fft[shortLen];
+}
+
+/*
+ 
+ */
+__kernel void lengthenFFT(__global const float* fft, __global float* longFFT, int shortLen) {
+    int i = get_global_id(0);
+    if(i < shortLen/2) {
+        float real = fft[i];
+        if (i==0) {
+            longFFT[0] = real;
+            longFFT[1] = 0;
+            longFFT[shortLen]=fft[shortLen/2];
+            longFFT[shortLen+1]=0;
+        } else {
+            float imag = fft[shortLen-i];
+            longFFT[2*i] = real;
+            longFFT[2*i+1] = -1*imag;
+            longFFT[2*shortLen-2*i]=real;
+            longFFT[2*shortLen-2*i+1]=imag;
+        }
     }
 }
 
@@ -95,11 +117,11 @@ __kernel void correlate(__global const float* afft, __global const float* bfft, 
     
     if (i == 0) {
         outfft[0] = afft[0]*bfft[0];
-        outfft[1] = afft[1]*bfft[1];
+        outfft[n/2] = afft[n/2]*bfft[n/2];
     } else {
         // swap signs due to cong of bfft
         outfft[i] = afft[i]*bfft[i] + afft[i+1]*bfft[i+1];
-        outfft[i+1] = afft[i+1]*bfft[i] - afft[i]*bfft[i+1];
+        outfft[n-i] = afft[n-i]*bfft[i] - afft[i]*bfft[n-i];
     }    
 }
 
@@ -107,20 +129,22 @@ __kernel void correlate(__global const float* afft, __global const float* bfft, 
 // important that the globalWorkSize <= max workGroupSize
 // so that final parallel reduction (2nd stage) results in
 // a single value
-__kernel void indexReduceMax(__global float* buffer,
+__kernel void indexReduceAbsMax(__global float* buffer,
                              __const int length,
                              __local float* scratch,
                              __local int* scratchIndex,
                              __global float* result,
-                             __global int* resultIndex) {
+                             __global int* resultIndex,
+                             __const int resultStorageIndex) {
     
     int global_index = get_global_id(0);
-    float accumulator = -1;
-    int accumulatorIndex = -1;
+    float element = buffer[global_index];
+    float accumulator = element;
+    int accumulatorIndex = global_index;
     // Loop sequentially over chunks of input vector
     while (global_index < length) {
-        float element = buffer[global_index];
-        if (accumulator < element) {
+        element = buffer[global_index];
+        if (fabs(accumulator) < fabs(element)) {
             accumulator = element;
             accumulatorIndex = global_index;
         }
@@ -132,13 +156,11 @@ __kernel void indexReduceMax(__global float* buffer,
     scratch[local_index] = accumulator;
     scratchIndex[local_index] = accumulatorIndex;
     barrier(CLK_LOCAL_MEM_FENCE);
-    for(int offset = get_local_size(0) / 2;
-        offset > 0;
-        offset = offset / 2) {
+    for(int offset = get_local_size(0) / 2; offset > 0; offset = offset / 2) {
         if (local_index < offset) {
             float other = scratch[local_index + offset];
             float mine = scratch[local_index];
-            if ( mine > other) {
+            if ( fabs(mine) > fabs(other)) {
                 scratch[local_index] = mine;
                 scratchIndex[local_index] = scratchIndex[local_index];
             } else {
@@ -148,9 +170,9 @@ __kernel void indexReduceMax(__global float* buffer,
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
-    if (local_index == 0) {
-        result[get_global_id(0)] = scratch[0];
-        resultIndex[get_global_id(0)] = scratchIndex[0];
+    if (get_global_id(0) == 0) {
+        result[resultStorageIndex] = scratch[0];
+        resultIndex[resultStorageIndex] = scratchIndex[0];
     }
 }
 
