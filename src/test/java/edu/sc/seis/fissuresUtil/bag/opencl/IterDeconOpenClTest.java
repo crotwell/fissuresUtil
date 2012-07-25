@@ -17,6 +17,7 @@ import com.sun.mirror.util.SimpleDeclarationVisitor;
 import edu.sc.seis.fissuresUtil.bag.IterDecon;
 import edu.sc.seis.fissuresUtil.bag.IterDeconResult;
 import edu.sc.seis.fissuresUtil.bag.opencl.IterDeconOpenCl;
+import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 import org.junit.*;
@@ -377,11 +378,58 @@ public class IterDeconOpenClTest {
         assertEquals("lag 2", 1028f/zeroLagG.getAfterWait(), corr[2], 0.00001f);
         assertEquals("lag "+lag, 1f, corr[lag], 0.00001f);
     }
+    
+    @Test
+    public void testConvolve() throws Exception {
+        int n = 1024;
+        float delta = 0.1f;
+        float[] fData = new float[n];
+        float[] gData = new float[n];
+        fData[1] = 2;
+        fData[2] = 4;
+        fData[3] = -1;
+        gData[1] = 1/delta; // should shift all values by 1 place
+        float[] convolve = Cmplx.convolve(fData, gData, delta);
+        float[] fShifted = new float[n];
+        System.arraycopy(fData, 0, fShifted, 1, fData.length-1);
+        
+
+        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
+
+        FloatArrayResult fCLBuffer = openCL.makeCLBuffer(fData);
+        FloatArrayResult gCLBuffer = openCL.makeCLBuffer(gData);
+        FloatArrayResult convolveCLBuf = openCL.convolve(fCLBuffer, gCLBuffer, delta);
+        assertArrayEquals(convolve, convolveCLBuf.getAfterWait(openCL.queue), 0.0001f);
+        assertArrayEquals(fShifted, convolveCLBuf.getAfterWait(openCL.queue), 0.0001f);
+    }
+    
+    @Test
+    public void testConvolve2() throws Exception {
+        int n = 1024;
+        float delta = 0.1f;
+        float[] fData = new float[n];
+        float[] gData = new float[n];
+        fData[1] = 2;
+        fData[2] = 4;
+        fData[3] = -1;
+        gData[1] = 5;
+        gData[7] = 12;
+        gData[9] = -1;
+        float[] convolve = Cmplx.convolve(fData, gData, delta);
+
+        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
+
+        FloatArrayResult fCLBuffer = openCL.makeCLBuffer(fData);
+        FloatArrayResult gCLBuffer = openCL.makeCLBuffer(gData);
+        FloatArrayResult convolveCLBuf = openCL.convolve(fCLBuffer, gCLBuffer, delta);
+        assertArrayEquals(convolve, convolveCLBuf.getAfterWait(openCL.queue), 0.0001f);
+    }
+    
     /**
      * Test copied from IterDecon.java. 
      * @throws Exception
      */
-    //@Test
+    @Test
     public void testESK1999_312_16_45_41_6() throws Exception {
         SacTimeSeries sac = new SacTimeSeries();
         DataInputStream in = new DataInputStream(this.getClass()
