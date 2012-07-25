@@ -52,13 +52,13 @@ public class IterDeconOpenCl {
         setUpKernels(context);
     }
 
-    public CLBuffer<Float> makeCLBuffer(float[] data) {
+    public FloatArrayResult makeCLBuffer(float[] data) {
         ByteOrder byteOrder = context.getByteOrder();
         int n = nextPowerTwo(data.length);
         Pointer<Float> dataCl = allocateFloats(n).order(byteOrder);
         dataCl.setFloats(data);
         CLBuffer<Float> dataClBuf = context.createBuffer(CLMem.Usage.Input, dataCl, true);
-        return dataClBuf;
+        return new FloatArrayResult(dataClBuf);
     }
     
     public IterDeconResult process(float[] numerator,
@@ -83,22 +83,22 @@ public class IterDeconOpenCl {
         // Now begin the cross-correlation procedure
         // Put the filter in the signals
          
-        FloatArrayResult numeratorGauss  = gaussianFilter(numeratorClBuf, gwidthFactor, dt);
-        FloatArrayResult denominatorGauss  = gaussianFilter(denominatorClBuf, gwidthFactor, dt);
+        FloatArrayResult numeratorGauss  = gaussianFilter(new FloatArrayResult(numeratorClBuf), gwidthFactor, dt);
+        FloatArrayResult denominatorGauss  = gaussianFilter(new FloatArrayResult(denominatorClBuf), gwidthFactor, dt);
 
         // compute the power in the "numerator" for error scaling
-        FloatResult powerNumerator = power(numeratorGauss.getResult(), numeratorGauss.getEventsToWaitFor());
-        FloatResult powerDemoninator = power(denominatorGauss.getResult(), denominatorGauss.getEventsToWaitFor());
+        FloatResult powerNumerator = power(numeratorGauss);
+        FloatResult powerDemoninator = power(denominatorGauss);
         float powerNumeratorFlt = powerNumerator.getAfterWait();
         float powerDemoninatorFlt = powerDemoninator.getAfterWait();
         System.out.println("Result: " +powerNumeratorFlt +"  " +powerDemoninatorFlt );
         if (powerNumeratorFlt == 0 || powerDemoninatorFlt == 0) {
             throw new ZeroPowerException("Power of numerator and denominator must be non-zero: num="+powerNumeratorFlt+" denom="+powerDemoninatorFlt);
         }
-        CLBuffer<Float> residual = numeratorGauss.getResult();
-        CLBuffer<Float> predicted = context.createBuffer(CLMem.Usage.InputOutput, Float.class, numeratorClBuf.getElementCount());
-        CLBuffer<Float> ampsClBuf = context.createBuffer(CLMem.Usage.InputOutput, Float.class, maxBumps);
-        CLBuffer<Integer> shiftsClBuf = context.createBuffer(CLMem.Usage.InputOutput, Integer.class, maxBumps);
+        FloatArrayResult residual = numeratorGauss;
+        FloatArrayResult predicted;
+        FloatArrayResult ampsClBuf = new FloatArrayResult(context.createBuffer(CLMem.Usage.InputOutput, Float.class, maxBumps));
+        IntArrayResult shiftsClBuf = new IntArrayResult(context.createBuffer(CLMem.Usage.InputOutput, Integer.class, maxBumps));
         
         float[] f,g;
         float[][] corrSave = new float[maxBumps][];
@@ -107,19 +107,17 @@ public class IterDeconOpenCl {
         for ( bump=0; bump < maxBumps && improvement > tol ; bump++) {
 
             // correlate the signals
-            FloatArrayResult correlateNormResult = correlateNorm(residual, denominatorGauss.getResult());
+            FloatArrayResult correlateNormResult = correlateNorm(residual, denominatorGauss);
 
             //  find the peak in the correlation
             if (useAbsVal) {
-                CLEvent maxSpikeEvent = calcMaxSpike(correlateNormResult.getResult(), ampsClBuf, shiftsClBuf, bump, correlateNormResult.getEventsToWaitFor());
-  //              shifts.set(bump, maxValueIndex.get());
- //               amps.set(bump, maxValue.get()/dt); // why normalize by dt here?
+                CLEvent maxSpikeEvent = calcMaxSpike(correlateNormResult, ampsClBuf, shiftsClBuf, bump);
             } else {
                 throw new RuntimeException("only useAbsValue supported now");
                 //shifts[bump] = getMaxIndex(corr);
             } // end of else
 
-//            predicted = buildDecon(amps, shifts, g.length, gwidthFactor, dt);
+            predicted = buildDecon(ampsClBuf, shiftsClBuf, bump, n, gwidthFactor, dt);
             float[] predConvolve;
             if (useNativeFFT) {
                 throw new RuntimeException("NativeFFT not implemented");
@@ -156,11 +154,6 @@ public class IterDeconOpenCl {
  */
         return null;
     }
-    
-    private float[] buildSpikes(Pointer<Float> amps, Pointer<Integer> shifts, int length) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     void setUpKernels(CLContext context) throws IOException {
         System.getProperties().setProperty("javacl.debug", "true");
@@ -178,67 +171,62 @@ public class IterDeconOpenCl {
         complex_to_floats = program.createKernel("complex_to_floats");
         shortenFFT  = program.createKernel("shortenFFT");
         lengthenFFT  = program.createKernel("lengthenFFT");
+        buildSpikes  = program.createKernel("buildSpikes");
+        subtract_floats  = program.createKernel("subtract_floats");
     }
 
-    protected FloatArrayResult correlateNorm(CLBuffer<Float> residual, CLBuffer<Float> denominatorGaussClBuf, CLEvent... eventsToWaitFor) {
-        int size = (int)residual.getElementCount();
-        FloatResult zeroLag = power(denominatorGaussClBuf, eventsToWaitFor);
+    protected FloatArrayResult correlateNorm(FloatArrayResult residual, FloatArrayResult denominatorGaussClBuf) {
+        int size = (int)residual.getSize();
+        FloatResult zeroLag = power(denominatorGaussClBuf);
         
-        FloatArrayResult residualFFT = forwardFFT(residual, eventsToWaitFor);
-        FloatArrayResult denomFFT = forwardFFT(denominatorGaussClBuf, eventsToWaitFor);
+        FloatArrayResult residualFFT = forwardFFT(residual);
+        FloatArrayResult denomFFT = forwardFFT(denominatorGaussClBuf);
         
-        CLBuffer<Float> correlationFFT = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
-        correlateKernel.setArgs(residualFFT.getResult(), denomFFT.getResult(), correlationFFT, new int[] {(int)size});
+        CLBuffer<Float> correlationFFTBuf = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
+        correlateKernel.setArgs(residualFFT.getResult(), denomFFT.getResult(), correlationFFTBuf, new int[] {(int)size});
         
-        CLEvent correlateEvent = correlateKernel.enqueueNDRange(queue, new int[] {(int)size}, CLEventResult.combineEvents(residualFFT.getEventsToWaitFor(), denomFFT.getEventsToWaitFor()));
-        
-        FloatArrayResult outFFT = inverseFFT(correlationFFT, correlateEvent);
-        
-        CLBuffer<Float> clBufReal = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
-        complex_to_floats.setArgs(outFFT.getResult(), clBufReal, size);
-        CLEvent cmplxToRealEvent = complex_to_floats.enqueueNDRange(queue, new int[] {size}, outFFT.getEventsToWaitFor());
-        
+        CLEvent correlateEvent = correlateKernel.enqueueNDRange(queue, new int[] {(int)size/2}, CLEventResult.combineEvents(residualFFT.getEventsToWaitFor(), denomFFT.getEventsToWaitFor()));
+        FloatArrayResult correlationFFT = new FloatArrayResult(correlationFFTBuf, correlateEvent);
+        FloatArrayResult outFFT = inverseFFT(correlationFFT);
+
         CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
-        scalarDiv.setArgs(clBufReal, zeroLag.getAfterWait(), clBufOut, size);
-        CLEvent normEvent = scalarDiv.enqueueNDRange(queue, new int[] {(int)clBufOut.getElementCount()}, CLEventResult.combineEvents(zeroLag.getEventsToWaitFor(), cmplxToRealEvent));
-        
+        scalarDiv.setArgs(outFFT.getResult(), zeroLag.getAfterWait(), clBufOut, size);
+        CLEvent normEvent = scalarDiv.enqueueNDRange(queue, new int[] {(int)clBufOut.getElementCount()}, CLEventResult.combineEvents(zeroLag.getEventsToWaitFor(), outFFT.getEventsToWaitFor()));
         return new FloatArrayResult(clBufOut, normEvent);
+        
     }
 
-    static float[] buildSpikes(float[] amps, int[] shifts, int n) {
-        float[] p = new float[n];
-        for (int i=0; i<amps.length; i++) {
-            p[shifts[i]] += amps[i];
-        } // end of for (int i=0; i<amps.length; i++)
-        return p;
+    public FloatArrayResult buildSpikes(FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, int n, CLEvent... eventsToWaitFor) {
+        CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
+        buildSpikes.setArgs(ampsClBuf, shiftsClBuf, clBufOut, n);
+        CLEvent buildSpikesEvent = buildSpikes.enqueueNDRange(queue, new int[] {(int)clBufOut.getElementCount()}, eventsToWaitFor);
+        return new FloatArrayResult(clBufOut, buildSpikesEvent);
     }
 
-    static float[] buildDecon(float[] amps, int[] shifts, int n, float gwidthFactor, float dt) {
-        //return gaussianFilter(buildSpikes(amps, shifts, n), gwidthFactor, dt);
-        return amps;
+    public FloatArrayResult buildDecon(FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, int n, float gwidthFactor, float dt, CLEvent... eventsToWaitFor) {
+        return gaussianFilter(buildSpikes(ampsClBuf, shiftsClBuf, bump, n, eventsToWaitFor), gwidthFactor, dt);
     }
 
     /** returns the residual, ie x-y */
-    public static float[] getResidual(float[] x, float[] y) {
-        float[] r = new float[x.length];
-        for (int i=0; i<x.length; i++) {
-            r[i] = x[i]-y[i];
-        } // end of for (int i=0; i<x.length; i++)
-        return r;
+    public FloatArrayResult getResidual(FloatArrayResult x, FloatArrayResult y) {
+        CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, x.getSize());
+        subtract_floats.setArgs(x, y, clBufOut, x.getSize());
+        CLEvent subtractEvent = subtract_floats.enqueueNDRange(queue, new int[] {(int)x.getSize()}, CLEventResult.combineEvents(x.getEventsToWaitFor(),  y.getEventsToWaitFor()));
+        return new FloatArrayResult(clBufOut, subtractEvent);
     }
 
-    public CLEvent calcMaxSpike(CLBuffer<Float> corrClBuf, CLBuffer<Float> ampsClBuf, CLBuffer<Integer> shiftsClBuf, int bump, CLEvent... waitForEvent) {
+    public CLEvent calcMaxSpike(FloatArrayResult corrClBuf, FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, CLEvent... waitForEvent) {
         int workGroupSize = (int)Math.min(128, indexReduceAbsMax.getWorkGroupSize().get(queue.getDevice()).intValue());
         int globalWorkSize = (int)Math.min(queue.getDevice().getMaxComputeUnits()*4, workGroupSize);
         LocalSize sharedMemSize = LocalSize.ofFloatArray(globalWorkSize/workGroupSize);
         LocalSize sharedMemIndexSize = LocalSize.ofIntArray(globalWorkSize/workGroupSize);
         // first iteration gets us down to globalWorkSize elements
-        indexReduceAbsMax.setArgs(corrClBuf,
-                               (int)corrClBuf.getElementCount()/2, // only do first half to avoid neg lag
+        indexReduceAbsMax.setArgs(corrClBuf.getResult(),
+                               (int)corrClBuf.getSize()/2, // only do first half to avoid neg lag
                                sharedMemSize,
                                sharedMemIndexSize,
-                               ampsClBuf,
-                               shiftsClBuf,
+                               ampsClBuf.getResult(),
+                               shiftsClBuf.getResult(),
                                bump);
         CLEvent maxBumpEvent = indexReduceAbsMax.enqueueNDRange(queue, new int[] {globalWorkSize}, new int[] {workGroupSize}, waitForEvent);
         return maxBumpEvent;
@@ -274,11 +262,11 @@ public class IterDeconOpenCl {
     }
 
 
-    public final FloatResult power(CLBuffer<Float> clBuf, CLEvent... eventsToWaitFor) {
-        int n = (int)clBuf.getElementCount();
+    public final FloatResult power(FloatArrayResult clBuf, CLEvent... eventsToWaitFor) {
+        int n = (int)clBuf.getSize();
         Pointer<Float> result = allocateFloats(1).order(context.getByteOrder());
         CLBuffer<Float> clBufTmp = context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
-        sqrFloatsKernel.setArgs(clBuf, clBufTmp, n);
+        sqrFloatsKernel.setArgs(clBuf.getResult(), clBufTmp, n);
         CLEvent numSqrEvent = sqrFloatsKernel.enqueueNDRange(queue, new int[] {n}, eventsToWaitFor);
         ReductionUtils.Reductor<Float> reductor = ReductionUtils.createReductor(context, 
                                                                                 ReductionUtils.Operation.Add, 
@@ -296,25 +284,15 @@ public class IterDeconOpenCl {
      *
      * If gwidthFactor is zero, does not filter.
      */
-    public FloatArrayResult gaussianFilter(CLBuffer<Float>  x,
+    public FloatArrayResult gaussianFilter(FloatArrayResult  x,
                                            float gwidthFactor,
                                            float dt) {
-        return gaussianFilter(x, gwidthFactor, dt, context.createBuffer(CLMem.Usage.InputOutput, Float.class, (int)x.getElementCount()));
-    }
-
-    public FloatArrayResult gaussianFilter(CLBuffer<Float>  x,
-                                   float gwidthFactor,
-                                   float dt, 
-                                   CLBuffer<Float> gaussVals) {
-        int realSize = (int)x.getElementCount();
+        int realSize = (int)x.getSize();
         FloatArrayResult forwardFFT = forwardFFT(x);
         CLBuffer<Float> clBufTmp = context.createBuffer(CLMem.Usage.InputOutput, Float.class, realSize);
-        gaussianFilterKernel.setArgs(forwardFFT.getResult(), clBufTmp, realSize, gwidthFactor, dt, gaussVals);
-        System.out.println("Before enqueue");
+        gaussianFilterKernel.setArgs(forwardFFT.getResult(), clBufTmp, realSize, gwidthFactor, dt);
         CLEvent gaussianFilterEvent = gaussianFilterKernel.enqueueNDRange(queue, new int[] {realSize/2}, forwardFFT.eventsToWaitFor);
-        //CLEvent.waitFor(gaussianFilterEvent);
-        System.out.println("Before enqueue inverse fft "+clBufTmp.getElementCount());
-        return inverseFFT(clBufTmp, gaussianFilterEvent);
+        return inverseFFT(new FloatArrayResult(clBufTmp, gaussianFilterEvent));
     }
     
     /** Converts the full complex 2*n FFT into the length n format as used by OregonDSP. This makes it
@@ -341,22 +319,26 @@ public class IterDeconOpenCl {
         return lengthenFFTResult;
     }
     
-    protected FloatArrayResult phaseShift(CLBuffer<Float> x, float shift, float dt, CLEvent... eventsToWaitFor) {
-        int size = (int)x.getElementCount();
+    protected FloatArrayResult phaseShift(FloatArrayResult x, float shift, float dt) {
+        int size = (int)x.getSize();
         
-        FloatArrayResult xFFT = forwardFFT(x, eventsToWaitFor);
+        FloatArrayResult xFFT = forwardFFT(x);
         
         CLBuffer<Float> shiftFFT = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
         phaseShift.setArgs(xFFT.getResult(), size, shiftFFT, shift, dt);
         
         CLEvent phaseShiftEvent = phaseShift.enqueueNDRange(queue, new int[] {(int)size}, xFFT.getEventsToWaitFor());
         
-        FloatArrayResult outFFT = inverseFFT(shiftFFT, phaseShiftEvent);
+        FloatArrayResult outFFT = inverseFFT(new FloatArrayResult(shiftFFT, phaseShiftEvent));
         
         CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
         complex_to_floats.setArgs(outFFT.result, clBufOut, size);
         CLEvent cmplxToFloatEvent = complex_to_floats.enqueueNDRange(queue, new int[] {size}, outFFT.getEventsToWaitFor());
         return new FloatArrayResult(clBufOut, cmplxToFloatEvent);
+    }
+
+    public FloatArrayResult forwardFFT(FloatArrayResult x) {
+        return forwardFFT(x.getResult(), x.getEventsToWaitFor());
     }
     
     /** forward FFT with the result in the format returned by OregonDSP's fft. */
@@ -371,11 +353,11 @@ public class IterDeconOpenCl {
     }
     
     /** inverse FFT with the input in the format of OregonDSP's fft. */
-    public FloatArrayResult inverseFFT(CLBuffer<Float> xFFT, CLEvent... eventsToWaitFor) {
-        int size = (int)xFFT.getElementCount();
-        FloatArrayResult longFFT = lengthenFFT(xFFT, eventsToWaitFor);
+    public FloatArrayResult inverseFFT(FloatArrayResult xFFT) {
+        int size = (int)xFFT.getSize();
+        FloatArrayResult longFFT = lengthenFFT(xFFT.getResult(), xFFT.getEventsToWaitFor());
         CLBuffer<Float> clBufRealComplex = context.createBuffer(CLMem.Usage.InputOutput, Float.class, 2*size);
-        System.out.println("before inverseFFT ");
+        System.out.println("before inverseFFT "+size+" to "+2*size);
         CLEvent fftEvent = fft.transform(queue, longFFT.getResult(), clBufRealComplex, true, longFFT.getEventsToWaitFor());
         
         CLBuffer<Float> clBufReal = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
@@ -408,8 +390,10 @@ public class IterDeconOpenCl {
     protected CLKernel complex_to_floats;
     protected CLKernel gaussianFilterKernel;
     protected CLKernel correlateKernel;
+    protected CLKernel buildSpikes;
     protected CLKernel indexReduceAbsMax;
     protected CLKernel phaseShift;
+    protected CLKernel subtract_floats;
     protected CLKernel shortenFFT;
     protected CLKernel lengthenFFT;
     FloatFFTPow2 fft;
@@ -434,12 +418,11 @@ public class IterDeconOpenCl {
         inData[0] = 1;
         
         System.out.println("After init opencl");
-        CLBuffer<Float> inCLBuffer = iterDecon.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = iterDecon.makeCLBuffer(inData);
         System.out.println("before fft ");
         FloatArrayResult forwardFFT = iterDecon.forwardFFT(inCLBuffer);
-        float[] forwardFlts = forwardFFT.getAfterWait(iterDecon.queue);
         
-        FloatArrayResult inverse = iterDecon.inverseFFT(forwardFFT.getResult(), forwardFFT.getEventsToWaitFor());
+        FloatArrayResult inverse = iterDecon.inverseFFT(forwardFFT);
         System.out.println("before read "+forwardFFT.getEventsToWaitFor()[0].getCommandExecutionStatus()+"  "+inverse.getEventsToWaitFor()[0].getCommandExecutionStatus());
         System.out.print("Inverse events: ");
         for (int i = 0; i < inverse.getEventsToWaitFor().length; i++) {

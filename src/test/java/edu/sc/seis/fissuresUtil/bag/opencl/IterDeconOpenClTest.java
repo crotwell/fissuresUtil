@@ -31,31 +31,16 @@ public class IterDeconOpenClTest {
     }
     
     @Test
-    public void testFFT() throws Exception {
-        int n = 1024;
-        float dt = 0.1f;
-        int indexA = 4;
-        int indexB = 6;
-        int indexC = 154;
-        float[] inData = new float[n];
-        inData[indexA] = 23;
-        inData[indexB] = -10;
-        inData[indexC] = 14;
-        float[][] outData = computeFFT(inData);
-        assertArrayEquals(outData[0], outData[1], 0.001f);
-    }
-    
-    @Test
     public void testForwardFFT() throws Exception {
         int n = 1024;
         float delta = 0.05f;
         float[] inData = new float[n];
         inData[100] = 1 / delta; // mimic input to sac for testing gaussian filter
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         CLBuffer<Float> gaussVals = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
         System.out.println("before gaussian");
-        FloatArrayResult out = openCL.forwardFFT(inCLBuffer, new CLEvent[0]);
+        FloatArrayResult out = openCL.forwardFFT(inCLBuffer);
         float[] outData = out.getAfterWait(openCL.queue);
         
         float[] iterDeconFFT = IterDecon.forwardFFT(inData);
@@ -71,63 +56,17 @@ public class IterDeconOpenClTest {
         float[] inData = new float[n];
         inData[100] = 1 / delta; // mimic input to sac for testing gaussian filter
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
-        CLBuffer<Float> gaussVals = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         System.out.println("before gaussian");
-        FloatArrayResult out = openCL.forwardFFT(inCLBuffer, new CLEvent[0]);
+        FloatArrayResult out = openCL.forwardFFT(inCLBuffer);
         float[] outData = out.getAfterWait(openCL.queue);
-        FloatArrayResult openClInverseFFT = openCL.inverseFFT(out.getResult(), out.getEventsToWaitFor());
+        FloatArrayResult openClInverseFFT = openCL.inverseFFT(out);
         float[] openclInverseFFTData = openClInverseFFT.getAfterWait(openCL.queue);
         
         float[] iterDeconFFT = IterDecon.inverseFFT(outData);
         
         assertArrayEquals("inverse fft", iterDeconFFT, openclInverseFFTData, 0.001f);
     }
-    
-    public float[][] computeFFT(float[] inData) throws Exception {
-    int n = inData.length;
-        float[] inDataCmplx = new float[2*n];
-        for (int i = 0; i < inData.length; i++) {
-            inDataCmplx[2*i] = inData[i];
-            inDataCmplx[2*i+1] = 0;
-        }
-        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inDataCmplx);
-        CLBuffer<Float> outClBuffer = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, inDataCmplx.length);
-
-        CLEvent fftEvent = openCL.fft.transform(openCL.queue, inCLBuffer, outClBuffer, false);
-        
-        // shorten to oregonDSP order in opencl
-        CLBuffer<Float> shortenFFTVals = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
-        openCL.shortenFFT.setArgs(outClBuffer, shortenFFTVals, n);
-        CLEvent shortenFFTEvent = openCL.shortenFFT.enqueueNDRange(openCL.queue, new int[] {n}, fftEvent);
-        FloatArrayResult shortenFFTResult = new FloatArrayResult(shortenFFTVals, shortenFFTEvent);
-        float[] oregonDSPOrder = shortenFFTResult.getAfterWait(openCL.queue);
-        
-        // shorten to oregonDSP order in java
-        //Pointer<Float> outPtr = outClBuffer.read(openCL.queue, fftEvent); // blocks until  finished
-        //float[] oregonDSPOrder = new float[n];
-        // real
-        //for (int i = 0; i < oregonDSPOrder.length/2; i++) {
-        //    oregonDSPOrder[i] = outPtr.get(2*i);
-        //}
-        //nyquist
-        //oregonDSPOrder[oregonDSPOrder.length/2] = outPtr.get(inDataCmplx.length/2);
-        // imaginary
-        //for (int i = 1; i < oregonDSPOrder.length/2; i++) {
-        //    oregonDSPOrder[oregonDSPOrder.length-i] = -1*outPtr.get(2*i+1);
-        //}
-        
-        IterDecon iterDecon  = new IterDecon(1, true, 1, 1);
-        IterDecon.useOregonDSPFFT = true;
-        float[] forward = IterDecon.forwardFFT(inData);
-        
-        // Print the first 10 output values :
-       // for (int i = 0; i < 10 && i < n && i < outClBuffer.getElementCount(); i++)
-       //     System.out.println("fft out[" + i + "] = " + oregonDSPOrder[i]+"   "+forward[i]+"        "+outPtr.get(i));
-        return new float[][] { forward, oregonDSPOrder };
-    }
-    
 
     @Test
     public void testRoundTripFFT() throws IOException {
@@ -139,11 +78,11 @@ public class IterDeconOpenClTest {
         inData[100] = 1;
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
         System.out.println("After init opencl");
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         System.out.println("before fft ");
         FloatArrayResult forwardFFT = openCL.forwardFFT(inCLBuffer);
         
-        FloatArrayResult inverse = openCL.inverseFFT(forwardFFT.getResult(), forwardFFT.getEventsToWaitFor());
+        FloatArrayResult inverse = openCL.inverseFFT(forwardFFT);
         System.out.println("before read "+forwardFFT.getEventsToWaitFor()[0].getCommandExecutionStatus()+"  "+inverse.getEventsToWaitFor()[0].getCommandExecutionStatus());
         System.out.print("Inverse events: ");
         for (int i = 0; i < inverse.getEventsToWaitFor().length; i++) {
@@ -242,17 +181,6 @@ public class IterDeconOpenClTest {
     }
     
     @Test
-    public void testGaussianDataFFT() throws Exception {
-        int n = 16;
-        float gwidth = 2.5f;
-        float dt = 0.1f;
-        float[] inData = new float[n];
-        inData[0] = 1;
-        float[][] outData = computeFFT(inData);
-        assertArrayEquals(outData[0], outData[1], 0.001f);
-    }
-    
-    @Test
     public void testGaussian() throws IOException {
         int n = 16;
         float gwidth = 2.5f;
@@ -260,30 +188,16 @@ public class IterDeconOpenClTest {
         float[] inData = new float[n];
         inData[0] = 1;
         
-        System.out.println("testGaussian length="+n);
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        System.out.println("After init opencl");
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
-        CLBuffer<Float> gaussVals = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
 
-        System.out.println("before gaussian filter");
-        FloatArrayResult gauss = openCL.gaussianFilter(inCLBuffer, gwidth, dt, gaussVals);
-        System.out.println("before read");
+        FloatArrayResult gauss = openCL.gaussianFilter(inCLBuffer, gwidth, dt);
         float[] gaussFlts = gauss.getAfterWait(openCL.queue);
-        float[] gaussValsFlts = gaussVals.read(openCL.queue, gauss.getEventsToWaitFor()).getFloats();
         
         float[] nativeGaussVals = new float[n];
         IterDecon iterDecon  = new IterDecon(1, true, 1, 1);
         IterDecon.useOregonDSPFFT = true;
         float[] gaussCPU = IterDecon.gaussianFilter(inData, gwidth, dt, nativeGaussVals);
-        assertEquals("gauss val length", nativeGaussVals.length, gaussValsFlts.length);
-     // Print the first 10 output values :
-        for (int i = 0; i < n && i < gaussValsFlts.length && i < gaussValsFlts.length; i++)
-            System.out.println("gaussValsFlts[" + i + "] = " + gaussValsFlts[i]+"   "+nativeGaussVals[i]);
-     // Print the first 10 output values :
-        for (int i = 0; i < 10 && i < gaussCPU.length && i < gaussFlts.length; i++)
-            System.out.println("out[" + i + "] = " + gaussFlts[i]+"   "+gaussCPU[i]+"  ratio " + gaussFlts[i]/gaussCPU[i]);
-        assertArrayEquals("gauss mul factor", nativeGaussVals, gaussValsFlts, 0.001f);
         assertArrayEquals("gaussian filter result", gaussCPU, gaussFlts, 0.001f);
     }
     
@@ -309,9 +223,9 @@ public class IterDeconOpenClTest {
         assertEquals("fake data len", n*2, inData.length);
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
         System.out.println("After init opencl");
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         CLBuffer<Float> shortenFFTVals = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
-        openCL.shortenFFT.setArgs(inCLBuffer, shortenFFTVals, n);
+        openCL.shortenFFT.setArgs(inCLBuffer.getResult(), shortenFFTVals, n);
         CLEvent shortenFFTEvent = openCL.shortenFFT.enqueueNDRange(openCL.queue, new int[] {n});
         FloatArrayResult shortenFFTResult = new FloatArrayResult(shortenFFTVals, shortenFFTEvent);
         float[] outData = shortenFFTResult.getAfterWait(openCL.queue);
@@ -340,9 +254,9 @@ public class IterDeconOpenClTest {
         assertEquals("fake data len", n*2, inData.length);
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
         System.out.println("After init opencl");
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         
-        FloatArrayResult shortData = openCL.shortenFFT(inCLBuffer);
+        FloatArrayResult shortData = openCL.shortenFFT(inCLBuffer.getResult());
         assertEquals("shorten len", n, shortData.getAfterWait(openCL.queue).length);
         System.out.println("test lengthen n="+n+"  short="+shortData.getAfterWait(openCL.queue).length);
         CLBuffer<Float> shortCLBuffer = shortData.getResult();
@@ -385,10 +299,9 @@ public class IterDeconOpenClTest {
         float[] data = new float[npts];
         data[100] = 1 / delta;
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(data);
-        CLBuffer<Float> gaussVals = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, npts);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(data);
         System.out.println("before gaussian");
-        FloatArrayResult out = openCL.gaussianFilter(inCLBuffer, 2.5f, delta, gaussVals);
+        FloatArrayResult out = openCL.gaussianFilter(inCLBuffer, 2.5f, delta);
         float[] outData = out.getAfterWait(openCL.queue);
         assertArrayEquals("gaussian filter", sacData, outData, 0.001f);
     }
@@ -401,7 +314,7 @@ public class IterDeconOpenClTest {
             inData[i] = i+1;// because of base zero
         }
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         FloatResult result = openCL.power(inCLBuffer, new CLEvent[0]);
         assertEquals("sum 1*1 to "+n+"*"+n, n*(n+1)*(2*n+1)/6, result.getAfterWait(), 0.001f);
     }
@@ -415,18 +328,13 @@ public class IterDeconOpenClTest {
             inData[i] = i+1;
         }
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
-        CLBuffer<Float> inCLBuffer = openCL.makeCLBuffer(inData);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(inData);
         
-        CLBuffer<Integer> indexCLBuffer = openCL.context.createBuffer(CLMem.Usage.InputOutput, Integer.class, n);
-        CLBuffer<Float> ampsCLBuffer = openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
-        CLEvent resultEvent = openCL.calcMaxSpike(inCLBuffer, ampsCLBuffer, indexCLBuffer, bump, new CLEvent[0]);
-        IntArrayResult indexResult = new IntArrayResult(indexCLBuffer, resultEvent);
-        FloatArrayResult ampsResult = new FloatArrayResult(ampsCLBuffer, resultEvent);
+        IntArrayResult indexResult = new IntArrayResult(openCL.context.createBuffer(CLMem.Usage.InputOutput, Integer.class, n));
+        FloatArrayResult ampsResult = new FloatArrayResult(openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n));
+        CLEvent resultEvent = openCL.calcMaxSpike(inCLBuffer, ampsResult, indexResult, bump, new CLEvent[0]);
         float[] amps = ampsResult.getAfterWait(openCL.queue);
         int[] index = indexResult.getAfterWait(openCL.queue);
-        for (int i = 0; i < amps.length; i++) {
-            System.out.println("amps at "+index[i]+" "+amps[i]);
-        }
         assertEquals("max bump of "+bump, n/2, amps[bump], 0.001f);
         assertEquals("max bump index of "+bump, n/2-1, index[bump]);
     }
@@ -435,20 +343,39 @@ public class IterDeconOpenClTest {
     public void testCorrelationNorm() throws Exception {
         int n = 1024;
         float[] fData = new float[n];
-        fData[2] = 2;
         float[] gData = new float[n];
-        gData[1] = 2;
+        for (int i = 0; i < gData.length; i++) {
+            fData[i] = 1;
+            gData[i] = 1;
+        }
+        int lag = 6;
+        gData[1] = 2;  fData[lag+1] = gData[1];
+        gData[2] = 4;  fData[lag+2] = gData[2];
+        gData[3] = -1;  fData[lag+3] = gData[3];
+        
         IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
 
-        CLBuffer<Float> fCLBuffer = openCL.makeCLBuffer(fData);
-        CLBuffer<Float> gCLBuffer = openCL.makeCLBuffer(gData);
+        FloatArrayResult fCLBuffer = openCL.makeCLBuffer(fData);
+        FloatArrayResult gCLBuffer = openCL.makeCLBuffer(gData);
+        FloatResult zeroLagF = openCL.power(fCLBuffer);
+        FloatResult zeroLagG = openCL.power(gCLBuffer);
+        System.out.println("zero lag F: "+zeroLagF.getAfterWait()+"  G: "+zeroLagG.getAfterWait());
         
         FloatArrayResult corrResult = openCL.correlateNorm(fCLBuffer, gCLBuffer);
         float[] corr = corrResult.getAfterWait(openCL.queue);
-        assertEquals("lag 0", 0f, corr[0], 0.00001f);
-        assertEquals("lag 1", 1f, corr[1], 0.00001f);
-        assertEquals("lag 2", 0f, corr[2], 0.00001f);
-        assertEquals("lag 3", 0f, corr[3], 0.00001f);
+        float zlg = zeroLagG.getAfterWait();
+        for (int i = 0; i < corr.length && i < 10; i++) {
+            System.out.println("ocl corr "+i+" "+corr[i]+" "+corr[i]*zlg);
+        }
+        System.out.println();
+        for (int i = corr.length-10; i < corr.length; i++) {
+            System.out.println("ocl corr "+i+" "+corr[i]+" "+corr[i]*zlg);
+        }
+        assertEquals("corr length", n, corr.length);
+        assertEquals("lag 0", 1028f/zeroLagG.getAfterWait(), corr[0], 0.00001f);
+        assertEquals("lag 1", 1028f/zeroLagG.getAfterWait(), corr[1], 0.00001f);
+        assertEquals("lag 2", 1028f/zeroLagG.getAfterWait(), corr[2], 0.00001f);
+        assertEquals("lag "+lag, 1f, corr[lag], 0.00001f);
     }
     /**
      * Test copied from IterDecon.java. 

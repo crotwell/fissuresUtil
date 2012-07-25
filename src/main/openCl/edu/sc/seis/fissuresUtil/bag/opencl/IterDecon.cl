@@ -22,6 +22,15 @@ __kernel void complex_to_floats(__global const float* a, __global float* out, in
 }
 
 
+__kernel void subtract_floats(__global const float* a, __global const float* b, __global float* out, int n) 
+{
+    int i = get_global_id(0);
+    if (i >= n)
+        return;
+    
+    out[i] = a[i] - b[i];
+}
+
 __kernel void sqr_floats(__global const float* a, __global float* out, int n) 
 {
     int i = get_global_id(0);
@@ -30,6 +39,7 @@ __kernel void sqr_floats(__global const float* a, __global float* out, int n)
     
     out[i] = a[i] * a[i];
 }
+
 
 __kernel void scalar_div(__global const float* a, float factor, __global float* out, int n) 
 {
@@ -43,7 +53,7 @@ __kernel void scalar_div(__global const float* a, float factor, __global float* 
 
 /* applies a gaussian filter to the fft. Assumes n is the 1/2 the length of 
  fft, or the length of the original real array and fft data is in order of OregonDSP's fft.*/
-__kernel void gaussianFilter(__global const float* fft, __global float* out, int n, float gwidthFactor, float dt, __global float* gaussVals) 
+__kernel void gaussianFilter(__global const float* fft, __global float* out, int n, float gwidthFactor, float dt) 
 {
     int i = get_global_id(0);
     if (2*i >= n)
@@ -54,7 +64,6 @@ __kernel void gaussianFilter(__global const float* fft, __global float* out, int
     float gauss;
     if (i == 0) {
         out[0] = fft[0];
-        gaussVals[0] = 1;
         // only worry about n/2 val and zero is mul by 1
         omega = M_PI/dt;
         gauss = exp(-omega*omega / (4*gwidthFactor*gwidthFactor));
@@ -64,7 +73,6 @@ __kernel void gaussianFilter(__global const float* fft, __global float* out, int
         gauss = exp(-omega*omega / (4*gwidthFactor*gwidthFactor));
         out[i] = fft[i] * gauss;
         out[n-i] = fft[n-i] * gauss;
-        gaussVals[i] = gauss;
     }
 }
 
@@ -112,7 +120,7 @@ __kernel void lengthenFFT(__global const float* fft, __global float* longFFT, in
 __kernel void correlate(__global const float* afft, __global const float* bfft, __global float* outfft, int n) 
 {
     int i = get_global_id(0);
-    if (i >= n/2)
+    if (i >= n/2) 
         return;
     
     if (i == 0) {
@@ -120,7 +128,7 @@ __kernel void correlate(__global const float* afft, __global const float* bfft, 
         outfft[n/2] = afft[n/2]*bfft[n/2];
     } else {
         // swap signs due to cong of bfft
-        outfft[i] = afft[i]*bfft[i] + afft[i+1]*bfft[i+1];
+        outfft[i] = afft[i]*bfft[i] + afft[n-i]*bfft[n-i];
         outfft[n-i] = afft[n-i]*bfft[i] - afft[i]*bfft[n-i];
     }    
 }

@@ -16,6 +16,10 @@ public class FloatArrayResult extends CLEventResult {
     public CLBuffer<Float> getResult() {
         return result;
     }
+    
+    public long getSize() {
+        return result.getElementCount();
+    }
 
     public float[] getAfterWait(CLQueue queue) {
         Pointer<Float> outPtr =  result.read(queue, getEventsToWaitFor());
