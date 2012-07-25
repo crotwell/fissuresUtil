@@ -381,6 +381,22 @@ public class IterDeconTest {
         assertEquals("lag 2", 1028f/zlg, corr[2], 0.00001f);
         assertEquals("lag "+lag, 1f, corr[lag], 0.00001f);
     }
+    
+    @Test
+    public void testConvolve() throws Exception {
+        int n = 1024;
+        float delta = 0.1f;
+        float[] fData = new float[n];
+        float[] gData = new float[n];
+        fData[1] = 2;
+        fData[2] = 4;
+        fData[3] = -1;
+        gData[1] = 1/delta; // should shift all values by 1 place
+        float[] convolve = Cmplx.convolve(fData, gData, delta);
+        float[] fShifted = new float[n];
+        System.arraycopy(fData, 0, fShifted, 1, fData.length-1);
+        assertArrayEquals(fShifted, convolve, 0.0001f);
+    }
 
     @Test
     public void testIterDeconIdentity() throws Exception {
