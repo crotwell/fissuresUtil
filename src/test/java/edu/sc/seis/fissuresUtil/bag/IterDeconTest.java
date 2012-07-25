@@ -350,6 +350,37 @@ public class IterDeconTest {
         assertEquals("lag 2", 0f, corr[2], 0.00001f);
         assertEquals("lag 3", 0f, corr[3], 0.00001f);
     }
+    
+
+
+    @Test
+    public void testCorrelationNormTwo() throws Exception {
+        int n = 1024;
+        float[] fData = new float[n];
+        float[] gData = new float[n];
+        for (int i = 0; i < gData.length; i++) {
+            fData[i] = 1;
+            gData[i] = 1;
+        }
+        int lag = 6;
+        gData[1] = 2;  fData[lag+1] = gData[1];
+        gData[2] = 4;  fData[lag+2] = gData[2];
+        gData[3] = -1;  fData[lag+3] = gData[3];
+
+        float[] corr = IterDecon.correlateNorm(fData, gData);
+        for (int i = 0; i < corr.length && i < 10; i++) {
+            System.out.println(" cpu corr "+i+" "+corr[i]);
+        }
+        System.out.println();
+        for (int i = corr.length-10; i < corr.length; i++) {
+            System.out.println("cpu corr "+i+" "+corr[i]);
+        }
+        float zlg = 1042;
+        assertEquals("lag 0", 1028f/zlg, corr[0], 0.00001f);
+        assertEquals("lag 1", 1028f/zlg, corr[1], 0.00001f);
+        assertEquals("lag 2", 1028f/zlg, corr[2], 0.00001f);
+        assertEquals("lag "+lag, 1f, corr[lag], 0.00001f);
+    }
 
     @Test
     public void testIterDeconIdentity() throws Exception {
