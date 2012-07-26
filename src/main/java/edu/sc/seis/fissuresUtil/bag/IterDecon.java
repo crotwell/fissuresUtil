@@ -128,7 +128,7 @@ public class IterDecon {
         return corr;
     }
 
-    static float[] buildSpikes(float[] amps, int[] shifts, int n) {
+    public static float[] buildSpikes(float[] amps, int[] shifts, int n) {
         float[] p = new float[n];
         for (int i=0; i<amps.length; i++) {
             p[shifts[i]] += amps[i];
@@ -136,7 +136,7 @@ public class IterDecon {
         return p;
     }
 
-    static float[] buildDecon(float[] amps, int[] shifts, int n, float gwidthFactor, float dt) {
+    public static float[] buildDecon(float[] amps, int[] shifts, int n, float gwidthFactor, float dt) {
         return gaussianFilter(buildSpikes(amps, shifts, n), gwidthFactor, dt);
     }
 

@@ -51,6 +51,16 @@ __kernel void scalar_div(__global const float* a, float factor, __global float* 
 }
 
 
+__kernel void scalar_mul(__global const float* a, float factor, __global float* out, int n) 
+{
+    int i = get_global_id(0);
+    if (i >= n)
+        return;
+    
+    out[i] = a[i] * factor;
+}
+
+
 /* applies a gaussian filter to the fft. Assumes n is the 1/2 the length of 
  fft, or the length of the original real array and fft data is in order of OregonDSP's fft.*/
 __kernel void gaussianFilter(__global const float* fft, __global float* out, int n, float gwidthFactor, float dt) 
@@ -133,17 +143,33 @@ __kernel void correlate(__global const float* afft, __global const float* bfft, 
     }    
 }
 
+__kernel void convolve(__global const float* afft, __global const float* bfft, __global float* outfft, int n) 
+{
+    int i = get_global_id(0);
+    if (i >= n/2) 
+        return;
+    
+    if (i == 0) {
+        outfft[0] = afft[0]*bfft[0];
+        outfft[n/2] = afft[n/2]*bfft[n/2];
+    } else {
+        outfft[i] = afft[i]*bfft[i] - afft[n-i]*bfft[n-i];
+        outfft[n-i] = afft[i]*bfft[n-i] + afft[n-i]*bfft[i];
+    }    
+}
+
 
 // important that the globalWorkSize <= max workGroupSize
 // so that final parallel reduction (2nd stage) results in
 // a single value
 __kernel void indexReduceAbsMax(__global float* buffer,
-                             __const int length,
-                             __local float* scratch,
-                             __local int* scratchIndex,
-                             __global float* result,
-                             __global int* resultIndex,
-                             __const int resultStorageIndex) {
+                                __const int length,
+                                __local float* scratch,
+                                __local int* scratchIndex,
+                                __global float* result,
+                                __global int* resultIndex,
+                                __const int resultStorageIndex,
+                                __const float delta) {
     
     int global_index = get_global_id(0);
     float element = buffer[global_index];
@@ -179,7 +205,7 @@ __kernel void indexReduceAbsMax(__global float* buffer,
         barrier(CLK_LOCAL_MEM_FENCE);
     }
     if (get_global_id(0) == 0) {
-        result[resultStorageIndex] = scratch[0];
+        result[resultStorageIndex] = scratch[0]/delta;
         resultIndex[resultStorageIndex] = scratchIndex[0];
     }
 }
@@ -187,39 +213,119 @@ __kernel void indexReduceAbsMax(__global float* buffer,
 
 
 __kernel void phase_shift(__global float* xFFT,
-                         int xRealSize,
+                          __const int n,
                           __global float* shiftFFT,
-                          float shift,
-                          float dt) 
+                          __const float shift,
+                          __const float dt) 
 {
     float a, b, c, d, omega;
     int i = get_global_id(0);
-    if (i > xRealSize)
+    if (i >= n/2)
         return;
     
         
-    a = xFFT[2*i];
-    b = xFFT[2*i+1];
+    a = xFFT[i];
+    b = xFFT[n-i];
     if (i == 0) {
         omega = M_PI/dt;
         shiftFFT[0] = a;
-        shiftFFT[1] = cos(omega*shift);
+        shiftFFT[n/2] = shiftFFT[n/2]*cos(omega*shift);
     } else {
-        omega = i*(2*M_PI*shift)/(dt*xRealSize);
+        omega = i*(2*M_PI*shift)/(dt*n);
         c = cos(omega);
         d = sin(omega);
-        shiftFFT[2*i] = a*c-b*d;
-        shiftFFT[2*i+1] = a*d+b*c;
+        shiftFFT[i] = a*c-b*d;
+        shiftFFT[n-i] = a*d+b*c;
     }
 }
 
+/* workgroup size should be equal to global size for this to work. */
+/*
+__kernel void sortCollapseSpikes(__global float* spike,
+                         __global int* spikeIndex,
+                         __global float* sortSpikes,
+                         __global int* sortSpikeIndex,
+                         __const int currentBump,
+                         __global int* notFinished) {
+    // load data into sort arrays
+    int gtid = get_global_id(0);
+    if (gtid < currentBump) {
+        sortSpikes[gtid] = spikes[gtid]
+        sortSpikeIndex[gtid] = spikeIndex[gtid]
+    }
+    // do a simple even odd bubble sort
+    while (notFinished[0] == 1) {
+        if (gtid == 0) {
+            notFinished[0] = 0;
+        }
+        barrier(CLK_GLOBAL_MEM_FENCE);
+        if (gtid < currentBump/2) {
+            if (sortSpikeIndex[2*gtid] > sortSpikeIndex[2*gtid+1]) {
+                float tmp = sortSpike[2*gtid];
+                sortSpike[2*gtid] = sortSpike[2*gtid+1];
+                sortSpike[2*gtid+1] = tmp;
+                int tmpInt = sortSpikeIndex[2*gtid];
+                sortSpikeIndex[2*gtid] = sortSpikeIndex[2*gtid+1];
+                sortSpikeIndex[2*gtid+1] = tmpInt;
+                notFinished[0] = 1; // race condition but ok
+            }
+        }
+        barrier(CLK_GLOBAL_MEM_FENCE);
+        if (gtid < currentBump/2-1) {
+            if (sortSpikeIndex[2*gtid+1] > sortSpikeIndex[2*gtid+2]) {
+                float tmp = sortSpike[2*gtid+1];
+                sortSpike[2*gtid+1] = sortSpike[2*gtid+2];
+                sortSpike[2*gtid+2] = tmp;
+                int tmpInt = sortSpikeIndex[2*gtid+1];
+                sortSpikeIndex[2*gtid+1] = sortSpikeIndex[2*gtid+2];
+                sortSpikeIndex[2*gtid+2] = tmpInt;
+                notFinished[0] = 1; // race condition but ok
+            }
+        }
+    }
+    // now sorted, so sum pairs
+    while (notFinished[0] == 1) {
+        if (gtid == 0) {
+            notFinished[0] = 0;
+        }
+        barrier(CLK_GLOBAL_MEM_FENCE);
+        if (gtid < currentBump/2) {
+            if (sortSpikeIndex[2*gtid] == sortSpikeIndex[2*gtid+1]) {
+                sortSpike[2*gtid] = sortSpike[2*gtid] + sortSpike[2*gtid+1];
+                sortSpike[2*gtid+1] = tmp;
+                sortSpikeIndex[2*gtid] = sortSpikeIndex[2*gtid+1];
+                sortSpikeIndex[2*gtid+1] = tmpInt;
+                notFinished[0] = 1; // race condition but ok
+            }
+        }
+        barrier(CLK_GLOBAL_MEM_FENCE);
+        if (gtid < currentBump/2-1) {
+            if (sortSpikeIndex[2*gtid+1] > sortSpikeIndex[2*gtid+2]) {
+                float tmp = sortSpike[2*gtid+1];
+                sortSpike[2*gtid+1] = sortSpike[2*gtid+2];
+                sortSpike[2*gtid+2] = tmp;
+                int tmpInt = sortSpikeIndex[2*gtid+1];
+                sortSpikeIndex[2*gtid+1] = sortSpikeIndex[2*gtid+2];
+                sortSpikeIndex[2*gtid+2] = tmpInt;
+                notFinished[0] = 1; // race condition but ok
+            }
+        }
+    }
+    
+}
+*/
+
+/*
 __kernel void buildSpikes(__global float* spike,
                           __global int* spikeIndex,
                           __global float* out,
-                          int outSize,
-                          int currentBump,
+                          __const int outSize,
+                          __const int currentBump,
                           __local int* tmp) 
 {
+    
+    // first sort spikes by index
+    
     float accumulator = 0;
     int gtid = get_global_id(0);
     int ltid = get_local_id(0);
@@ -242,4 +348,4 @@ __kernel void buildSpikes(__global float* spike,
     }
     out[gtid] = accumulator;
 }
-
+*/

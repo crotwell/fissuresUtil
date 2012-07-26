@@ -23,6 +23,7 @@ import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.fft.FloatFFTPow2;
 import com.nativelibs4java.util.IOUtils;
 
+import edu.sc.seis.fissuresUtil.bag.IterDecon;
 import edu.sc.seis.fissuresUtil.bag.IterDeconResult;
 
 
@@ -60,14 +61,21 @@ public class IterDeconOpenCl {
         CLBuffer<Float> dataClBuf = context.createBuffer(CLMem.Usage.Input, dataCl, true);
         return new FloatArrayResult(dataClBuf);
     }
+
+    public IntArrayResult makeCLBuffer(int[] data) {
+        ByteOrder byteOrder = context.getByteOrder();
+        int n = nextPowerTwo(data.length);
+        Pointer<Integer> dataCl = allocateInts(n).order(byteOrder);
+        dataCl.setInts(data);
+        CLBuffer<Integer> dataClBuf = context.createBuffer(CLMem.Usage.Input, dataCl, true);
+        return new IntArrayResult(dataClBuf);
+    }
     
     public IterDeconResult process(float[] numerator,
                                    float[] denominator,
-                                   float dt) throws ZeroPowerException {
-        ByteOrder byteOrder = context.getByteOrder();
-
-        numerator = makePowerTwoTimesTwo(numerator);
-        denominator = makePowerTwoTimesTwo(denominator);
+                                   float delta) throws ZeroPowerException {
+        numerator = makePowerTwo(numerator);
+        denominator = makePowerTwo(denominator);
 
         FloatArrayResult numeratorClBuf = makeCLBuffer(numerator);
         FloatArrayResult denominatorClBuf = makeCLBuffer(denominator);
@@ -75,15 +83,14 @@ public class IterDeconOpenCl {
         // Now begin the cross-correlation procedure
         // Put the filter in the signals
          
-        FloatArrayResult numeratorGauss  = gaussianFilter(numeratorClBuf, gwidthFactor, dt);
-        FloatArrayResult denominatorGauss  = gaussianFilter(denominatorClBuf, gwidthFactor, dt);
+        FloatArrayResult numeratorGauss  = gaussianFilter(numeratorClBuf, gwidthFactor, delta);
+        FloatArrayResult denominatorGauss  = gaussianFilter(denominatorClBuf, gwidthFactor, delta);
 
         // compute the power in the "numerator" for error scaling
         FloatResult powerNumerator = power(numeratorGauss);
         FloatResult powerDemoninator = power(denominatorGauss);
         float powerNumeratorFlt = powerNumerator.getAfterWait();
         float powerDemoninatorFlt = powerDemoninator.getAfterWait();
-        System.out.println("Result: " +powerNumeratorFlt +"  " +powerDemoninatorFlt );
         if (powerNumeratorFlt == 0 || powerDemoninatorFlt == 0) {
             throw new ZeroPowerException("Power of numerator and denominator must be non-zero: num="+powerNumeratorFlt+" denom="+powerDemoninatorFlt);
         }
@@ -103,19 +110,25 @@ public class IterDeconOpenCl {
 
             //  find the peak in the correlation
             if (useAbsVal) {
-                CLEvent maxSpikeEvent = calcMaxSpike(correlateNormResult, ampsClBuf, shiftsClBuf, bump);
+                CLEvent maxSpikeEvent = calcMaxSpike(correlateNormResult, ampsClBuf, shiftsClBuf, bump, delta);
+                //need maxSpikeEvent to go with shifts and amps
+                ampsClBuf = new FloatArrayResult(ampsClBuf.getResult(), maxSpikeEvent);
+                shiftsClBuf = new IntArrayResult(shiftsClBuf.getResult(), maxSpikeEvent);
             } else {
                 throw new RuntimeException("only useAbsValue supported now");
                 //shifts[bump] = getMaxIndex(corr);
             } // end of else
+            
+            System.out.println("calc max bump of "+ampsClBuf.getAfterWait(queue)[bump]+"  at "+shiftsClBuf.getAfterWait(queue)[bump]);
 
-            predicted = buildDecon(ampsClBuf, shiftsClBuf, bump, n, gwidthFactor, dt);
+            
+            predicted = buildDecon(ampsClBuf, shiftsClBuf, bump, n, gwidthFactor, delta);
             FloatArrayResult predConvolve;
             if (useNativeFFT) {
                 throw new RuntimeException("NativeFFT not implemented");
                 //predConvolve = NativeFFT.convolve(predicted, denominator, dt);
             } else {
-                predConvolve = convolve(predicted, denominatorClBuf, dt);
+                predConvolve = convolve(predicted, denominatorClBuf, delta);
             }
 
             residual = getResidual(numeratorGauss, predConvolve);
@@ -132,7 +145,7 @@ public class IterDeconOpenCl {
                                                      gwidthFactor,
                                                      numerator,
                                                      denominator,
-                                                     dt,
+                                                     delta,
                                                      ampsClBuf.getAfterWait(queue),
                                                      shiftsClBuf.getAfterWait(queue),
                                                      residual.getAfterWait(queue),
@@ -163,7 +176,7 @@ public class IterDeconOpenCl {
         complex_to_floats = program.createKernel("complex_to_floats");
         shortenFFT  = program.createKernel("shortenFFT");
         lengthenFFT  = program.createKernel("lengthenFFT");
-        buildSpikes  = program.createKernel("buildSpikes");
+       // buildSpikes  = program.createKernel("buildSpikes");
         subtract_floats  = program.createKernel("subtract_floats");
     }
 
@@ -207,15 +220,21 @@ public class IterDeconOpenCl {
         return new FloatArrayResult(clBufOut, normEvent);
     }
 
-    public FloatArrayResult buildSpikes(FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, int n, CLEvent... eventsToWaitFor) {
-        CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
+    public FloatArrayResult buildSpikes(FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, int n) {
+        
+        // fall back to regualr IterDecon on cpu
+        float[] amps = ampsClBuf.getAfterWait(queue);
+        int[] shifts = shiftsClBuf.getAfterWait(queue);
+        return makeCLBuffer(IterDecon.buildSpikes(amps, shifts, n));
+        
+        /*CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
         buildSpikes.setArgs(ampsClBuf.getResult(), shiftsClBuf.getResult(), clBufOut, n, bump, LocalSize.ofFloatArray(buildSpikes.getWorkGroupSize().get(queue.getDevice())));
-        CLEvent buildSpikesEvent = buildSpikes.enqueueNDRange(queue, new int[] {(int)clBufOut.getElementCount()}, eventsToWaitFor);
-        return new FloatArrayResult(clBufOut, buildSpikesEvent);
+        CLEvent buildSpikesEvent = buildSpikes.enqueueNDRange(queue, new int[] {(int)clBufOut.getElementCount()}, CLEventResult.combineEvents(ampsClBuf.getEventsToWaitFor(),  shiftsClBuf.getEventsToWaitFor()));
+        return new FloatArrayResult(clBufOut, buildSpikesEvent);*/
     }
 
-    public FloatArrayResult buildDecon(FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, int n, float gwidthFactor, float dt, CLEvent... eventsToWaitFor) {
-        return gaussianFilter(buildSpikes(ampsClBuf, shiftsClBuf, bump, n, eventsToWaitFor), gwidthFactor, dt);
+    public FloatArrayResult buildDecon(FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, int n, float gwidthFactor, float dt) {
+        return gaussianFilter(buildSpikes(ampsClBuf, shiftsClBuf, bump, n), gwidthFactor, dt);
     }
 
     /** returns the residual, ie x-y */
@@ -226,7 +245,7 @@ public class IterDeconOpenCl {
         return new FloatArrayResult(clBufOut, subtractEvent);
     }
 
-    public CLEvent calcMaxSpike(FloatArrayResult corrClBuf, FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, CLEvent... waitForEvent) {
+    public CLEvent calcMaxSpike(FloatArrayResult corrClBuf, FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, float delta, CLEvent... waitForEvent) {
         int workGroupSize = (int)Math.min(128, indexReduceAbsMax.getWorkGroupSize().get(queue.getDevice()).intValue());
         int globalWorkSize = (int)Math.min(queue.getDevice().getMaxComputeUnits()*4, workGroupSize);
         LocalSize sharedMemSize = LocalSize.ofFloatArray(globalWorkSize/workGroupSize);
@@ -238,7 +257,8 @@ public class IterDeconOpenCl {
                                sharedMemIndexSize,
                                ampsClBuf.getResult(),
                                shiftsClBuf.getResult(),
-                               bump);
+                               bump,
+                               delta);
         CLEvent maxBumpEvent = indexReduceAbsMax.enqueueNDRange(queue, new int[] {globalWorkSize}, new int[] {workGroupSize}, waitForEvent);
         return maxBumpEvent;
     }
