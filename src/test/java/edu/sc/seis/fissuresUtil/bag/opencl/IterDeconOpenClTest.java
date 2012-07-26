@@ -319,11 +319,31 @@ public class IterDeconOpenClTest {
         FloatResult result = openCL.power(inCLBuffer, new CLEvent[0]);
         assertEquals("sum 1*1 to "+n+"*"+n, n*(n+1)*(2*n+1)/6, result.getAfterWait(), 0.001f);
     }
+
+    
+    @Test
+    public void testFivePhaseShift() throws Exception {
+        float[] data = new float[1024];
+        data[10] = 1;
+        data[11] = 2;
+        data[12] = 1.1f;
+        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(data);
+        FloatArrayResult outBuf = openCL.phaseShift(inCLBuffer, 5f, 0.05f);
+        float[] out = outBuf.getAfterWait(openCL.queue);
+        // expected actual
+        assertEquals("9 shifts to 109", data[9], out[109], .001);
+        assertEquals("10 shifts to 110", data[10], out[110], .001);
+        assertEquals("11 shifts to 111", data[11], out[111], .001);
+        assertEquals("12 shifts to 112", data[11], out[111], .001);
+        assertEquals("13 shifts to 113", data[11], out[111], .001);
+    }
     
     @Test
     public void testCalcMaxSpike() throws Exception {
         int n = 1024;
         int bump = 3;
+        float delta = 0.1f;
         float[] inData = new float[n];
         for (int i = 0; i < inData.length; i++) {
             inData[i] = i+1;
@@ -333,10 +353,10 @@ public class IterDeconOpenClTest {
         
         IntArrayResult indexResult = new IntArrayResult(openCL.context.createBuffer(CLMem.Usage.InputOutput, Integer.class, n));
         FloatArrayResult ampsResult = new FloatArrayResult(openCL.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n));
-        CLEvent resultEvent = openCL.calcMaxSpike(inCLBuffer, ampsResult, indexResult, bump, new CLEvent[0]);
+        CLEvent resultEvent = openCL.calcMaxSpike(inCLBuffer, ampsResult, indexResult, bump, delta);
         float[] amps = ampsResult.getAfterWait(openCL.queue);
         int[] index = indexResult.getAfterWait(openCL.queue);
-        assertEquals("max bump of "+bump, n/2, amps[bump], 0.001f);
+        assertEquals("max bump of "+bump, n/2/delta, amps[bump], 0.001f);
         assertEquals("max bump index of "+bump, n/2-1, index[bump]);
     }
 
@@ -425,6 +445,56 @@ public class IterDeconOpenClTest {
         assertArrayEquals(convolve, convolveCLBuf.getAfterWait(openCL.queue), 0.0001f);
     }
     
+    @Test
+    public void testBuildSpikes() throws Exception {
+        int n = 1024;
+        int bumps = 400;
+        float delta = 0.1f;
+        float[] amps = new float[bumps];
+        int[] shifts = new int[bumps];
+        for (int i = 0; i < shifts.length; i++) {
+            amps[i] = i;
+            shifts[i] = i;
+        }
+        float[] cpu = IterDecon.buildSpikes(amps, shifts, n);
+
+        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
+
+        FloatArrayResult ampsCLBuffer = openCL.makeCLBuffer(amps);
+        IntArrayResult shiftsCLBuffer = openCL.makeCLBuffer(shifts);
+        FloatArrayResult spikesCLBuf = openCL.buildSpikes(ampsCLBuffer, shiftsCLBuffer, bumps, n);
+        float[] b = spikesCLBuf.getAfterWait(openCL.queue);
+        for (int i = 0; i < b.length && i < 10; i++) {
+            System.out.println("buidSpikes "+i+"  "+b[i]);
+        }
+        assertArrayEquals("buidSpikes ", cpu, b, 0.0001f);
+    }
+    
+    @Test
+    public void testBuildDecon() throws Exception {
+        int n = 1024;
+        int bumps = 400;
+        float delta = 0.1f;
+        float[] amps = new float[bumps];
+        int[] shifts = new int[bumps];
+        for (int i = 0; i < shifts.length; i++) {
+            amps[i] = i%7 + i%3;
+            shifts[i] = i;
+        }
+        float[] cpu = IterDecon.buildDecon(amps, shifts, n, 2.5f, delta);
+
+        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
+
+        FloatArrayResult ampsCLBuffer = openCL.makeCLBuffer(amps);
+        IntArrayResult shiftsCLBuffer = openCL.makeCLBuffer(shifts);
+        FloatArrayResult deconCLBuf = openCL.buildDecon(ampsCLBuffer, shiftsCLBuffer, bumps, n, 2.5f, delta);
+        float[] b = deconCLBuf.getAfterWait(openCL.queue);
+        for (int i = 0; i < b.length && i < 10; i++) {
+            System.out.println("buildDecon "+i+"  "+b[i]);
+        }
+        assertArrayEquals("buildDecon ", cpu, b, 0.001f);
+    }
+    
     /**
      * Test copied from IterDecon.java. 
      * @throws Exception
@@ -494,6 +564,7 @@ public class IterDeconOpenClTest {
         assertEquals("spike " + i, 15.450 / sac.getHeader().getDelta(), s[i], 0.1f);
         assertEquals("amp   " + i, -0.0606716201 / sac.getHeader().getDelta(), a[i], 0.001f);
         i++;
+        assertEquals("test if mul delta", -1,  1/fortranData[0]* pred[0], 001f);
         assertArrayEquals("fortran predicted", fortranData, pred, 0.000001f);
         assertEquals("percent match", 85.4, result.getPercentMatch(), 0.1f);
     }

@@ -11,6 +11,9 @@ import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
+import edu.sc.seis.fissuresUtil.bag.opencl.FloatArrayResult;
+import edu.sc.seis.fissuresUtil.bag.opencl.IntArrayResult;
+import edu.sc.seis.fissuresUtil.bag.opencl.IterDeconOpenCl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
 import edu.sc.seis.fissuresUtil.sac.FissuresToSac;
@@ -398,6 +401,30 @@ public class IterDeconTest {
         assertArrayEquals(fShifted, convolve, 0.0001f);
     }
 
+    
+    @Test
+    public void testBuildSpikes() throws Exception {
+        int n = 1024;
+        int bumps = 400;
+        float delta = 0.1f;
+        float[] amps = new float[bumps];
+        int[] shifts = new int[bumps];
+        for (int i = 0; i < shifts.length; i++) {
+            amps[i] = i;
+            shifts[i] = i;
+        }
+        float[] cpu = IterDecon.buildSpikes(amps, shifts, n);
+        for (int i = 0; i < cpu.length; i++) {
+            if (i < shifts.length) {
+                assertEquals("buidSpikes "+i, i, cpu[i], 0.0001f);
+            } else {
+                assertEquals("buidSpikes "+i, 0, cpu[i], 0.0001f);
+            }
+        }
+        
+    }
+    
+    
     @Test
     public void testIterDeconIdentity() throws Exception {
         // JUnitDoclet begin method phaseShift
