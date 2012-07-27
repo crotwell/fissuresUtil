@@ -45,7 +45,7 @@ dependencies {
 sourceSets {
     main {
         resources {
-            srcDirs 'src/main/opencl'
+            srcDirs 'src/main/openCl'
         }
     }
 }
