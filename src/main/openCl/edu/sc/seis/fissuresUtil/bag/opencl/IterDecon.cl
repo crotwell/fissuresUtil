@@ -31,6 +31,24 @@ __kernel void subtract_floats(__global const float* a, __global const float* b, 
     out[i] = a[i] - b[i];
 }
 
+__kernel void zero_floats(__global float* a, int n) 
+{
+    int i = get_global_id(0);
+    if (i >= n)
+        return;
+    
+    a[i] = 0;
+}
+
+__kernel void zero_ints(__global int* a, int n) 
+{
+    int i = get_global_id(0);
+    if (i >= n)
+        return;
+    
+    a[i] = 0;
+}
+
 __kernel void sqr_floats(__global const float* a, __global float* out, int n) 
 {
     int i = get_global_id(0);

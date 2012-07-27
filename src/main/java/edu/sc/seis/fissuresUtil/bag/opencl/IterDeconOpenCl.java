@@ -96,8 +96,8 @@ public class IterDeconOpenCl {
             throw new ZeroPowerException("Power of numerator and denominator must be non-zero: num="+powerNumeratorFlt+" denom="+powerDemoninatorFlt);
         }
         FloatArrayResult residual = numeratorGauss;
-        FloatArrayResult ampsClBuf = new FloatArrayResult(context.createBuffer(CLMem.Usage.InputOutput, Float.class, maxBumps));
-        IntArrayResult shiftsClBuf = new IntArrayResult(context.createBuffer(CLMem.Usage.InputOutput, Integer.class, maxBumps));
+        FloatArrayResult ampsClBuf = zeroFloatArray(maxBumps);
+        IntArrayResult shiftsClBuf = zeroIntArray(maxBumps);
         
         float improvement = 100;
         int bump;
@@ -171,6 +171,8 @@ public class IterDeconOpenCl {
         lengthenFFT  = program.createKernel("lengthenFFT");
        // buildSpikes  = program.createKernel("buildSpikes");
         subtract_floats  = program.createKernel("subtract_floats");
+        zeroFloats = program.createKernel("zero_floats");
+        zeroInts = program.createKernel("zero_ints");
     }
 
     protected FloatArrayResult correlateNorm(FloatArrayResult residual, FloatArrayResult denominatorGaussClBuf) {
@@ -393,6 +395,20 @@ public class IterDeconOpenCl {
         
         return new FloatArrayResult(clBufReal, cmplxToRealEvent);
     }
+    
+    public FloatArrayResult zeroFloatArray(int size) {
+        CLBuffer<Float> fArray = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
+        zeroFloats.setArgs(fArray, size);
+        CLEvent zeroFloatEvent = zeroFloats.enqueueNDRange(queue, new int[] {size});
+        return new FloatArrayResult(fArray, zeroFloatEvent);
+    }
+    
+    public IntArrayResult zeroIntArray(int size) {
+        CLBuffer<Integer> fArray = context.createBuffer(CLMem.Usage.InputOutput, Integer.class, size);
+        zeroFloats.setArgs(fArray, size);
+        CLEvent zeroIntEvent = zeroFloats.enqueueNDRange(queue, new int[] {size});
+        return new IntArrayResult(fArray, zeroIntEvent);
+    }
 
     public static float[] makePowerTwo(float[] data) {
         float[] out = new float[nextPowerTwo(data.length)];
@@ -427,6 +443,8 @@ public class IterDeconOpenCl {
     protected CLKernel subtract_floats;
     protected CLKernel shortenFFT;
     protected CLKernel lengthenFFT;
+    protected CLKernel zeroFloats;
+    protected CLKernel zeroInts;
     FloatFFTPow2 fft;
 
     private CLKernel scalarDiv;
