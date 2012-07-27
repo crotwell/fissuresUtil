@@ -344,7 +344,7 @@ public class IterDeconOpenClTest {
         FloatArrayResult outBuf = openCL.phaseShift(inCLBuffer, 0f, 0.05f);
         float[] out = outBuf.getAfterWait(openCL.queue);
         // expected actual
-        assertArrayEquals("zero phase shift", data, out, 0.00001f);
+        assertArrayEquals("zero phase shift", data, out, 0.0001f);
     }
     
     @Test
