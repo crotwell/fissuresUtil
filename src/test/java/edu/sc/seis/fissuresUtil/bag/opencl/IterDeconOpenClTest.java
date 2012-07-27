@@ -338,6 +338,21 @@ public class IterDeconOpenClTest {
         assertEquals("12 shifts to 112", data[11], out[111], .001);
         assertEquals("13 shifts to 113", data[11], out[111], .001);
     }
+
+    
+    @Test
+    public void testZeroPhaseShift() throws Exception {
+        float[] data = new float[1024];
+        data[10] = 1;
+        data[11] = 2;
+        data[12] = 1.1f;
+        IterDeconOpenCl openCL = new IterDeconOpenCl(1, true, 1, 1);
+        FloatArrayResult inCLBuffer = openCL.makeCLBuffer(data);
+        FloatArrayResult outBuf = openCL.phaseShift(inCLBuffer, 0f, 0.05f);
+        float[] out = outBuf.getAfterWait(openCL.queue);
+        // expected actual
+        assertArrayEquals("zero phase shift", data, out, 0.00001f);
+    }
     
     @Test
     public void testCalcMaxSpike() throws Exception {
@@ -380,22 +395,15 @@ public class IterDeconOpenClTest {
         FloatArrayResult gCLBuffer = openCL.makeCLBuffer(gData);
         FloatResult zeroLagF = openCL.power(fCLBuffer);
         FloatResult zeroLagG = openCL.power(gCLBuffer);
-        System.out.println("zero lag F: "+zeroLagF.getAfterWait()+"  G: "+zeroLagG.getAfterWait());
         
         FloatArrayResult corrResult = openCL.correlateNorm(fCLBuffer, gCLBuffer);
         float[] corr = corrResult.getAfterWait(openCL.queue);
         float zlg = zeroLagG.getAfterWait();
-        for (int i = 0; i < corr.length && i < 10; i++) {
-            System.out.println("ocl corr "+i+" "+corr[i]+" "+corr[i]*zlg);
-        }
-        System.out.println();
-        for (int i = corr.length-10; i < corr.length; i++) {
-            System.out.println("ocl corr "+i+" "+corr[i]+" "+corr[i]*zlg);
-        }
+        
         assertEquals("corr length", n, corr.length);
-        assertEquals("lag 0", 1028f/zeroLagG.getAfterWait(), corr[0], 0.00001f);
-        assertEquals("lag 1", 1028f/zeroLagG.getAfterWait(), corr[1], 0.00001f);
-        assertEquals("lag 2", 1028f/zeroLagG.getAfterWait(), corr[2], 0.00001f);
+        assertEquals("lag 0", 1028f/zlg, corr[0], 0.00001f);
+        assertEquals("lag 1", 1028f/zlg, corr[1], 0.00001f);
+        assertEquals("lag 2", 1028f/zlg, corr[2], 0.00001f);
         assertEquals("lag "+lag, 1f, corr[lag], 0.00001f);
     }
     
@@ -500,6 +508,55 @@ public class IterDeconOpenClTest {
      * @throws Exception
      */
     @Test
+    public void testVsCpuESK1999_312_16_45_41_6() throws Exception {
+        int interations = 100;
+        SacTimeSeries sac = new SacTimeSeries();
+        DataInputStream in = new DataInputStream(this.getClass()
+                .getClassLoader()
+                .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/ESK1999_312_16.predicted.sac"));
+        sac.read(in);
+        in.close();
+        float[] fortranData = sac.getY();
+        in = new DataInputStream(this.getClass()
+                .getClassLoader()
+                .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/ESK_num.sac"));
+        sac.read(in);
+        in.close();
+        float[] num = sac.getY();
+        in = new DataInputStream(this.getClass()
+                .getClassLoader()
+                .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/ESK_denom.sac"));
+        sac.read(in);
+        in.close();
+        float[] denom = sac.getY();
+        IterDeconOpenCl iterdecon = new IterDeconOpenCl(interations, true, .0001f, 3);
+        IterDeconResult result = iterdecon.process(num, denom, sac.getHeader().getDelta());
+        
+
+        IterDecon iterdeconCPU = new IterDecon(interations, true, .0001f, 3);
+        IterDeconResult resultCPU = iterdeconCPU.process(num, denom, sac.getHeader().getDelta());
+
+        assertEquals("percentMatch", resultCPU.getPercentMatch(), result.getPercentMatch(), 0.0001f);
+        assertEquals("max bumps", resultCPU.getMaxBumps(), result.getMaxBumps());
+        assertEquals("tol", resultCPU.getTol(), result.getTol(), 0.00001f);
+        assertEquals("gwidth", resultCPU.getGWidth(), result.getGWidth(), 0.00001f);
+
+        assertArrayEquals("numerator", resultCPU.getNumerator(), result.getNumerator(), 0.00001f);
+        assertArrayEquals("denominator", resultCPU.getDenominator(), result.getDenominator(), 0.00001f);
+        assertEquals("delta", resultCPU.getDelta(), result.getDelta(), 0.00001f);
+        assertArrayEquals("amps", resultCPU.getAmps(), result.getAmps(), 0.00001f);
+        assertArrayEquals("shifts", resultCPU.getShifts(), result.getShifts());
+        assertArrayEquals("residual", resultCPU.getResidual(), result.getResidual(), 0.01f); // lower tol?
+        assertArrayEquals("predicted", resultCPU.getPredicted(), result.getPredicted(), 0.00001f);
+        assertEquals("residual power", resultCPU.getResidualPower(), result.getResidualPower(), 0.00001f*resultCPU.getResidualPower());
+        
+    }
+    
+    /**
+     * Test copied from IterDecon.java. 
+     * @throws Exception
+     */
+    @Test
     public void testESK1999_312_16_45_41_6() throws Exception {
         SacTimeSeries sac = new SacTimeSeries();
         DataInputStream in = new DataInputStream(this.getClass()
@@ -564,8 +621,7 @@ public class IterDeconOpenClTest {
         assertEquals("spike " + i, 15.450 / sac.getHeader().getDelta(), s[i], 0.1f);
         assertEquals("amp   " + i, -0.0606716201 / sac.getHeader().getDelta(), a[i], 0.001f);
         i++;
-        assertEquals("test if mul delta", -1,  1/fortranData[0]* pred[0], 001f);
-        assertArrayEquals("fortran predicted", fortranData, pred, 0.000001f);
-        assertEquals("percent match", 85.4, result.getPercentMatch(), 0.1f);
+        assertEquals("percent match", 85.4f, result.getPercentMatch(), 0.1f);
+        assertArrayEquals("fortran predicted", fortranData, predResult.getAfterWait(iterdecon.queue), 0.000001f);
     }
 }
