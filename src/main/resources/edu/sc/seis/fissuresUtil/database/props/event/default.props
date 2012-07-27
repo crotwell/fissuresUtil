@@ -1,0 +1,140 @@
+origin.create=CREATE TABLE $tablename (origin_id int, \
+                                   origin_catalog_id int, \
+                                   origin_event_id int, \
+                                   origin_time_id int, \
+                                   origin_location_id int, \
+                                   origin_text_id varchar, \
+                                   PRIMARY KEY (origin_id), \
+                                   FOREIGN KEY (origin_location_id) \
+                                   REFERENCES location (loc_id), \
+                                   FOREIGN KEY (origin_catalog_id) \
+                                   REFERENCES catalog (catalog_id), \
+                                   FOREIGN KEY (origin_time_id) \
+                                   REFERENCES time (time_id))
+
+origin.index_catalog=create index origin_catalog_idx on origin (origin_catalog_id)
+
+origin.index_time=create index origin_time_idx on origin (origin_time_id)
+
+origin.index_loc=create index origin_loc_idx on origin (origin_location_id)
+
+originparamref.create=CREATE TABLE originparamref (originparamrefid int, \
+                                                   originparameterid int, \
+                                                   FOREIGN KEY (originparamrefid) \
+                                                   REFERENCES origin (origin_id), \
+                                                   FOREIGN KEY (originparameterid) \
+                                                   REFERENCES parameterref (parameterid))
+origin.putStmt = INSERT INTO $tablename (origin_id, \
+    origin_catalog_id, origin_time_id, \
+    origin_location_id, origin_text_id) \
+    VALUES(?,?,?,?,?)
+    
+origin.putOriginParamRefStmt = INSERT INTO \
+    originparamref (originparamrefid, \
+    originparameterid ) VALUES(?,?)
+    
+origin.deleteOriginParamRefStmt = DELETE FROM \
+    originparamref WHERE originparamrefid = ?
+    
+origin.getDBIdStmt = SELECT origin_id FROM $tablename \
+    WHERE origin_catalog_id = ? AND \
+    origin_time_id = ? AND origin_location_id = ? AND \
+    origin_text_id = ?
+    
+origin.getStmt = SELECT * FROM origin \
+    JOIN location ON (origin.origin_location_id = location.loc_id) \
+    JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id) \
+    JOIN contributor ON (catalog_contributor_id =   contributor.contributor_id) \
+    WHERE origin_id = ?
+
+origin.getParamsStmt = SELECT parametera_id, parametercreator FROM \
+    $tablename JOIN originparamref ON ( originparamrefid = origin_id ) \
+    JOIN parameterref ON (parameterref.parameterid = originparamref.originparameterid ) \
+    WHERE origin_id = ?
+    
+origin.updateEventIdStmt = UPDATE $tablename \
+    SET origin_event_id = ?  WHERE origin_id = ?
+    
+origin.deleteOriginStmt = DELETE FROM $tablename \
+    WHERE origin_id = ?
+    
+origin.getAllStmt = SELECT origin_id FROM origin \
+    WHERE origin_event_id = ?
+                
+catalog.create=CREATE TABLE catalog (catalog_id int, \
+                                     catalog_contributor_id int, \
+                                     catalog_name varchar, \
+                                     PRIMARY KEY (catalog_id), \
+                                     FOREIGN KEY (catalog_contributor_id ) \
+                                     REFERENCES contributor (contributor_id))
+
+contributor.create=CREATE TABLE contributor (contributor_id int, \
+                                             contributor_name varchar, \
+                                             PRIMARY KEY (contributor_id) )
+
+magnitude.create=CREATE TABLE magnitude ( magnitudetype varchar, \
+                                          magnitudevalue float, \
+                                          magnitudecontributorid int, \
+                                          originid int)
+
+magnitude.putStmt = INSERT INTO magnitude \
+    ( magnitudetype, magnitudevalue, magnitudecontributorid, originid) \
+    VALUES(?,?,?,?)
+    
+magnitude.exists = SELECT * FROM magnitude \
+    WHERE magnitudetype = ? AND \
+    magnitudevalue = ? AND \
+    magnitudecontributorid = ? AND \
+    originid = ?
+    
+magnitude.getStmt = SELECT magnitudetype , magnitudevalue, contributor_name \
+    FROM magnitude \
+    JOIN contributor ON (magnitude.magnitudecontributorid = contributor_id) \
+    WHERE originid = ?
+    
+magnitude.dropAll = DELETE FROM magnitude
+
+flinnengdahl.create = CREATE TABLE flinnengdahl \
+                                   (flinnengdahlid int primary key, \
+                                   flinnengdahltype int, \
+                                   flinnengdahlnumber int)
+                                   
+eventattr.create=CREATE TABLE eventattr ( eventattr_id int, \
+                                          eventattr_name varchar, \
+                                          flinnengdahlid int,  \
+                                          FOREIGN KEY ( flinnengdahlid ) \
+                                          REFERENCES flinnengdahl ( flinnengdahlid ), \
+                                          PRIMARY KEY (eventattr_id))
+
+eventparameterreference.create=CREATE TABLE eventparameterreference ( \
+                                    eventparameterreferenceid int, \
+                                    parameterid int , \
+                                    FOREIGN KEY (eventparameterreferenceid ) \
+                                    REFERENCES eventattr ( eventattr_id ), \
+                                    FOREIGN KEY (parameterid ) \
+                                    REFERENCES parameterref ( parameterid ))
+
+origin.views=originview
+
+originview.create=CREATE VIEW originview AS \
+    SELECT origin_id, origin_catalog_id, origin_event_id, origin_time_id, \
+    origin_location_id, origin_text_id, \
+    loc_id, loc_lat , loc_lon , loc_elev_id, loc_depth_id, loc_type, \
+    depth.quantity_id AS depth_id, \
+    depth.quantity_unit_id AS depth_unit_id, \
+    depth.quantity_value AS depth_value , \
+    elevation.quantity_id AS elevation_id, \
+    elevation.quantity_unit_id AS elevation_unit_id, \
+    elevation.quantity_value AS elevation_value ,   \
+    catalog_id, catalog_contributor_id, catalog_name, \
+    contributor_id, contributor_name, \
+    time_id, time_stamp , time_nanos, time_leapsec \
+    FROM origin \
+    JOIN location ON (origin.origin_location_id = location.loc_id) \
+    JOIN quantity AS depth ON (loc_depth_id = depth.quantity_id) \
+    JOIN quantity AS elevation ON (loc_elev_id = elevation.quantity_id) \
+    JOIN catalog ON (origin.origin_catalog_id = catalog.catalog_id) \
+    JOIN contributor ON (catalog_contributor_id =   contributor.contributor_id) \
+    JOIN time ON (origin.origin_time_id = time.time_id )
+    
+

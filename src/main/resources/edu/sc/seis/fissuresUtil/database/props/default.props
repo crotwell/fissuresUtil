@@ -1,0 +1,41 @@
+#Default queries for the anhinga database calls
+unit.create=CREATE TABLE unit ( unit_id int, \
+                                unit_name varchar, \
+                                unit_base varchar(10), \
+                                unit_subunit_id varchar, \
+                                unit_exponent int, \
+                                unit_multFactor double precision, \
+                                unit_power int, \
+                                PRIMARY KEY (unit_id) )
+
+location.create=CREATE TABLE location (loc_id int, \
+                                       loc_lat float, \
+                                       loc_lon float, \
+                                       loc_elev_id int, \
+                                       loc_depth_id int, \
+                                       loc_type int, \
+                                       PRIMARY KEY (loc_id), \
+                                       FOREIGN KEY (loc_elev_id) \
+                                       REFERENCES quantity (quantity_id), \
+                                       FOREIGN KEY (loc_depth_id) \
+                                       REFERENCES quantity (quantity_id))
+
+quantity.create=CREATE TABLE quantity (quantity_id int, \
+                                       quantity_unit_id int, \
+                                       quantity_value double precision, \
+                                       FOREIGN KEY (quantity_unit_id) \
+                                       REFERENCES unit (unit_id), \
+                                       PRIMARY KEY (quantity_id))
+
+time.create=CREATE TABLE time (time_id int, \
+                               time_stamp timestamp, \
+                               time_nanos int, \
+                               time_leapsec int, \
+                               PRIMARY KEY (time_id))
+time.index_time_stamp=create index time_stamp_idx on time (time_stamp)
+
+parameterref.create = CREATE TABLE parameterref ( \
+                                   parameterid int, \
+                                   parametera_id varchar, \
+                                   parametercreator varchar, \
+                                   PRIMARY KEY (parameterid))
