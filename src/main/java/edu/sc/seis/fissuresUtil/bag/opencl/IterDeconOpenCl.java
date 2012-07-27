@@ -98,6 +98,7 @@ public class IterDeconOpenCl {
         FloatArrayResult residual = numeratorGauss;
         FloatArrayResult ampsClBuf = zeroFloatArray(maxBumps);
         IntArrayResult shiftsClBuf = zeroIntArray(maxBumps);
+        queue.enqueueBarrier();
         
         float improvement = 100;
         int bump;
