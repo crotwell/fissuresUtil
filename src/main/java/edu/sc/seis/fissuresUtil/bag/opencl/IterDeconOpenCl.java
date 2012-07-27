@@ -236,7 +236,7 @@ public class IterDeconOpenCl {
     /** returns the residual, ie x-y */
     public FloatArrayResult getResidual(FloatArrayResult x, FloatArrayResult y) {
         CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, x.getSize());
-        subtract_floats.setArgs(x.getResult(), y.getResult(), clBufOut, x.getSize());
+        subtract_floats.setArgs(x.getResult(), y.getResult(), clBufOut, (int)x.getSize());
         CLEvent subtractEvent = subtract_floats.enqueueNDRange(queue, new int[] {(int)x.getSize()}, CLEventResult.combineEvents(x.getEventsToWaitFor(),  y.getEventsToWaitFor()));
         return new FloatArrayResult(clBufOut, subtractEvent);
     }
