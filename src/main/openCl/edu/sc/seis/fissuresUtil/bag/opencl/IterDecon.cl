@@ -185,7 +185,7 @@ __kernel void indexReduceAbsMax(__global float* buffer,
             accumulator = element;
             accumulatorIndex = global_index;
         }
-        global_index += get_global_size(0);
+        global_index += get_local_size(0);
     }
     
     // Perform parallel reduction
