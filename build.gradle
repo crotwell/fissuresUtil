@@ -44,10 +44,20 @@ dependencies {
 
 sourceSets {
     main {
+        java {
+            srcDir 'src/main/java'
+        }
         resources {
             srcDir 'src/main/opencl'
+            include '**'
+            srcDir 'src/main/resources'
+            include '**'
         }
     }
+}
+
+task printResourceDirs << { task ->
+   sourceSets.main.resources.srcDirs.each{ println it }
 }
 
 def binDistFiles = copySpec {
