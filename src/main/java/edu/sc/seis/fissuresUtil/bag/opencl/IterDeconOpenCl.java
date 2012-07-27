@@ -324,7 +324,7 @@ public class IterDeconOpenCl {
      */
     public FloatArrayResult shortenFFT(CLBuffer<Float> inCLBuffer, CLEvent... eventsToWaitFor) {
         CLBuffer<Float> shortenFFTVals = context.createBuffer(CLMem.Usage.InputOutput, Float.class, inCLBuffer.getElementCount()/2);
-        shortenFFT.setArgs(inCLBuffer, shortenFFTVals, inCLBuffer.getElementCount()/2);
+        shortenFFT.setArgs(inCLBuffer, shortenFFTVals, (int)inCLBuffer.getElementCount()/2);
         CLEvent shortenFFTEvent = shortenFFT.enqueueNDRange(queue, new int[] {(int)inCLBuffer.getElementCount()/2});
         FloatArrayResult shortenFFTResult = new FloatArrayResult(shortenFFTVals, shortenFFTEvent);
         return shortenFFTResult;
@@ -336,7 +336,7 @@ public class IterDeconOpenCl {
     public FloatArrayResult lengthenFFT(CLBuffer<Float> inCLBuffer, CLEvent... eventsToWaitFor) {
         long n = inCLBuffer.getElementCount();
         CLBuffer<Float> lengthenFFTVals = context.createBuffer(CLMem.Usage.InputOutput, Float.class, 2*n);
-        lengthenFFT.setArgs(inCLBuffer, lengthenFFTVals, n);
+        lengthenFFT.setArgs(inCLBuffer, lengthenFFTVals, (int)n);
         CLEvent lengthenFFTEvent = lengthenFFT.enqueueNDRange(queue, new int[] {(int)n/2}, eventsToWaitFor);
         FloatArrayResult lengthenFFTResult = new FloatArrayResult(lengthenFFTVals, lengthenFFTEvent);
         return lengthenFFTResult;
@@ -362,7 +362,7 @@ public class IterDeconOpenCl {
     /** forward FFT with the result in the format returned by OregonDSP's fft. */
     public FloatArrayResult forwardFFT(CLBuffer<Float> x, CLEvent... eventsToWaitFor) {
         CLBuffer<Float> clBufRealComplex = context.createBuffer(CLMem.Usage.InputOutput, Float.class, 2*x.getElementCount());
-        floats_to_complex.setArgs(x, clBufRealComplex, x.getElementCount());
+        floats_to_complex.setArgs(x, clBufRealComplex, (int)x.getElementCount());
         CLEvent denomRealToCmplxEvent = floats_to_complex.enqueueNDRange(queue, new int[] {(int)x.getElementCount()}, eventsToWaitFor);
         CLBuffer<Float> clBufDenomFFT = context.createBuffer(CLMem.Usage.InputOutput, Float.class, 2*x.getElementCount());
         CLEvent fftEvent = fft.transform(queue, clBufRealComplex, clBufDenomFFT, false, denomRealToCmplxEvent);
