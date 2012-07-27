@@ -244,29 +244,21 @@ public class IterDeconTest {
         assertEquals("amp   " + i, -0.0606716201 / sac.getHeader().getDelta(), a[i], 0.001f);
         i++;
         assertArrayEquals("fortran predicted", fortranData, pred, 0.000001f);
-        assertEquals("percent match", 85.4, result.getPercentMatch(), 0.1f);
+        assertEquals("percent match", 85.4f, result.getPercentMatch(), 0.1f);
     }
 
     @Test
     public void testOnePhaseShift() throws Exception {
-        // JUnitDoclet begin method phaseShift
         float[] data = new float[1024];
         data[10] = 1;
         float[] out = IterDecon.phaseShift(data, 0.05f, 0.05f);
-        // float[] oldout = iterdecon.oldphaseShift(data, 1.0f, 1.0f);
-        // for ( int i=0; i<data.length; i++) {
-        // System.out.println("data="+data[i]+"  out="+out[i]);
-        // } // end of for ()
-        // expected actual
         assertEquals("9 shifts to 10", data[9], out[10], .001);
         assertEquals("10 shifts to 11", data[10], out[11], .001);
         assertEquals("11 shifts to 12", data[11], out[12], .001);
-        // JUnitDoclet end method phaseShift
     }
 
     @Test
     public void testFivePhaseShift() throws Exception {
-        // JUnitDoclet begin method phaseShift
         float[] data = new float[1024];
         data[10] = 1;
         data[11] = 2;
@@ -278,7 +270,6 @@ public class IterDeconTest {
         assertEquals("11 shifts to 111", data[11], out[111], .001);
         assertEquals("12 shifts to 112", data[11], out[111], .001);
         assertEquals("13 shifts to 113", data[11], out[111], .001);
-        // JUnitDoclet end method phaseShift
     }
 
     @Test

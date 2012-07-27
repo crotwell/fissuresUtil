@@ -3,6 +3,7 @@ package edu.sc.seis.fissuresUtil.bag.opencl;
 import static org.bridj.Pointer.allocateFloats;
 import static org.bridj.Pointer.allocateInts;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
@@ -18,13 +19,13 @@ import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.LocalSize;
 import com.nativelibs4java.opencl.util.OpenCLType;
-import com.nativelibs4java.opencl.util.ParallelMath;
 import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.fft.FloatFFTPow2;
 import com.nativelibs4java.util.IOUtils;
 
 import edu.sc.seis.fissuresUtil.bag.IterDecon;
 import edu.sc.seis.fissuresUtil.bag.IterDeconResult;
+import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 
 /**
@@ -119,17 +120,10 @@ public class IterDeconOpenCl {
                 //shifts[bump] = getMaxIndex(corr);
             } // end of else
             
-            System.out.println("calc max bump of "+ampsClBuf.getAfterWait(queue)[bump]+"  at "+shiftsClBuf.getAfterWait(queue)[bump]);
-
             
             predicted = buildDecon(ampsClBuf, shiftsClBuf, bump, n, gwidthFactor, delta);
             FloatArrayResult predConvolve;
-            if (useNativeFFT) {
-                throw new RuntimeException("NativeFFT not implemented");
-                //predConvolve = NativeFFT.convolve(predicted, denominator, dt);
-            } else {
-                predConvolve = convolve(predicted, denominatorClBuf, delta);
-            }
+            predConvolve = convolve(predicted, denominatorClBuf, delta);
 
             residual = getResidual(numeratorGauss, predConvolve);
             float residualPower = power(residual).getAfterWait();
@@ -169,7 +163,6 @@ public class IterDeconOpenCl {
         indexReduceAbsMax = program.createKernel("indexReduceAbsMax");
         phaseShift = program.createKernel("phase_shift");
         fft = new FloatFFTPow2(context);
-        ParallelMath pmath = new ParallelMath(queue);
         scalarDiv = program.createKernel("scalar_div");
         scalarMul = program.createKernel("scalar_mul");
         floats_to_complex = program.createKernel("floats_to_complex");
@@ -342,7 +335,6 @@ public class IterDeconOpenCl {
      */
     public FloatArrayResult lengthenFFT(CLBuffer<Float> inCLBuffer, CLEvent... eventsToWaitFor) {
         long n = inCLBuffer.getElementCount();
-        System.out.println("IterDeconOpenCL lengthenFFT length: "+n+" ");
         CLBuffer<Float> lengthenFFTVals = context.createBuffer(CLMem.Usage.InputOutput, Float.class, 2*n);
         lengthenFFT.setArgs(inCLBuffer, lengthenFFTVals, n);
         CLEvent lengthenFFTEvent = lengthenFFT.enqueueNDRange(queue, new int[] {(int)n/2}, eventsToWaitFor);
@@ -360,12 +352,7 @@ public class IterDeconOpenCl {
         
         CLEvent phaseShiftEvent = phaseShift.enqueueNDRange(queue, new int[] {(int)size}, xFFT.getEventsToWaitFor());
         
-        FloatArrayResult outFFT = inverseFFT(new FloatArrayResult(shiftFFT, phaseShiftEvent));
-        
-        CLBuffer<Float> clBufOut = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
-        complex_to_floats.setArgs(outFFT.result, clBufOut, size);
-        CLEvent cmplxToFloatEvent = complex_to_floats.enqueueNDRange(queue, new int[] {size}, outFFT.getEventsToWaitFor());
-        return new FloatArrayResult(clBufOut, cmplxToFloatEvent);
+        return inverseFFT(new FloatArrayResult(shiftFFT, phaseShiftEvent));
     }
 
     public FloatArrayResult forwardFFT(FloatArrayResult x) {
@@ -388,7 +375,6 @@ public class IterDeconOpenCl {
         int size = (int)xFFT.getSize();
         FloatArrayResult longFFT = lengthenFFT(xFFT.getResult(), xFFT.getEventsToWaitFor());
         CLBuffer<Float> clBufRealComplex = context.createBuffer(CLMem.Usage.InputOutput, Float.class, 2*size);
-        System.out.println("before inverseFFT "+size+" to "+2*size);
         CLEvent fftEvent = fft.transform(queue, longFFT.getResult(), clBufRealComplex, true, longFFT.getEventsToWaitFor());
         
         CLBuffer<Float> clBufReal = context.createBuffer(CLMem.Usage.InputOutput, Float.class, size);
@@ -417,9 +403,6 @@ public class IterDeconOpenCl {
         }
         return i;
     }
-
-    static boolean useNativeFFT = false;
-    static boolean useOregonDSPFFT = false;
     
     // kernels
     protected CLKernel sqrFloatsKernel;
@@ -447,47 +430,38 @@ public class IterDeconOpenCl {
     protected CLQueue queue;
     
     public static void main(String[] args) throws Exception {
-        IterDeconOpenCl iterDecon = new IterDeconOpenCl(1, true, 1,1);
-        
 
-        int n = 1024;
-        float gwidth = 2.5f;
-        float dt = 0.1f;
-        float[] inData = new float[n];
-        inData[0] = 1;
+        int interations = 100;
+        SacTimeSeries sac = new SacTimeSeries();
+        DataInputStream in = new DataInputStream(IterDeconOpenCl.class
+                .getClassLoader()
+                .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/ESK1999_312_16.predicted.sac"));
+        sac.read(in);
+        in.close();
+        float[] fortranData = sac.getY();
+        in = new DataInputStream(IterDeconOpenCl.class
+                .getClassLoader()
+                .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/ESK_num.sac"));
+        sac.read(in);
+        in.close();
+        float[] num = sac.getY();
+        in = new DataInputStream(IterDeconOpenCl.class
+                .getClassLoader()
+                .getResourceAsStream("edu/sc/seis/fissuresUtil/bag/ESK_denom.sac"));
+        sac.read(in);
+        in.close();
+        float[] denom = sac.getY();
+        IterDeconOpenCl iterdecon = new IterDeconOpenCl(interations, true, .0001f, 3);
+        long before = System.nanoTime();
+        IterDeconResult result = iterdecon.process(num, denom, sac.getHeader().getDelta());
+        long openCl = System.nanoTime() - before;
+
+        IterDecon iterdeconCPU = new IterDecon(interations, true, .0001f, 3);
+        before = System.nanoTime();
+        IterDeconResult resultCPU = iterdeconCPU.process(num, denom, sac.getHeader().getDelta());
+        long cpu = System.nanoTime() - before;
         
-        System.out.println("After init opencl");
-        FloatArrayResult inCLBuffer = iterDecon.makeCLBuffer(inData);
-        System.out.println("before fft ");
-        FloatArrayResult forwardFFT = iterDecon.forwardFFT(inCLBuffer);
-        
-        FloatArrayResult inverse = iterDecon.inverseFFT(forwardFFT);
-        System.out.println("before read "+forwardFFT.getEventsToWaitFor()[0].getCommandExecutionStatus()+"  "+inverse.getEventsToWaitFor()[0].getCommandExecutionStatus());
-        System.out.print("Inverse events: ");
-        for (int i = 0; i < inverse.getEventsToWaitFor().length; i++) {
-            System.out.print("  "+inverse.getEventsToWaitFor()[i].getCommandExecutionStatus());
-        }
-        System.out.println();
-        float[] inverseFlts = inverse.getAfterWait(iterDecon.queue);
-        //assertArrayEquals(inData, inverseFlts, 0.001f);
-        
-        /*
-        int n = 1024;
-        ByteOrder byteOrder = iterDecon.context.getByteOrder();
-        Pointer<Float> aPtr = allocateFloats(n).order(byteOrder);
-        for (int i = 0; i < n; i++) {
-            aPtr.set(i, (float)(i%16)+i/((float)n));
-        }
-        CLBuffer<Float> a = iterDecon.context.createBuffer(Usage.InputOutput, aPtr);
-        FloatArrayResult gauss= iterDecon.gaussianFilter(a, 2f, .1f);
-        
-        Pointer<Float>  amps = allocateFloats(n).order(byteOrder);
-        Pointer<Integer> shifts = allocateInts(n).order(byteOrder);
-        CLBuffer<Float> ampsClBuf = iterDecon.context.createBuffer(CLMem.Usage.InputOutput, Float.class, n);
-        CLBuffer<Integer> shiftsClBuf = iterDecon.context.createBuffer(CLMem.Usage.InputOutput, Integer.class, n);
-        
-        iterDecon.calcMaxSpike(new FloatArrayResult(a), ampsClBuf, shiftsClBuf, n);*/
-        System.out.println("Done");
+        System.out.println("Done. cpu: "+cpu/1000000000+"  opencl: "+openCl/1000000000);
     }
     private static final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(IterDeconOpenCl.class);
 
