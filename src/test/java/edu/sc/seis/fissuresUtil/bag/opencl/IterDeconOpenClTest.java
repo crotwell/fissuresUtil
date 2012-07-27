@@ -5,24 +5,17 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 
-import org.bridj.Pointer;
+import org.junit.Test;
 
 import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLMem;
-import com.sun.mirror.util.SimpleDeclarationVisitor;
 
 import edu.sc.seis.fissuresUtil.bag.IterDecon;
 import edu.sc.seis.fissuresUtil.bag.IterDeconResult;
-import edu.sc.seis.fissuresUtil.bag.opencl.IterDeconOpenCl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 import edu.sc.seis.seisFile.sac.SacTimeSeries;
-
-import org.junit.*;
-
-import static org.junit.Assert.*;
 
 
 public class IterDeconOpenClTest {
