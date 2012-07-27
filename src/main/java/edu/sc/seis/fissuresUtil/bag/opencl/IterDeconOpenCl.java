@@ -239,12 +239,11 @@ public class IterDeconOpenCl {
     }
 
     public CLEvent calcMaxSpike(FloatArrayResult corrClBuf, FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, float delta, CLEvent... waitForEvent) {
-        int workGroupSize = (int)Math.min(128, indexReduceAbsMax.getWorkGroupSize().get(queue.getDevice()).intValue());
-        int globalWorkSize = (int)Math.min(queue.getDevice().getMaxComputeUnits()*4, workGroupSize);
-        if (workGroupSize > globalWorkSize) {workGroupSize = globalWorkSize;}
+        int maxWorkGroupSize = (int)Math.min(128, indexReduceAbsMax.getWorkGroupSize().get(queue.getDevice()).intValue());
+        int globalWorkSize = maxWorkGroupSize;
         
-        LocalSize sharedMemSize = LocalSize.ofFloatArray(globalWorkSize/workGroupSize);
-        LocalSize sharedMemIndexSize = LocalSize.ofIntArray(globalWorkSize/workGroupSize);
+        LocalSize sharedMemSize = LocalSize.ofFloatArray(maxWorkGroupSize);
+        LocalSize sharedMemIndexSize = LocalSize.ofIntArray(maxWorkGroupSize);
         /*indexReduceAbsMax.setArgs(corrClBuf.getResult(),
                                (int)corrClBuf.getSize()/2, // only do first half to avoid neg lag
                                sharedMemSize,
@@ -262,7 +261,8 @@ public class IterDeconOpenCl {
         indexReduceAbsMax.setObjectArg(i++, shiftsClBuf.getResult());
         indexReduceAbsMax.setObjectArg(i++, bump);
         indexReduceAbsMax.setObjectArg(i++, delta);
-        CLEvent maxBumpEvent = indexReduceAbsMax.enqueueNDRange(queue, new int[] {globalWorkSize}, new int[] {workGroupSize}, waitForEvent);
+        // always run with one workgroup
+        CLEvent maxBumpEvent = indexReduceAbsMax.enqueueNDRange(queue, new int[] {globalWorkSize}, new int[] {1}, waitForEvent);
         return maxBumpEvent;
     }
     
