@@ -241,6 +241,7 @@ public class IterDeconOpenCl {
     public CLEvent calcMaxSpike(FloatArrayResult corrClBuf, FloatArrayResult ampsClBuf, IntArrayResult shiftsClBuf, int bump, float delta, CLEvent... waitForEvent) {
         int workGroupSize = (int)Math.min(128, indexReduceAbsMax.getWorkGroupSize().get(queue.getDevice()).intValue());
         int globalWorkSize = (int)Math.min(queue.getDevice().getMaxComputeUnits()*4, workGroupSize);
+        System.out.println("calcMaxSpike workGroup: "+workGroupSize+"  globalSize:"+globalWorkSize);
         LocalSize sharedMemSize = LocalSize.ofFloatArray(globalWorkSize/workGroupSize);
         LocalSize sharedMemIndexSize = LocalSize.ofIntArray(globalWorkSize/workGroupSize);
         /*indexReduceAbsMax.setArgs(corrClBuf.getResult(),
