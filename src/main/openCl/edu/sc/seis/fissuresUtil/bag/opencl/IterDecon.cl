@@ -160,6 +160,7 @@ __kernel void convolve(__global const float* afft, __global const float* bfft, _
 
 
 // important that the globalWorkSize <= max workGroupSize
+// ie only one work group
 // so that final parallel reduction (2nd stage) results in
 // a single value
 __kernel void indexReduceAbsMax(__global float* buffer,
@@ -170,8 +171,10 @@ __kernel void indexReduceAbsMax(__global float* buffer,
                                 __global int* resultIndex,
                                 __const int resultStorageIndex,
                                 __const float delta) {
-    
-    int global_index = get_global_id(0);
+    if (get_group_id(0) != 0) {
+        return; // only run one workgroup
+    }
+    int global_index = get_local_id(0);
     float element = buffer[global_index];
     float accumulator = element;
     int accumulatorIndex = global_index;
@@ -204,7 +207,7 @@ __kernel void indexReduceAbsMax(__global float* buffer,
         }
         barrier(CLK_LOCAL_MEM_FENCE);
     }
-    if (get_global_id(0) == 0) {
+    if (get_local_id(0) == 0) {
         result[resultStorageIndex] = scratch[0]/delta;
         resultIndex[resultStorageIndex] = scratchIndex[0];
     }
