@@ -338,7 +338,8 @@ public class IterDeconOpenCl {
     public FloatArrayResult shortenFFT(CLBuffer<Float> inCLBuffer, CLEvent... eventsToWaitFor) {
         CLBuffer<Float> shortenFFTVals = context.createBuffer(CLMem.Usage.InputOutput, Float.class, inCLBuffer.getElementCount()/2);
         shortenFFT.setArgs(inCLBuffer, shortenFFTVals, (int)inCLBuffer.getElementCount()/2);
-        CLEvent shortenFFTEvent = shortenFFT.enqueueNDRange(queue, new int[] {(int)inCLBuffer.getElementCount()/2});
+        CLEvent shortenFFTEvent = shortenFFT.enqueueNDRange(queue, new int[] {(int)inCLBuffer.getElementCount()/2}, eventsToWaitFor);
+
         FloatArrayResult shortenFFTResult = new FloatArrayResult(shortenFFTVals, shortenFFTEvent);
         return shortenFFTResult;
     }
