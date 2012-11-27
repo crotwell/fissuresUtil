@@ -295,6 +295,8 @@ public class ConnMgr {
         }
         if (dbProperties.containsKey(DBPASSWORD_KEY)) {
             getProps().put("password", dbProperties.get(DBPASSWORD_KEY));
+        } else {
+            getProps().put("password", "");
         }
     }
 
