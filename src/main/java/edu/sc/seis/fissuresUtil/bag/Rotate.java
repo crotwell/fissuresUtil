@@ -28,9 +28,9 @@ public class Rotate  {
         // want y north, x east, or at least x + 90 deg == y
         double angle = (xOrient.azimuth - yOrient.azimuth) % 360;
         if (angle < 0) {angle += 360;}
-        if (angle == 90) {
+        if (Math.abs(angle - 90) < NINTY_DEGREE_TOLERANCE) {
             // ok
-        } else if (angle == 270) {
+        } else if (Math.abs(angle - 270) < NINTY_DEGREE_TOLERANCE) {
             // need to swap
             LocalSeismogramImpl tmp = x;
             Orientation tmpOrient = xOrient;
@@ -39,7 +39,7 @@ public class Rotate  {
             y = tmp;
             yOrient = tmpOrient;
         } else {
-            throw new IncompatibleSeismograms("not 90 deg separation: "+xOrient.azimuth+" - "+yOrient.azimuth+" = "+angle);
+            throw new IncompatibleSeismograms("not 90 deg separation: "+xOrient.azimuth+" - "+yOrient.azimuth+" = "+angle+" < tol of "+NINTY_DEGREE_TOLERANCE);
         }
         double radialAz = getRadialAzimuth(staLoc, evtLoc);
         float[][] data = Rotate.rotate(x, y, dtor(radialAz-yOrient.azimuth));
@@ -180,4 +180,6 @@ public class Rotate  {
     public static double rtod(double radian) {
         return radian * 180.0 / Math.PI;
     }
+    
+    public static final float NINTY_DEGREE_TOLERANCE = .01f;
 } // Rotate
