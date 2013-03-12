@@ -256,12 +256,6 @@ public class ConnMgr {
 
     private static boolean firstTime = true;
 
-    private static Connection createPSQLConn() throws SQLException {
-        return DriverManager.getConnection("jdbc:postgresql:anhingatest",
-                                           "anhingatest",
-                                           "");
-    }
-
     public static void installDbProperties(Properties sysProperties,
                                            Properties dbProperties) {
         ConnMgr.dbProperties = dbProperties;
@@ -293,10 +287,16 @@ public class ConnMgr {
             logger.debug("using default url of " + getURL());
         }
         if (dbProperties.containsKey(DBUSER_KEY)) {
+            logger.debug("Setting db user from "+DBUSER_KEY+" (db) to " + dbProperties.get(DBUSER_KEY));
             getProps().put("user", dbProperties.get(DBUSER_KEY));
+        } else if (sysProperties.containsKey(DBUSER_KEY)) {
+            logger.debug("Setting db user from "+DBUSER_KEY+" (sys) to " + sysProperties.get(DBUSER_KEY));
+            getProps().put("user", sysProperties.get(DBUSER_KEY));
         }
         if (dbProperties.containsKey(DBPASSWORD_KEY)) {
             getProps().put("password", dbProperties.get(DBPASSWORD_KEY));
+        } else {
+            getProps().put("password", "");
         }
     }
 
