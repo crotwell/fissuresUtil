@@ -9,6 +9,7 @@ import edu.iris.Fissures.LocationType;
 import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.Time;
 import edu.iris.Fissures.TimeRange;
+import edu.iris.Fissures.UnitBase;
 import edu.iris.Fissures.IfNetwork.ChannelId;
 import edu.iris.Fissures.IfNetwork.CoefficientErrored;
 import edu.iris.Fissures.IfNetwork.CoefficientFilter;
@@ -404,6 +405,18 @@ public class StationXMLToFissures {
             return UnitImpl.NANOMETER_PER_SECOND;
         } else if (unitString.equalsIgnoreCase("M/S/S") || unitString.equalsIgnoreCase("M/S**2")) {
             return UnitImpl.METER_PER_SECOND_PER_SECOND;
+        } else if (unitString.equalsIgnoreCase("PA")) {
+            return UnitImpl.PASCAL;
+        } else if (unitString.equalsIgnoreCase("PERCENT")) {
+            return new UnitImpl(UnitBase.COUNT, -2, "PERCENT", 1, 1);
+        } else if (unitString.equalsIgnoreCase("MBAR")) {
+            return UnitImpl.MILLIBAR;
+        } else if (unitString.equalsIgnoreCase("C")) {
+            return UnitImpl.CELSIUS;
+        } else if (unitString.equalsIgnoreCase("S") || unitString.equalsIgnoreCase("SEC")) {
+            return UnitImpl.SECOND;
+        } else if (unitString.equalsIgnoreCase("A")) {
+            return UnitImpl.AMPERE;
         } else if (unitString.equalsIgnoreCase("V")) {
             return UnitImpl.VOLT;
         } else if (unitString.equalsIgnoreCase("COUNTS")) {
