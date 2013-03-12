@@ -21,6 +21,8 @@ public class SimplePlottableClient implements TestingClient {
         // Delilah BUD Plottable Server
         serverDNS = "edu/sc/seis";
         // serves only cached plottable data
+        
+        
         serverName = "DelilahCache";
         // goes to BUD to get any non-cached plottable data
         // serverName = "Delilah";
@@ -43,7 +45,7 @@ public class SimplePlottableClient implements TestingClient {
             plottableDC = BulletproofVestFactory.vestPlottableDC(serverDNS,
                                                                  serverName,
                                                                  Initializer.getNS());
-            logger.info("got PlottableDC");
+            logger.info("got PlottableDC "+(plottableDC!=null));
         } catch(org.omg.CosNaming.NamingContextPackage.InvalidName e) {
             logger.error("Problem with name service: ", e);
         } catch(NotFound e) {
