@@ -443,7 +443,7 @@ public class FissuresConvert {
         // in miniseed
         ChannelId channelId = new ChannelId(new NetworkId(header.getNetworkCode().trim(), new Time(isoTime, -1)),
                                             header.getStationIdentifier().trim(),
-                                            header.getLocationIdentifier().trim(),
+                                            header.getLocationIdentifier(), // don't trim loc as space space might be right
                                             header.getChannelIdentifier().trim(),
                                             new Time(isoTime, -1));
         String seisId = channelId.network_id.network_code + ":" + channelId.station_code + ":" + channelId.site_code
