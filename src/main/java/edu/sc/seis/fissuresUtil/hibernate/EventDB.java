@@ -84,7 +84,7 @@ public class EventDB extends AbstractHibernateDB {
 		query.setDouble("maxDepth", q.getMaxDepth());
 		query.setFloat("minLon", ba.min_longitude);
 		query.setFloat("maxLon", ba.max_longitude);
-
+/*
         logger.debug("query: "+query);
 		logger.debug("query.setFloat(\"minLat\", "+ba.min_latitude);
 		logger.debug("query.setFloat(\"maxLat\", "+ba.max_latitude);
@@ -96,7 +96,7 @@ public class EventDB extends AbstractHibernateDB {
 		logger.debug("query.setDouble(\"maxDepth\", "+q.getMaxDepth());
 		logger.debug("query.setFloat(\"minLon\", "+ba.min_longitude);
 		logger.debug("query.setFloat(\"maxLon\", "+ba.max_longitude);
-        
+        */
 		return query.list();
 	}
 
