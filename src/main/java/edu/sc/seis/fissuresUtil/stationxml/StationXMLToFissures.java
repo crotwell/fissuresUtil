@@ -62,8 +62,13 @@ import edu.sc.seis.seisFile.stationxml.Zero;
 public class StationXMLToFissures {
     
     public static NetworkAttrImpl convert(Network net) {
+        // make name be first 80 chars of description
+        String name = net.getDescription();
+        if (name.length() > 80) {
+            name = name.substring(0, 80);
+        }
         return new NetworkAttrImpl(new NetworkId(net.getNetCode(), convertTime(net.getStartDate())),
-                                   "",
+                                   name,
                                    net.getDescription(),
                                    UNKNOWN,
                                    new TimeRange(convertTime(net.getStartDate()), convertTime(net.getEndDate())));
