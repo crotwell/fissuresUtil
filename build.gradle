@@ -109,7 +109,7 @@ def getDExtras() {
 }
 
 task makeScript(dependsOn: copyToLib) << { task ->
-    dExtras = getDExtras()
+    def dExtras = getDExtras()
     ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
     ScriptBuilder.create('seis', 'edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient', task.project, dExtras:dExtras)
     ScriptBuilder.create('event', 'edu.sc.seis.fissuresUtil.simple.SimpleEventClient', task.project, dExtras:dExtras)
