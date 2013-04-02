@@ -18,14 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.FissuresException;
+import edu.iris.Fissures.IfSeismogramDC.LocalSeismogram;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.display.SeismogramContainer;
+import edu.sc.seis.fissuresUtil.display.SeismogramContainerFactory;
 import edu.sc.seis.fissuresUtil.display.SeismogramIterator;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSet;
+import edu.sc.seis.fissuresUtil.xml.MemoryDataSetSeismogram;
 import edu.sc.seis.seisFile.mseed.Utility;
 
 /**
@@ -46,6 +51,10 @@ public class FissuresToWAV {
     private SeismogramContainer container;
     private EventListenerList listenerList = new EventListenerList();
 
+    public FissuresToWAV(LocalSeismogramImpl seis, int speedUp) {
+        this( SeismogramContainerFactory.create(new MemoryDataSetSeismogram(seis)), speedUp);
+    }
+     
     public FissuresToWAV(SeismogramContainer container, int speedUp) {
         this.container = container;
         this.speedUp = speedUp;
