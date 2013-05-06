@@ -317,12 +317,18 @@ public class StationXMLToFissures {
             CoefficientErrored[] num = new CoefficientErrored[coef.getNumeratorList().size()];
             int i = 0;
             for (FloatType p : coef.getNumeratorList()) {
-                num[i++] = new CoefficientErrored(p.getValue(), Math.max(p.getPlusError(), p.getMinusError()));
+                float error = 0;
+                if (p.hasPlusError()) {error = Math.max(p.getPlusError(), error); }
+                if (p.hasMinusError()) {error = Math.max(p.getMinusError(), error); }
+                num[i++] = new CoefficientErrored(p.getValue(), error);
             }
             CoefficientErrored[] denom = new CoefficientErrored[coef.getDenominatorList().size()];
             i = 0;
             for (FloatType p : coef.getDenominatorList()) {
-                denom[i++] = new CoefficientErrored(p.getValue(), Math.max(p.getPlusError(), p.getMinusError()));
+                float error = 0;
+                if (p.hasPlusError()) {error = Math.max(p.getPlusError(), error); }
+                if (p.hasMinusError()) {error = Math.max(p.getMinusError(), error); }
+                denom[i++] = new CoefficientErrored(p.getValue(), error);
             }
             out.coeff_filter(new CoefficientFilter(num, denom));
         } else if (filterType instanceof ResponseList) {
