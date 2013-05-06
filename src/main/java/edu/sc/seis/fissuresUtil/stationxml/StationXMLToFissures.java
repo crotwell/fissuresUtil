@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.stationxml;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import edu.iris.Fissures.Location;
@@ -42,46 +41,45 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SensorImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
-import edu.sc.seis.seisFile.stationxml.AbstractResponseType;
-import edu.sc.seis.seisFile.stationxml.Channel;
-import edu.sc.seis.seisFile.stationxml.Coefficients;
-import edu.sc.seis.seisFile.stationxml.Epoch;
-import edu.sc.seis.seisFile.stationxml.FIR;
-import edu.sc.seis.seisFile.stationxml.InstrumentSensitivity;
-import edu.sc.seis.seisFile.stationxml.Network;
-import edu.sc.seis.seisFile.stationxml.Pole;
-import edu.sc.seis.seisFile.stationxml.PoleZero;
-import edu.sc.seis.seisFile.stationxml.PolesZeros;
-import edu.sc.seis.seisFile.stationxml.ResponseList;
-import edu.sc.seis.seisFile.stationxml.Station;
-import edu.sc.seis.seisFile.stationxml.StationEpoch;
-import edu.sc.seis.seisFile.stationxml.StationXMLException;
-import edu.sc.seis.seisFile.stationxml.Zero;
-
+import edu.sc.seis.seisFile.fdsnws.stationxml.BaseFilterType;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Channel;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Coefficients;
+import edu.sc.seis.seisFile.fdsnws.stationxml.FIR;
+import edu.sc.seis.seisFile.fdsnws.stationxml.FloatType;
+import edu.sc.seis.seisFile.fdsnws.stationxml.InstrumentSensitivity;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Network;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Pole;
+import edu.sc.seis.seisFile.fdsnws.stationxml.PoleZero;
+import edu.sc.seis.seisFile.fdsnws.stationxml.PolesZeros;
+import edu.sc.seis.seisFile.fdsnws.stationxml.ResponseList;
+import edu.sc.seis.seisFile.fdsnws.stationxml.ResponseStage;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Station;
+import edu.sc.seis.seisFile.fdsnws.stationxml.StationXMLException;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Unit;
+import edu.sc.seis.seisFile.fdsnws.stationxml.Zero;
 
 public class StationXMLToFissures {
-    
+
     public static NetworkAttrImpl convert(Network net) {
         // make name be first 80 chars of description
         String name = net.getDescription();
         if (name.length() > 80) {
             name = name.substring(0, 80);
         }
-        return new NetworkAttrImpl(new NetworkId(net.getNetCode(), convertTime(net.getStartDate())),
+        return new NetworkAttrImpl(new NetworkId(net.getCode(), convertTime(net.getStartDate())),
                                    name,
                                    net.getDescription(),
                                    UNKNOWN,
                                    new TimeRange(convertTime(net.getStartDate()), convertTime(net.getEndDate())));
     }
-    
-    public static StationImpl convert(StationEpoch xml, NetworkAttrImpl netAttr, String staCode) {
-        TimeRange effectiveTime = new TimeRange(new Time(xml.getStartDate(), -1), 
-                                                new Time(xml.getEndDate(), -1));
+
+    public static StationImpl convert(Station xml, NetworkAttrImpl netAttr) throws StationXMLException {
+        TimeRange effectiveTime = new TimeRange(new Time(xml.getStartDate(), -1), new Time(xml.getEndDate(), -1));
         String name = xml.getSite().getName();
         if (name == null) {
-            name = (xml.getSite().getTown() != null ? xml.getSite().getTown()+" " : "") +
-                    (xml.getSite().getState() != null ? xml.getSite().getState()+" " : "") +
-                    (xml.getSite().getCountry() != null ? xml.getSite().getCountry() : "");
+            name = (xml.getSite().getTown() != null ? xml.getSite().getTown() + " " : "")
+                    + (xml.getSite().getRegion() != null ? xml.getSite().getRegion() + " " : "")
+                    + (xml.getSite().getCountry() != null ? xml.getSite().getCountry() : "");
             name = name.trim();
         }
         if ("".equals(name)) {
@@ -90,44 +88,29 @@ public class StationXMLToFissures {
         if (null == name || "".equals(name)) {
             name = "";
         }
-        return new StationImpl(new StationId(netAttr.getId(), staCode, effectiveTime.start_time),
-                                          name,
-                                          new Location(xml.getLat(), xml.getLon(),
-                                                       new QuantityImpl(xml.getElevation(), UnitImpl.METER),
-                                                       new QuantityImpl(0, UnitImpl.METER),
-                                                       LocationType.GEOGRAPHIC),
-                                          effectiveTime,
-                                          UNKNOWN, UNKNOWN, UNKNOWN,
-                                          netAttr);
+        return new StationImpl(new StationId(netAttr.getId(), xml.getCode(), effectiveTime.start_time),
+                               name,
+                               new Location(xml.getLatitude().getValue(),
+                                            xml.getLongitude().getValue(),
+                                            convertFloatType(xml.getElevation()),
+                                            new QuantityImpl(0, UnitImpl.METER),
+                                            LocationType.GEOGRAPHIC), effectiveTime, UNKNOWN, UNKNOWN, UNKNOWN, netAttr);
     }
-    
-    public static List<StationImpl> convert(Station xml) throws StationXMLException {
-        StationEpoch firstEpoch = xml.getStationEpochs().get(0);
-        MicroSecondDate staBegin = new MicroSecondDate(firstEpoch.getStartDate());
-        NetworkAttrImpl attr = new NetworkAttrImpl(new NetworkId(xml.getNetCode(), staBegin.getFissuresTime()), UNKNOWN, UNKNOWN, UNKNOWN);
-        List<NetworkAttrImpl> nets = new ArrayList<NetworkAttrImpl>();
-        nets.add(attr);
-        List<StationChannelBundle> bundles = convert(xml, nets, false);
-        List<StationImpl> out = new ArrayList<StationImpl>();
-        for (StationChannelBundle b : bundles) {
-            out.add(b.getStation());
-        }
-        return out;
-    }
-    
-    public static List<StationChannelBundle> convert(Station xml, List<NetworkAttrImpl> knownNets, boolean extractChannels) throws StationXMLException {
+
+    public static List<StationChannelBundle> convert(Station xml,
+                                                     List<NetworkAttrImpl> knownNets,
+                                                     boolean extractChannels) throws StationXMLException {
         NetworkAttrImpl attr = null;
         for (NetworkAttrImpl net : knownNets) {
-            if (xml.getNetCode().equals(net.get_code()))  {
-                if (! NetworkIdUtil.isTemporary(net.get_id())) {
+            if (xml.getNetworkCode().equals(net.get_code())) {
+                if (!NetworkIdUtil.isTemporary(net.get_id())) {
                     // found it
                     attr = net;
                     break;
-                }  else {
-                    StationEpoch firstEpoch = xml.getStationEpochs().get(0);
-                    MicroSecondDate staBegin = new MicroSecondDate(firstEpoch.getStartDate());
+                } else {
+                    MicroSecondDate staBegin = new MicroSecondDate(xml.getStartDate());
                     MicroSecondDate netBegin = new MicroSecondDate(net.getBeginTime());
-                    if (staBegin.after(netBegin) && staBegin.before(netBegin.add(new TimeInterval(2, UnitImpl.GREGORIAN_YEAR)))) {
+                    if (staBegin.after(netBegin) && staBegin.before(new MicroSecondDate(net.getEndTime()))) {
                         // close enough
                         attr = net;
                         break;
@@ -137,115 +120,102 @@ public class StationXMLToFissures {
         }
         if (attr == null) {
             // didn't find it
-            throw new StationXMLException("Can't find network for "+xml.getNetCode());
+            throw new StationXMLException("Can't find network for " + xml.getNetworkCode());
         }
         return convert(xml, attr, extractChannels);
     }
-    
-    public static List<StationChannelBundle> convert(Station xml, Network net, boolean extractChannels) throws StationXMLException {
+
+    public static List<StationChannelBundle> convert(Station xml, Network net, boolean extractChannels)
+            throws StationXMLException {
         return convert(xml, convert(net), extractChannels);
     }
-    
-    public static List<StationChannelBundle> convert(Station xml, NetworkAttrImpl attr, boolean extractChannels) throws StationXMLException {
+
+    public static List<StationChannelBundle> convert(Station xml, NetworkAttrImpl attr, boolean extractChannels)
+            throws StationXMLException {
         List<StationChannelBundle> out = new ArrayList<StationChannelBundle>();
-        Iterator<StationEpoch> it = xml.getStationEpochs().iterator();
-        while (it.hasNext()) {
-            StationEpoch staEpoch = it.next();
-            StationImpl sta = convert(staEpoch, attr, xml.getStaCode());
-            StationChannelBundle bundle = new StationChannelBundle(sta);
-            out.add(bundle);
-            if (extractChannels) {
-                for (Channel xmlChan : staEpoch.getChannelList()) {
-                    List<ChannelSensitivityBundle> chans = convert(xmlChan, sta);
-                    bundle.getChanList().addAll(chans);
-                    if ( ! chans.get(0).getChan().getStationImpl().getNetworkAttrImpl().get_code().equals(xml.getNetCode()) ||
-                            !  chans.get(0).getChan().getStationImpl().get_code().equals(xml.getStaCode())) {
-                        throw new StationXMLException("Chan doesn't match station or net: "+ChannelIdUtil.toStringNoDates(chans.get(0).getChan())+"  "+xml.getNetCode()+"."+xml.getStaCode()+"  attr:"+NetworkIdUtil.toStringNoDates(attr));
-                    }
+        StationImpl sta = convert(xml, attr);
+        StationChannelBundle bundle = new StationChannelBundle(sta);
+        out.add(bundle);
+        if (extractChannels) {
+            for (Channel xmlChan : xml.getChannelList()) {
+                ChannelSensitivityBundle chanSens = convert(xmlChan, sta);
+                bundle.getChanList().add(chanSens);
+                if (!chanSens
+                        .getChan()
+                        .getStationImpl()
+                        .getNetworkAttrImpl()
+                        .get_code()
+                        .equals(xml.getNetworkCode())
+                        || !chanSens.getChan().getStationImpl().get_code().equals(xml.getCode())) {
+                    throw new StationXMLException("Chan doesn't match station or net: "
+                            + ChannelIdUtil.toStringNoDates(chanSens.getChan()) + "  " + xml.getNetworkCode() + "."
+                            + xml.getCode() + "  attr:" + NetworkIdUtil.toStringNoDates(attr));
                 }
             }
         }
         return out;
     }
-    
-    public static ChannelSensitivityBundle convertChannel(Epoch chanEpoch, Channel parentChannel, StationImpl station) {
+
+    public static ChannelSensitivityBundle convert(Channel channel, StationImpl station) throws StationXMLException {
         SamplingImpl samp;
-        if (Math.abs(Math.round(chanEpoch.getSampleRate()) - chanEpoch.getSampleRate()) < 0.0001f) {
+        if (Math.abs(Math.round(channel.getSampleRate().getValue()) - channel.getSampleRate().getValue()) < 0.0001f) {
             // looks like an int samples per second
-            samp = new SamplingImpl(Math.round(chanEpoch.getSampleRate()), ONE_SECOND);
+            samp = new SamplingImpl(Math.round(channel.getSampleRate().getValue()), ONE_SECOND);
         } else {
-            samp = new SamplingImpl(1, new TimeInterval(1/chanEpoch.getSampleRate(), UnitImpl.SECOND));
+            samp = new SamplingImpl(1, new TimeInterval(1 / channel.getSampleRate().getValue(), UnitImpl.SECOND));
         }
-        TimeRange chanTimeRange = new TimeRange(convertTime(chanEpoch.getStartDate()),
-                                                convertTime(chanEpoch.getEndDate()));
+        TimeRange chanTimeRange = new TimeRange(convertTime(channel.getStartDate()),
+                                                convertTime(channel.getEndDate()));
         ChannelImpl chan = new ChannelImpl(new ChannelId(station.getId().network_id,
                                                          station.get_code(),
-                                                         parentChannel.getLocCode(),
-                                                         parentChannel.getChanCode(),
-                                                         convertTime(chanEpoch.getStartDate())),
-                                            UNKNOWN,
-                                            new Orientation(chanEpoch.getAzimuth(), chanEpoch.getDip()),
-                                            samp,
-                                            chanTimeRange,
-                                            new SiteImpl(new SiteId(station.getId().network_id,
-                                                                    station.get_code(),
-                                                                    parentChannel.getLocCode(),
-                                                                    convertTime(chanEpoch.getEndDate())),
-                                                         new Location(chanEpoch.getLat(),
-                                                                      chanEpoch.getLon(),
-                                                                      new QuantityImpl(chanEpoch.getElevation(), UnitImpl.METER),
-                                                                      new QuantityImpl(chanEpoch.getDepth(), UnitImpl.METER),
-                                                                      LocationType.GEOGRAPHIC),
-                                                         chanTimeRange,
-                                                         station, UNKNOWN));
+                                                         channel.getLocCode(),
+                                                         channel.getCode(),
+                                                         convertTime(channel.getStartDate())),
+                                           UNKNOWN,
+                                           new Orientation(channel.getAzimuth().getValue(), channel.getDip().getValue()),
+                                           samp,
+                                           chanTimeRange,
+                                           new SiteImpl(new SiteId(station.getId().network_id,
+                                                                   station.get_code(),
+                                                                   channel.getLocCode(),
+                                                                   convertTime(channel.getEndDate())),
+                                                        new Location(channel.getLatitude().getValue(),
+                                                                     channel.getLon().getValue(),
+                                                                     convertFloatType(channel.getElevation()),
+                                                                     convertFloatType(channel.getDepth()),
+                                                                     LocationType.GEOGRAPHIC),
+                                                        chanTimeRange,
+                                                        station,
+                                                        UNKNOWN));
         QuantityImpl sensitivity = null;
-        if ( chanEpoch.getInstrumentSensitivity() != null &&
-                chanEpoch.getInstrumentSensitivity().getSensitivityUnits().trim().length() != 0) {
+        if (channel.getResponse().getInstrumentSensitivity() != null
+                && channel.getResponse().getInstrumentSensitivity().getInputUnits() != null
+            && channel.getResponse().getInstrumentSensitivity().getOutputUnits() != null) {
             try {
-            sensitivity = new QuantityImpl(chanEpoch.getInstrumentSensitivity().getSensitivityValue(),
-                                                        convertUnit(chanEpoch.getInstrumentSensitivity().getSensitivityUnits()) );
-            } catch (StationXMLException e) {
-                logger.warn("Unable to extract unit: "+ChannelIdUtil.toStringFormatDates(chan.getId()), e);
+                sensitivity = new QuantityImpl(channel.getResponse().getInstrumentSensitivity().getSensitivityValue(),
+                                               UnitImpl.divide(convertUnit(channel.getResponse().getInstrumentSensitivity().getInputUnits()),
+                                                               convertUnit(channel.getResponse().getInstrumentSensitivity().getOutputUnits())));
+            } catch(StationXMLException e) {
+                logger.warn("Unable to extract unit: " + ChannelIdUtil.toStringFormatDates(chan.getId()), e);
             }
         } else {
-            logger.warn("No sensitivity for "+ChannelIdUtil.toStringFormatDates(chan.getId()));
+            logger.warn("No sensitivity for " + ChannelIdUtil.toStringFormatDates(chan.getId()));
         }
         return new ChannelSensitivityBundle(chan, sensitivity);
     }
-    
-    public static List<ChannelSensitivityBundle> convert(Channel xml, StationImpl station) throws StationXMLException {
-        List<ChannelSensitivityBundle> out = new ArrayList<ChannelSensitivityBundle>();
-        for (Epoch chanEpoch : xml.getChanEpochList()) {
-            out.add(convertChannel(chanEpoch, xml, station));
-        }
-        return out;
-    }
-    
 
-    public static InstrumentationImpl convertInstrumentation(Epoch xmlChan) throws StationXMLException {
-
-        ClockImpl clock = new ClockImpl(0,
-                                        "unknown",
-                                        "unknown",
-                                        "unknown",
-                                        "unknown");
-        SensorImpl sensor = new SensorImpl(0,
-                                           "unknown",
-                                           "unknown",
-                                           "unknown",
-                                           0, 0);
+    public static InstrumentationImpl convertInstrumentation(Channel xmlChan) throws StationXMLException {
+        ClockImpl clock = new ClockImpl(0, "unknown", "unknown", "unknown", "unknown");
+        SensorImpl sensor = new SensorImpl(0, "unknown", "unknown", "unknown", 0, 0);
         if (xmlChan.getSensor() != null) {
             sensor = new SensorImpl(0,
                                     makeNoNull(xmlChan.getSensor().getManufacturer()),
                                     makeNoNull(xmlChan.getSensor().getSerialNumber()),
                                     makeNoNull(xmlChan.getSensor().getModel()),
-                                    0, 0);
+                                    0,
+                                    0);
         }
-        DataAcqSysImpl dataLogger = new DataAcqSysImpl(0,
-                                                       "unknown",
-                                                       "unknown",
-                                                       "unknown",
-                                                       RecordingStyle.UNKNOWN);
+        DataAcqSysImpl dataLogger = new DataAcqSysImpl(0, "unknown", "unknown", "unknown", RecordingStyle.UNKNOWN);
         if (xmlChan.getDataLogger() != null) {
             dataLogger = new DataAcqSysImpl(0,
                                             makeNoNull(xmlChan.getDataLogger().getManufacturer()),
@@ -253,24 +223,25 @@ public class StationXMLToFissures {
                                             makeNoNull(xmlChan.getDataLogger().getModel()),
                                             RecordingStyle.UNKNOWN);
         }
-        TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate()),
-                                                convertTime(xmlChan.getEndDate()));
-        InstrumentationImpl out = new InstrumentationImpl(convert(xmlChan.getResponseList(), xmlChan.getInstrumentSensitivity()),
+        TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate()), convertTime(xmlChan.getEndDate()));
+        InstrumentationImpl out = new InstrumentationImpl(convert(xmlChan.getResponse().getResponseStageList(),
+                                                                  xmlChan.getResponse().getInstrumentSensitivity()),
                                                           chanTimeRange,
                                                           clock,
                                                           sensor,
                                                           dataLogger);
         return out;
     }
-    
-    public static Response convert(List<edu.sc.seis.seisFile.stationxml.Response> respList, InstrumentSensitivity overallGain) throws StationXMLException {
+
+    public static Response convert(List<ResponseStage> respList,
+                                   InstrumentSensitivity overallGain) throws StationXMLException {
         Sensitivity sense = null;
         if (overallGain != null) {
-        sense = new Sensitivity(overallGain.getSensitivityValue(), overallGain.getFrequency());
+            sense = new Sensitivity(overallGain.getSensitivityValue(), overallGain.getFrequency());
         } else {
-            for (edu.sc.seis.seisFile.stationxml.Response response : respList) {
-                if (response.getStage() == 0) {
-                    sense = new Sensitivity(response.getStageSensitivity().getSensitivityValue(), 
+            for (ResponseStage response : respList) {
+                if (response.getNumber() == 0) {
+                    sense = new Sensitivity(response.getStageSensitivity().getSensitivityValue(),
                                             response.getStageSensitivity().getFrequency());
                     break;
                 }
@@ -278,8 +249,8 @@ public class StationXMLToFissures {
         }
         // assume stages are in order, but maybe should sort???
         List<Stage> stages = new ArrayList<Stage>();
-        for (edu.sc.seis.seisFile.stationxml.Response response : respList) {
-            if (response.getStage() != 0) {
+        for (ResponseStage response : respList) {
+            if (response.getNumber() != 0) {
                 Decimation[] dec = new Decimation[0];
                 if (response.getDecimation() != null) {
                     dec = new Decimation[] {convertDecimation(response.getDecimation())};
@@ -289,8 +260,9 @@ public class StationXMLToFissures {
                 UnitImpl inputUnits;
                 UnitImpl outputUnits;
                 if (response.getResponseItem() == null) {
-                    // no responseItem, so units have not changed, find previous stage and reuse units
-                    inputUnits = (UnitImpl)stages.get(stages.size()-1).output_units;
+                    // no responseItem, so units have not changed, find previous
+                    // stage and reuse units
+                    inputUnits = (UnitImpl)stages.get(stages.size() - 1).output_units;
                     outputUnits = inputUnits;
                     if (response.getDecimation() != null) {
                         filt = new Filter[] {UNITY_COEFFICENT_FILTER};
@@ -311,29 +283,26 @@ public class StationXMLToFissures {
                                      outputUnits,
                                      norm,
                                      new Gain(response.getStageSensitivity().getSensitivityValue(),
-                                              response.getStageSensitivity().getFrequency()),
-                                     dec,
-                                     filt));
+                                              response.getStageSensitivity().getFrequency()), dec, filt));
             }
         }
-        return new Response(sense,
-                            stages.toArray(new Stage[0]));
+        return new Response(sense, stages.toArray(new Stage[0]));
     }
-    
-    public static Decimation convertDecimation(edu.sc.seis.seisFile.stationxml.Decimation dec) {
-        return new Decimation(new SamplingImpl(1, new TimeInterval(1/dec.getInputSampleRate(), UnitImpl.SECOND)),
+
+    public static Decimation convertDecimation(edu.sc.seis.seisFile.fdsnws.stationxml.Decimation dec) {
+        return new Decimation(new SamplingImpl(1, new TimeInterval(1 / dec.getInputSampleRate(), UnitImpl.SECOND)),
                               dec.getFactor(),
                               dec.getOffset(),
-                              new TimeInterval(dec.getDelay(), UnitImpl.SECOND),
-                              new TimeInterval(dec.getCorrection(), UnitImpl.SECOND));
+                              new TimeInterval(dec.getDelay().getValue(), UnitImpl.SECOND),
+                              new TimeInterval(dec.getCorrection().getValue(), UnitImpl.SECOND));
     }
-    
-    public static Filter convertFilter(AbstractResponseType resp) throws StationXMLException {
+
+    public static Filter convertFilter(BaseFilterType filterType) throws StationXMLException {
         Filter out = new Filter();
-        if (resp instanceof PolesZeros) {
-            PolesZeros pz = (PolesZeros)resp;
+        if (filterType instanceof PolesZeros) {
+            PolesZeros pz = (PolesZeros)filterType;
             ComplexNumberErrored[] poles = new ComplexNumberErrored[pz.getPoleList().size()];
-            int i=0;
+            int i = 0;
             for (Pole p : pz.getPoleList()) {
                 poles[i++] = convertComplex(p);
             }
@@ -343,40 +312,41 @@ public class StationXMLToFissures {
                 zeros[i++] = convertComplex(p);
             }
             out.pole_zero_filter(new PoleZeroFilter(poles, zeros));
-        } else if (resp instanceof Coefficients) {
-            Coefficients coef = (Coefficients)resp;
+        } else if (filterType instanceof Coefficients) {
+            Coefficients coef = (Coefficients)filterType;
             CoefficientErrored[] num = new CoefficientErrored[coef.getNumeratorList().size()];
-            int i=0;
-            for (Float p : coef.getNumeratorList()) {
-                num[i++] = new CoefficientErrored(p, 0);
+            int i = 0;
+            for (FloatType p : coef.getNumeratorList()) {
+                num[i++] = new CoefficientErrored(p.getValue(), Math.max(p.getPlusError(), p.getMinusError()));
             }
             CoefficientErrored[] denom = new CoefficientErrored[coef.getDenominatorList().size()];
             i = 0;
-            for (Float p : coef.getDenominatorList()) {
-                denom[i++] = new CoefficientErrored(p, 0);
+            for (FloatType p : coef.getDenominatorList()) {
+                denom[i++] = new CoefficientErrored(p.getValue(), Math.max(p.getPlusError(), p.getMinusError()));
             }
-            out.coeff_filter(new CoefficientFilter(num, denom)); 
-        } else if (resp instanceof ResponseList) {
-            throw new StationXMLException("Can only handle PolesZeros or FIR response types. "+resp.getClass());   
+            out.coeff_filter(new CoefficientFilter(num, denom));
+        } else if (filterType instanceof ResponseList) {
+            throw new StationXMLException("Can only handle PolesZeros or FIR response types. " + filterType.getClass());
         } else {
-            throw new StationXMLException("Can only handle PolesZeros or FIR response types. "+resp.getClass());   
+            throw new StationXMLException("Can only handle PolesZeros or FIR response types. " + filterType.getClass());
         }
         return out;
     }
-    
+
     public static Normalization convertNormalization(PolesZeros poleZero) {
         return new Normalization(poleZero.getNormalizationFactor(), poleZero.getNormalizationFreq());
     }
-    
+
     public static ComplexNumberErrored convertComplex(PoleZero pz) {
         return new ComplexNumberErrored((float)pz.getReal(), 0, (float)pz.getImaginary(), 0);
     }
-    
-    public static TransferType getTransferType(edu.sc.seis.seisFile.stationxml.Response response) throws StationXMLException {
+
+    public static TransferType getTransferType(ResponseStage response)
+            throws StationXMLException {
         if (response.getResponseItem() instanceof PolesZeros) {
             return TransferType.ANALOG;
         } else if (response.getResponseItem() instanceof Coefficients) {
-                return TransferType.ANALOG;
+            return TransferType.ANALOG;
         } else if (response.getResponseItem() instanceof FIR) {
             return TransferType.DIGITAL;
         } else if (response.getResponseItem() == null) {
@@ -387,21 +357,31 @@ public class StationXMLToFissures {
                 return TransferType.ANALOG;
             }
         } else {
-            throw new StationXMLException("Can only handle PolesZeros, Coefficients or FIR response types. "+response.getResponseItem().getClass());   
+            throw new StationXMLException("Can only handle PolesZeros, Coefficients or FIR response types. "
+                    + response.getResponseItem().getClass());
         }
     }
     
-    public static UnitImpl convertUnit(String xml) throws StationXMLException {
+    public static QuantityImpl convertFloatType(FloatType val) throws StationXMLException {
+        return new QuantityImpl(val.getValue(), convertUnit(val.getUnit()));
+    }
+
+    public static UnitImpl convertUnit(Unit unit) throws StationXMLException {
         String unitString;
-        if (xml.indexOf(" - ") != -1) {
-            unitString = xml.substring(0, xml.indexOf(" - ")).trim();
+        if (unit.getName().indexOf(" - ") != -1) {
+            unitString = unit.getName().substring(0, unit.getName().indexOf(" - ")).trim();
         } else {
-            unitString = xml.trim(); // probably won't work, but might as well try
+            unitString = unit.getName().trim(); // probably won't work, but might as well
+                                     // try
         }
         if (unitString.length() == 0) {
-            // no unit, probalby means unknown response
-            
+            // no unit, probably means unknown response
+            throw new StationXMLException("Unknown unit: "+unit.getName()+" "+unit.getDescription());
         }
+        return convertUnit(unitString);
+    }
+
+    public static UnitImpl convertUnit(String unitString) throws StationXMLException {
         if (unitString.equalsIgnoreCase("M")) {
             return UnitImpl.METER;
         } else if (unitString.equalsIgnoreCase("M/S")) {
@@ -429,16 +409,16 @@ public class StationXMLToFissures {
         } else {
             try {
                 return UnitImpl.getUnitFromString(unitString);
-            } catch (NoSuchFieldException e) {
-                throw new StationXMLException("Unknown unit: '"+xml+"'");
+            } catch(NoSuchFieldException e) {
+                throw new StationXMLException("Unknown unit: '" + unitString + "'");
             }
         }
     }
-    
+
     public static Time convertTime(String xml) {
         return new MicroSecondDate(xml).getFissuresTime();
     }
-    
+
     public static String makeNoNull(String s) {
         if (s == null) {
             return "";
@@ -447,18 +427,25 @@ public class StationXMLToFissures {
     }
 
     public static final Filter UNITY_POLE_ZERO = new Filter();
+
     public static final Filter UNITY_COEFFICENT_FILTER = new Filter();
-    
     static {
-        UNITY_POLE_ZERO.pole_zero_filter(new PoleZeroFilter(new ComplexNumberErrored[] { new ComplexNumberErrored(0,0,0,0)},
-                                                                            new ComplexNumberErrored[] { new ComplexNumberErrored(0,0,0,0)}));
-        UNITY_COEFFICENT_FILTER.coeff_filter(new CoefficientFilter(new CoefficientErrored[] {new CoefficientErrored(1,0)},
+        UNITY_POLE_ZERO.pole_zero_filter(new PoleZeroFilter(new ComplexNumberErrored[] {new ComplexNumberErrored(0,
+                                                                                                                 0,
+                                                                                                                 0,
+                                                                                                                 0)},
+                                                            new ComplexNumberErrored[] {new ComplexNumberErrored(0,
+                                                                                                                 0,
+                                                                                                                 0,
+                                                                                                                 0)}));
+        UNITY_COEFFICENT_FILTER.coeff_filter(new CoefficientFilter(new CoefficientErrored[] {new CoefficientErrored(1,
+                                                                                                                    0)},
                                                                    new CoefficientErrored[0]));
     }
-    
+
     public static final String UNKNOWN = "";
-    
+
     public static final TimeInterval ONE_SECOND = new TimeInterval(1, UnitImpl.SECOND);
-    
+
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StationXMLToFissures.class);
 }
