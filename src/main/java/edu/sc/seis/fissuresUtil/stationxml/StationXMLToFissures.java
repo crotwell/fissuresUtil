@@ -55,6 +55,7 @@ import edu.sc.seis.seisFile.fdsnws.stationxml.ResponseList;
 import edu.sc.seis.seisFile.fdsnws.stationxml.ResponseStage;
 import edu.sc.seis.seisFile.fdsnws.stationxml.Station;
 import edu.sc.seis.seisFile.fdsnws.stationxml.StationXMLException;
+import edu.sc.seis.seisFile.fdsnws.stationxml.StationXMLTagNames;
 import edu.sc.seis.seisFile.fdsnws.stationxml.Unit;
 import edu.sc.seis.seisFile.fdsnws.stationxml.Zero;
 
@@ -224,6 +225,7 @@ public class StationXMLToFissures {
                                             RecordingStyle.UNKNOWN);
         }
         TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate()), convertTime(xmlChan.getEndDate()));
+        if (xmlChan.getResponse().getResponseStageList().size() != 0) {
         InstrumentationImpl out = new InstrumentationImpl(convert(xmlChan.getResponse().getResponseStageList(),
                                                                   xmlChan.getResponse().getInstrumentSensitivity()),
                                                           chanTimeRange,
@@ -231,6 +233,9 @@ public class StationXMLToFissures {
                                                           sensor,
                                                           dataLogger);
         return out;
+        } else {
+            throw new StationXMLException("Response not available");
+        }
     }
 
     public static Response convert(List<ResponseStage> respList,
@@ -330,6 +335,40 @@ public class StationXMLToFissures {
                 if (p.hasMinusError()) {error = Math.max(p.getMinusError(), error); }
                 denom[i++] = new CoefficientErrored(p.getValue(), error);
             }
+            out.coeff_filter(new CoefficientFilter(num, denom));
+        } else if (filterType instanceof FIR) {
+            FIR fir = (FIR)filterType;
+            CoefficientErrored[] num;
+            int numListSize = fir.getNumeratorCoefficientList().size();
+            if (fir.getSymmetry().equals(StationXMLTagNames.NONE)) {
+                num = new CoefficientErrored[numListSize];
+                int i = 0;
+                for (Float p : fir.getNumeratorCoefficientList()) {
+                    float error = 0;
+                    num[i++] = new CoefficientErrored(p, error);
+                }
+            } else if (fir.getSymmetry().equals(StationXMLTagNames.ODD)) {
+                num = new CoefficientErrored[ 2 * numListSize - 1];
+                int i = 0;
+                for (Float p : fir.getNumeratorCoefficientList()) {
+                    float error = 0;
+                    num[i] = new CoefficientErrored(p, error);
+                    num[2*numListSize-1 - i - 1] = new CoefficientErrored(p, error);
+                    i++;
+                }
+            } else if (fir.getSymmetry().equals(StationXMLTagNames.EVEN)) {
+                num = new CoefficientErrored[ 2 * numListSize];
+                int i = 0;
+                for (Float p : fir.getNumeratorCoefficientList()) {
+                    float error = 0;
+                    num[i] = new CoefficientErrored(p, error);
+                    num[2*numListSize - i -1] = new CoefficientErrored(p, error);
+                    i++;
+                }
+            } else {
+                throw new StationXMLException("Unknown FIR symmetry: "+fir.getSymmetry());
+            }
+            CoefficientErrored[] denom = new CoefficientErrored[0];
             out.coeff_filter(new CoefficientFilter(num, denom));
         } else if (filterType instanceof ResponseList) {
             throw new StationXMLException("Can only handle PolesZeros or FIR response types. " + filterType.getClass());
