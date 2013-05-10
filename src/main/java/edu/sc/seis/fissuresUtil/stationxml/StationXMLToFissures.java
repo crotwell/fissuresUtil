@@ -369,7 +369,7 @@ public class StationXMLToFissures {
     }
     
     public static QuantityImpl convertFloatType(FloatType val) throws StationXMLException {
-        return new QuantityImpl(val.getValue(), convertUnit(val.getUnit()));
+        return new QuantityImpl(val.getValue(), convertUnit(val.getUnit(), ""));
     }
 
     public static UnitImpl convertUnit(Unit unit) throws StationXMLException {
@@ -384,10 +384,10 @@ public class StationXMLToFissures {
             // no unit, probably means unknown response
             throw new StationXMLException("Unknown unit: "+unit.getName()+" "+unit.getDescription());
         }
-        return convertUnit(unitString);
+        return convertUnit(unitString, unit.getDescription());
     }
 
-    public static UnitImpl convertUnit(String unitString) throws StationXMLException {
+    public static UnitImpl convertUnit(String unitString, String unitDescription) throws StationXMLException {
         if (unitString.equalsIgnoreCase("M")) {
             return UnitImpl.METER;
         } else if (unitString.equalsIgnoreCase("M/S")) {
@@ -416,7 +416,7 @@ public class StationXMLToFissures {
             try {
                 return UnitImpl.getUnitFromString(unitString);
             } catch(NoSuchFieldException e) {
-                throw new StationXMLException("Unknown unit: '" + unitString + "'");
+                throw new StationXMLException("Unknown unit: '" + unitString + "' described as "+unitDescription);
             }
         }
     }
