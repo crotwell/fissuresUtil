@@ -427,30 +427,65 @@ public class StationXMLToFissures {
     }
 
     public static UnitImpl convertUnit(String unitString, String unitDescription) throws StationXMLException {
-        if (unitString.equalsIgnoreCase("M")) {
+        if (unitString.equalsIgnoreCase("M") && ! unitDescription.trim().equalsIgnoreCase("minute")) {
             return UnitImpl.METER;
+        } else if (unitString.equalsIgnoreCase("M") && unitDescription.trim().equalsIgnoreCase("minute")) {
+            return UnitImpl.MINUTE;
         } else if (unitString.equalsIgnoreCase("M/S")) {
             return UnitImpl.METER_PER_SECOND;
-        } else if (unitString.equalsIgnoreCase("NM/S")) {
+        } else if (unitString.equalsIgnoreCase("NM/S") || unitString.equalsIgnoreCase("NM/SEC")) {
             return UnitImpl.NANOMETER_PER_SECOND;
-        } else if (unitString.equalsIgnoreCase("M/S/S") || unitString.equalsIgnoreCase("M/S**2")) {
+        } else if (unitString.equalsIgnoreCase("CM/SEC**2")) {
+            return UnitImpl.CENTIMETER_PER_SECOND_PER_SECOND;
+        } else if (unitString.equalsIgnoreCase("M/S/S")
+                || unitString.equalsIgnoreCase("M/S**2")
+                || unitString.equalsIgnoreCase("M/(S**2)")
+                || unitString.equalsIgnoreCase("M/S**2/ACCELERATION")) {
             return UnitImpl.METER_PER_SECOND_PER_SECOND;
         } else if (unitString.equalsIgnoreCase("PA")) {
             return UnitImpl.PASCAL;
+        } else if (unitString.equalsIgnoreCase("HPA")) {
+            return UnitImpl.HECTOPASCAL;
+        } else if (unitString.equalsIgnoreCase("KPA")) {
+            return UnitImpl.KILOPASCAL;
+        } else if (unitString.equalsIgnoreCase("H/M**2*S")) {
+            return UnitImpl.multiply(UnitImpl.SQUARE_METER, UnitImpl.SECOND).inverse("hail intensity in hits per meter squared second");
         } else if (unitString.equalsIgnoreCase("PERCENT")) {
             return new UnitImpl(UnitBase.COUNT, -2, "PERCENT", 1, 1);
         } else if (unitString.equalsIgnoreCase("MBAR")) {
             return UnitImpl.MILLIBAR;
-        } else if (unitString.equalsIgnoreCase("C")) {
+        } else if (unitString.equalsIgnoreCase("C") || unitString.equalsIgnoreCase("CELSIUS")) {
             return UnitImpl.CELSIUS;
         } else if (unitString.equalsIgnoreCase("S") || unitString.equalsIgnoreCase("SEC")) {
             return UnitImpl.SECOND;
+        } else if (unitString.equalsIgnoreCase("USEC")) {
+            return UnitImpl.MICROSECOND;
         } else if (unitString.equalsIgnoreCase("A")) {
             return UnitImpl.AMPERE;
-        } else if (unitString.equalsIgnoreCase("V")) {
+        } else if (unitString.equalsIgnoreCase("T")) {
+            return UnitImpl.TESLA;
+        } else if (unitString.equalsIgnoreCase("V")
+                || unitString.equalsIgnoreCase("VOLTS")
+                || unitString.equalsIgnoreCase("VOLT_UNIT")) {
             return UnitImpl.VOLT;
-        } else if (unitString.equalsIgnoreCase("COUNTS")) {
+        } else if (unitString.equalsIgnoreCase("V/M")) {
+            return UnitImpl.VOLT_PER_METER;
+        } else if (unitString.equalsIgnoreCase("W/M2")) {
+            return UnitImpl.WATT;
+        } else if (unitString.equalsIgnoreCase("RAD") || unitString.equalsIgnoreCase("TILT")) {
+            return UnitImpl.RADIAN;
+        } else if (unitString.equalsIgnoreCase("RAD/S")) {
+            return UnitImpl.RADIAN_PER_SECOND;
+        } else if (unitString.equalsIgnoreCase("D") || unitString.equalsIgnoreCase("DEGREES")) {
+            return UnitImpl.DEGREE;
+        } else if (unitString.equalsIgnoreCase("COUNTS") || unitString.equalsIgnoreCase("COUNT_UNIT")) {
             return UnitImpl.COUNT;
+        } else if (unitString.equalsIgnoreCase("REBOOTS")
+                || unitString.equalsIgnoreCase("CYCLES")
+                || unitString.equalsIgnoreCase("GAPS")) {
+            return UnitImpl.COUNT;
+        } else if (unitString.equalsIgnoreCase("1") || unitString.equalsIgnoreCase("M/M")) {
+            return UnitImpl.divide(UnitImpl.METER, UnitImpl.METER);
         } else {
             try {
                 return UnitImpl.getUnitFromString(unitString);
