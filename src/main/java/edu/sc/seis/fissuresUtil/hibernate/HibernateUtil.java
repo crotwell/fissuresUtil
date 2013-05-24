@@ -116,6 +116,7 @@ public class HibernateUtil {
     }
     
     public static void setUp(String dialect, String driverClass, String dbURL, String username, String password, Properties props) {
+        logger.info("setup: "+dialect+" "+driverClass+"  "+dbURL+"  "+username+"  "+password);
         synchronized(HibernateUtil.class) {
             getConfiguration().setProperty("hibernate.dialect", dialect);
             getConfiguration().setProperty("hibernate.connection.driver_class",
