@@ -202,7 +202,7 @@ public class Cut implements LocalSeismogramFunction {
         int currentPoint = 0;
         int firstUsedPoint = -1;
         int pointsInNewSeis = 0;
-        for(int i = 0; i < ed.length && currentPoint < endIndex; i++) {
+        for(int i = 0; i < ed.length && currentPoint <= endIndex; i++) {
             if(currentPoint + ed[i].num_points > beginIndex) {
                 outData.add(ed[i]);
                 pointsInNewSeis += ed[i].num_points;
