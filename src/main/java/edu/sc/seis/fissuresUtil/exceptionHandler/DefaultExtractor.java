@@ -35,6 +35,6 @@ public class DefaultExtractor implements Extractor {
     }
 
     public Throwable getSubThrowable(Throwable throwable) {
-        return throwable.getCause();
+        return null;
     }
 }
