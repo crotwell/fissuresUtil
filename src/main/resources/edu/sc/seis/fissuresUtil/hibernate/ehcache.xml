@@ -20,7 +20,7 @@
         />
         
     <cache name="edu.iris.Fissures.network.NetworkAttrImpl"
-        maxElementsInMemory="300"
+        maxElementsInMemory="1200"
         eternal="true"
         overflowToDisk="false"
         />
