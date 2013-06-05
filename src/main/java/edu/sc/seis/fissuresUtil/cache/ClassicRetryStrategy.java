@@ -17,13 +17,25 @@ public class ClassicRetryStrategy extends BaseRetryStrategy {
         } else {
             tryString = "infinity";
         }
-        logger.debug("Caught exception on " + server.getFullName()
+        String name;
+        if (server instanceof CorbaServerWrapper) {
+            name = ((CorbaServerWrapper)server).getFullName();
+        } else {
+            name = server.toString();
+        }
+        logger.debug("Caught exception on " + name
                 + ", retrying " + tryCount + " of " + tryString, exc);
         return basicShouldRetry(exc, server, tryCount);
     }
 
     public void serverRecovered(Object server) {
-        logger.debug(server.getFullName() + " recovered");
+        String name;
+        if (server instanceof CorbaServerWrapper) {
+            name = ((CorbaServerWrapper)server).getFullName();
+        } else {
+            name = server.toString();
+        }
+        logger.debug(name + " recovered");
     }
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassicRetryStrategy.class);

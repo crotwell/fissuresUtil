@@ -1,11 +1,12 @@
 package edu.sc.seis.fissuresUtil.cache;
 
-import org.omg.CORBA.SystemException;
 
 public class ResetWithoutRetryStrategy implements RetryStrategy {
 
     public boolean shouldRetry(Throwable exc, Object server, int tryCount) {
-        server.reset();
+        if (server instanceof CorbaServerWrapper) {
+            ((CorbaServerWrapper)server).reset();
+        }
         return false;
     }
 
