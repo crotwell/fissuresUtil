@@ -4,10 +4,10 @@ import org.omg.CORBA.SystemException;
 
 public class ResetWithoutRetryStrategy implements RetryStrategy {
 
-    public boolean shouldRetry(SystemException exc, CorbaServerWrapper server, int tryCount) {
+    public boolean shouldRetry(Throwable exc, Object server, int tryCount) {
         server.reset();
         return false;
     }
 
-    public void serverRecovered(CorbaServerWrapper server) {}
+    public void serverRecovered(Object server) {}
 }

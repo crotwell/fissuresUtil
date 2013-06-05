@@ -17,9 +17,9 @@ import org.omg.CORBA.SystemException;
  */
 public interface RetryStrategy {
 
-    public boolean shouldRetry(SystemException exc,
-                               CorbaServerWrapper server,
+    public boolean shouldRetry(Throwable exc,
+                               Object server,
                                int tryCount);
     
-    public void serverRecovered(CorbaServerWrapper server);
+    public void serverRecovered(Object server);
 }
