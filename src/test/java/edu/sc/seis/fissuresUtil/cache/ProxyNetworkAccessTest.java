@@ -15,15 +15,15 @@ public class ProxyNetworkAccessTest extends TestCase {
 
     private final class Counter implements RetryStrategy {
 
-        public boolean shouldRetry(SystemException exc,
-                           CorbaServerWrapper server,
+        public boolean shouldRetry(Throwable exc,
+                           Object server,
                            int retryCount) {
             assertEquals(0, retryCount);
             count++;
             return true;
         }
 
-        public void serverRecovered(CorbaServerWrapper server) {
+        public void serverRecovered(Object server) {
             recovered = true;
         }
 

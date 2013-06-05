@@ -8,12 +8,12 @@ public abstract class BaseRetryStrategy implements RetryStrategy {
         this.numRetries = numRetries;
     }
 
-    public abstract boolean shouldRetry(SystemException exc,
-                                        CorbaServerWrapper server,
+    public abstract boolean shouldRetry(Throwable exc,
+                                        Object server,
                                         int tryCount);
 
-    protected boolean basicShouldRetry(SystemException exc,
-                                       CorbaServerWrapper server,
+    protected boolean basicShouldRetry(Throwable exc,
+                                       ServerWrapper server,
                                        int tryCount) {
         if (numRetries == -1 || tryCount < numRetries) {
             // do a reset every other time
@@ -27,7 +27,7 @@ public abstract class BaseRetryStrategy implements RetryStrategy {
         }
     }
     
-    public void serverRecovered(CorbaServerWrapper server){}
+    public void serverRecovered(Object server){}
     
     int numRetries;
 }

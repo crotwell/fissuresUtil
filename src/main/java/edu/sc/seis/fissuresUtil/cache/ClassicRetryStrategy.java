@@ -8,8 +8,8 @@ public class ClassicRetryStrategy extends BaseRetryStrategy {
         super(numRetries);
     }
 
-    public boolean shouldRetry(SystemException exc,
-                               CorbaServerWrapper server,
+    public boolean shouldRetry(Throwable exc,
+                               Object server,
                                int tryCount) {
         String tryString;
         if(numRetries != -1) {
@@ -22,7 +22,7 @@ public class ClassicRetryStrategy extends BaseRetryStrategy {
         return basicShouldRetry(exc, server, tryCount);
     }
 
-    public void serverRecovered(CorbaServerWrapper server) {
+    public void serverRecovered(Object server) {
         logger.debug(server.getFullName() + " recovered");
     }
 
