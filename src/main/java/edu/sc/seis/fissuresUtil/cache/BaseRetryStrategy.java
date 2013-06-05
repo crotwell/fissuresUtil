@@ -13,12 +13,14 @@ public abstract class BaseRetryStrategy implements RetryStrategy {
                                         int tryCount);
 
     protected boolean basicShouldRetry(Throwable exc,
-                                       ServerWrapper server,
+                                       Object server,
                                        int tryCount) {
         if (numRetries == -1 || tryCount < numRetries) {
             // do a reset every other time
             if (tryCount % 2 == 0) {
-                server.reset();
+                if (server instanceof CorbaServerWrapper) {
+                    ((CorbaServerWrapper)server).reset();
+                }
             }
             BulletproofVestFactory.retrySleep(tryCount);
             return true;
