@@ -30,9 +30,13 @@ public class MockSiteId {
     }
 
     public static SiteId createSiteId(Station sta) {
+        return createSiteId(sta, "  ");
+    }
+
+    public static SiteId createSiteId(Station sta, String siteCode) {
         return new SiteId(sta.get_id().network_id,
                           sta.get_code(),
-                          "  ",
+                          siteCode,
                           sta.get_id().begin_time);
     }
 }

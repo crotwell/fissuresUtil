@@ -31,7 +31,11 @@ public class MockSite {
     }
 
     public static Site createSite(Station station) {
-        return new SiteImpl(MockSiteId.createSiteId(station),
+        return createSite(station, "00");
+    }
+
+    public static Site createSite(Station station, String siteCode) {
+        return new SiteImpl(MockSiteId.createSiteId(station, siteCode),
                             station.getLocation(),
                             station,
                             "Mock Site for station "
