@@ -68,11 +68,21 @@ public class MockChannel {
     }
     
     public static ChannelImpl createChannel(Station station) {
-        Site s = MockSite.createSite(station);
-        return createChannel(MockChannelId.createChanId("BHZ", s),
+        return createChannel(station, "00", "BHZ");
+    }
+    
+    public static ChannelImpl createChannel(Station station, String siteCode, String chanCode) {
+        Site s = MockSite.createSite(station, siteCode);
+        Orientation o = VERTICAL;
+        if (chanCode.endsWith("N")) {
+            o = NORTH;
+        } else if (chanCode.endsWith("E")) {
+            o = EAST;
+        }
+        return createChannel(MockChannelId.createChanId(chanCode, s),
                              "fake chan",
                              s,
-                             VERTICAL);
+                             o);
     }
 
     private static ChannelImpl createChannel(ChannelId id,
