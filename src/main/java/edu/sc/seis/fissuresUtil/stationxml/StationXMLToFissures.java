@@ -200,7 +200,7 @@ public class StationXMLToFissures {
                 logger.warn("Unable to extract unit: " + ChannelIdUtil.toStringFormatDates(chan.getId()), e);
             }
         } else {
-            logger.warn("No sensitivity for " + ChannelIdUtil.toStringFormatDates(chan.getId()));
+            logger.info("No sensitivity for " + ChannelIdUtil.toStringFormatDates(chan.getId()));
         }
         return new ChannelSensitivityBundle(chan, sensitivity);
     }
