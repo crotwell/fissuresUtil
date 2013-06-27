@@ -16,6 +16,17 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
  */
 public class Rotate  {
 
+    public static boolean areRotatable(Orientation xOrient, Orientation yOrient) {
+        // want y north, x east, or at least x + 90 deg == y
+        double angle = (xOrient.azimuth - yOrient.azimuth) % 360;
+        if (angle < 0) {angle += 360;}
+        if (Math.abs(angle - 90) < NINTY_DEGREE_TOLERANCE 
+                || Math.abs(angle - 270) < NINTY_DEGREE_TOLERANCE) {
+            return true;
+        }
+        return false;
+    }
+    
     public static LocalSeismogramImpl[] rotateGCP(LocalSeismogramImpl x,
                                                   Orientation xOrient,
                                                   LocalSeismogramImpl y,
