@@ -421,7 +421,9 @@ public class FissuresConvert {
 
     /**
      * assume all records from same channel and in time order with no
-     * gaps/overlaps.
+     * gaps/overlaps and small sampling rate variations. 
+     * Sampling for seis is recalculated based on seis start time
+     * and last sample time of DataRecord to average any sample rate variation
      */
     public static LocalSeismogramImpl append(LocalSeismogramImpl seis, DataRecord seed) throws SeedFormatException,
             FissuresException {
@@ -432,6 +434,8 @@ public class FissuresConvert {
                 throw new RuntimeException("encoded data is null " + j);
             }
             seis.append_encoded(edata[j]);
+            MicroSecondDate drEnd = getMicroSecondTime(seed.getHeader().getLastSampleBtime());
+            seis.sampling_info = new SamplingImpl(seis.getNumPoints()-1, drEnd.subtract(seis.getBeginTime()));
         }
         return seis;
     }
