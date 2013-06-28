@@ -17,6 +17,10 @@ import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 public class Rotate  {
 
     public static boolean areRotatable(Orientation xOrient, Orientation yOrient) {
+        return areRotatable(xOrient, yOrient, NINTY_DEGREE_TOLERANCE);
+    }
+
+    public static boolean areRotatable(Orientation xOrient, Orientation yOrient, float toleranceDegrees) {
         // want y north, x east, or at least x + 90 deg == y
         double angle = (xOrient.azimuth - yOrient.azimuth) % 360;
         if (angle < 0) {angle += 360;}
@@ -26,7 +30,7 @@ public class Rotate  {
         }
         return false;
     }
-    
+
     public static LocalSeismogramImpl[] rotateGCP(LocalSeismogramImpl x,
                                                   Orientation xOrient,
                                                   LocalSeismogramImpl y,
@@ -36,12 +40,25 @@ public class Rotate  {
                                                   String transverseCode,
                                                   String radialCode)
             throws FissuresException, IncompatibleSeismograms {
+        return rotateGCP(x, xOrient, y, yOrient, staLoc, evtLoc, transverseCode, radialCode, NINTY_DEGREE_TOLERANCE);
+    }
+
+    public static LocalSeismogramImpl[] rotateGCP(LocalSeismogramImpl x,
+                                                  Orientation xOrient,
+                                                  LocalSeismogramImpl y,
+                                                  Orientation yOrient,
+                                                  Location staLoc,
+                                                  Location evtLoc,
+                                                  String transverseCode,
+                                                  String radialCode,
+                                                  float toleranceDegrees)
+            throws FissuresException, IncompatibleSeismograms {
         // want y north, x east, or at least x + 90 deg == y
         double angle = (xOrient.azimuth - yOrient.azimuth) % 360;
         if (angle < 0) {angle += 360;}
-        if (Math.abs(angle - 90) < NINTY_DEGREE_TOLERANCE) {
+        if (Math.abs(angle - 90) < toleranceDegrees) {
             // ok
-        } else if (Math.abs(angle - 270) < NINTY_DEGREE_TOLERANCE) {
+        } else if (Math.abs(angle - 270) < toleranceDegrees) {
             // need to swap
             LocalSeismogramImpl tmp = x;
             Orientation tmpOrient = xOrient;
@@ -50,7 +67,7 @@ public class Rotate  {
             y = tmp;
             yOrient = tmpOrient;
         } else {
-            throw new IncompatibleSeismograms("not 90 deg separation: "+xOrient.azimuth+" - "+yOrient.azimuth+" = "+angle+" < tol of "+NINTY_DEGREE_TOLERANCE);
+            throw new IncompatibleSeismograms("not 90 deg separation: "+xOrient.azimuth+" - "+yOrient.azimuth+" = "+angle+" < tol of "+toleranceDegrees);
         }
         double radialAz = getRadialAzimuth(staLoc, evtLoc);
         float[][] data = Rotate.rotate(x, y, dtor(radialAz-yOrient.azimuth));
