@@ -99,12 +99,22 @@ public class ChannelGroup {
      *  then a zero length array is returned.
      */
     public ChannelImpl[] getHorizontalXY() {
+        return getHorizontalXY(2);
+    }
+
+    /**
+     * Gets the horizontals as X and Y, so that the first channel's azimuth is equal to
+     * the seconds + 90 degrees, ie x -> east (90) and y -> north (0). 
+     * If this is not possible, within tolerance degrees,
+     *  then a zero length array is returned.
+     */
+    public ChannelImpl[] getHorizontalXY(float toleranceDegrees) {
         ChannelImpl[] out = getHorizontal();
         if(out.length != 2) {
             out = new ChannelImpl[0];
-        } else if(Math.abs(((360+out[0].getOrientation().azimuth - out[1].getOrientation().azimuth) % 360) - 90) < 2 ) {
+        } else if(Math.abs(((360+out[0].getOrientation().azimuth - out[1].getOrientation().azimuth) % 360) - 90) < toleranceDegrees ) {
             // in right order
-        } else if(Math.abs(((360+out[1].getOrientation().azimuth - out[0].getOrientation().azimuth) % 360) - 90) < 2 ) {
+        } else if(Math.abs(((360+out[1].getOrientation().azimuth - out[0].getOrientation().azimuth) % 360) - 90) < toleranceDegrees ) {
             ChannelImpl tmp = out[0];
             out[0] = out[1];
             out[1] = tmp;
