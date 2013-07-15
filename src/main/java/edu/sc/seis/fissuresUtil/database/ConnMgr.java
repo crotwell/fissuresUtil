@@ -145,7 +145,11 @@ public class ConnMgr {
                splitURL = (url.split("@//"))[0].split("thin:");
             }
             else if (url.indexOf("oci") > 0){
-               splitURL = (url.split("@//"))[0].split("oci:");
+                if (url.indexOf("@//") > 0) {
+                    splitURL = (url.split("@//"))[0].split("oci:");
+                } else {
+                    splitURL = (url.split("@"))[0].split("oci:");
+                }
             } else {
                 splitURL = new String[0];
             }
@@ -220,7 +224,7 @@ public class ConnMgr {
                 lastDriverForConnection = driver;
             }
             Class.forName(getDriver()).newInstance();
-    }
+            }
 
     public static Connection createConnection() throws SQLException {
         try {
