@@ -62,7 +62,6 @@ public class Calculus {
 		} // end of else
 		outSeis.y_unit = UnitImpl.divide(UnitImpl
 				.createUnitImpl(outSeis.y_unit), UnitImpl.SECOND);
-		outSeis.num_points -= 1;
 		MicroSecondDate begin = outSeis.getBeginTime();
 		begin.add(new TimeInterval(samp.getPeriod().divideBy(2)));
 		outSeis.begin_time = begin.getFissuresTime();
