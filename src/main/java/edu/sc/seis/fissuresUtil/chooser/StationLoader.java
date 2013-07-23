@@ -12,29 +12,29 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 public class StationLoader extends Thread {
 
-    public StationLoader(ChannelChooser chooser, NetworkAccess[] n) {
+    public StationLoader(ChannelChooser chooser, NetworkFromSource[] nets2) {
         this.chooser = chooser;
-        this.nets = n;
+        this.nets = nets2;
     }
 
     public void addStationAcceptor(StationAcceptor acceptor) {
         acceptors.add(acceptor);
     }
 
-    private NetworkAccess[] nets;
+    private NetworkFromSource[] nets;
 
     private ChannelChooser chooser;
 
     private LinkedList acceptors = new LinkedList();
 
     public void run() {
-        List stations = new ArrayList();
+        List<StationImpl> stations = new ArrayList();
 
         chooser.setProgressOwner(this);
         chooser.setProgressMax(this, 100);
@@ -43,22 +43,20 @@ public class StationLoader extends Thread {
             int progressValue = 10;
             chooser.setProgressValue(this, progressValue);
             for (int i=0; i<nets.length; i++) {
-                Station[] newStations = nets[i].retrieve_stations();
-                for (int j = 0; j < newStations.length; j++) {
-                    stations.add(newStations[j]);
-                }
-                logger.debug("got "+newStations.length+" stations from "+
-                                 nets[i].get_attributes().get_code());
+                List<StationImpl> newStations = nets[i].getSource().getStations(nets[i].getNetAttr());
+                stations.addAll(newStations);
+                logger.debug("got "+newStations.size()+" stations from "+
+                                 nets[i].getNetAttr().get_code());
                 chooser.setProgressValue(this, progressValue+netProgressInc/2);
-
-                for (int j=0; j<newStations.length; j++) {
+                for (int j = 0; j < newStations.size(); j++) {
                     // check station name not exist, use code in that case
-                    if (newStations[j].getName() == null ||
-                        newStations[j].getName().length() < 3) {
-                        newStations[j].setName(newStations[j].get_code());
+                    StationImpl newStationImpl = newStations.get(j);
+                    if (newStationImpl.getName() == null ||
+                            newStationImpl.getName().length() < 3) {
+                        newStationImpl.setName(newStationImpl.get_code());
                     }
                     chooser.setProgressValue(this, progressValue+netProgressInc/2-
-                                                 (newStations.length-j)/newStations.length);
+                                                 (newStations.size()-j)/newStations.size());
                 }
                 chooser.setProgressValue(this, 100);
 
@@ -67,7 +65,7 @@ public class StationLoader extends Thread {
         catch (Throwable e) {
             GlobalExceptionHandler.handle("Unable to get stations.", e);
         } // end of try-catch   }
-        stationAdd((Station[])stations.toArray(new Station[stations.size()]));
+        stationAdd(stations);
     }
 
     /** allows subclasses to veto a station. */
@@ -75,7 +73,7 @@ public class StationLoader extends Thread {
         return true;
     }
 
-    void stationAdd(final Station[] s) { chooser.addStationsFromThread(s); }
+    void stationAdd(final List<StationImpl>  s) { chooser.addStationsFromThread(s); }
 
     private static Logger logger =
         LoggerFactory.getLogger(StationLoader.class);

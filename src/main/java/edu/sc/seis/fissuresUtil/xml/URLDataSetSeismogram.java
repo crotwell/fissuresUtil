@@ -10,8 +10,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -435,7 +437,18 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
             DataInputStream dis = null;
             List<DataRecord> list = new ArrayList<DataRecord>();
             try {
-                dis = new DataInputStream(new BufferedInputStream(seisURL.openStream()));
+                URLConnection urlConn = seisURL.openConnection();
+                
+                if (urlConn instanceof HttpURLConnection) {
+                    HttpURLConnection conn = (HttpURLConnection)urlConn;
+                    int responseCode = conn.getResponseCode();
+                    if (responseCode == 204) {
+                        return null;
+                    } else if (responseCode != 200) {
+                        return null;
+                    }
+                }
+                dis = new DataInputStream(new BufferedInputStream(urlConn.getInputStream()));
                 while(true) {
                     SeedRecord sr = SeedRecord.read(dis, 4096);
                     if (sr instanceof DataRecord) {

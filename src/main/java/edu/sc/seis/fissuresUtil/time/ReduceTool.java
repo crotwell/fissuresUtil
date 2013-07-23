@@ -132,6 +132,37 @@ public class ReduceTool {
         return new RFMerger().merge(ranges);
     }
 
+    public static List<RequestFilter> trimTo(List<RequestFilter> rfList, List<RequestFilter> windowList) {
+        List<RequestFilter> out = new ArrayList<RequestFilter>();
+        for (RequestFilter window : windowList) {
+            MicroSecondDate windowStart = new MicroSecondDate(window.start_time);
+            MicroSecondDate windowEnd = new MicroSecondDate(window.end_time);
+            for (RequestFilter rf : rfList) {
+                MicroSecondDate rfStart = new MicroSecondDate(rf.start_time);
+                MicroSecondDate rfEnd = new MicroSecondDate(rf.end_time);
+                if ((rfStart.after(windowStart) || rfStart.equals(windowStart))
+                        && (rfEnd.before(windowEnd) || rfEnd.equals(windowEnd))) {
+                    // good, totally contained
+                    out.add(rf);
+                } else if (rfEnd.before(windowStart) || rfEnd.equals(windowStart)) {
+                    // bad, completely before window
+                } else if (rfStart.after(windowEnd) || rfStart.equals(windowEnd)) {
+                    // bad, completely after window
+                } else {
+                    // some overlap
+                    if (rfStart.before(windowStart)) {
+                        rfStart = windowStart;
+                    }
+                    if (rfEnd.after(windowEnd)) {
+                        rfEnd = windowEnd;
+                    }
+                    out.add(new RequestFilter(rf.channel_id, rfStart.getFissuresTime(), rfEnd.getFissuresTime()));
+                }
+            }
+        }
+        return out;
+    }
+
     /**
      * Unites all ranges in the given array into a single range if they're
      * contiguous or overlapping

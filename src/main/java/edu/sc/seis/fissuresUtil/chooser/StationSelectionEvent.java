@@ -1,6 +1,6 @@
 package edu.sc.seis.fissuresUtil.chooser;
-import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.model.MicroSecondDate;
+import edu.iris.Fissures.network.StationImpl;
 
 
 
@@ -14,9 +14,9 @@ import edu.iris.Fissures.model.MicroSecondDate;
 public class StationSelectionEvent{
 
     Object source;
-    Station[] selected;
+    StationImpl[] selected;
 
-    public StationSelectionEvent(Object source, Station[] selectedStations){
+    public StationSelectionEvent(Object source, StationImpl[] selectedStations){
         this.source = source;
         this.selected = selectedStations;
     }
@@ -25,11 +25,11 @@ public class StationSelectionEvent{
         return source;
     }
 
-    public Station[] getSelectedStations(){
+    public StationImpl[] getSelectedStations(){
         return selected;
     }
     
-    public Station[] getSelectedStations(MicroSecondDate date) {
+    public StationImpl[] getSelectedStations(MicroSecondDate date) {
         return ChannelChooser.getStationsThatExistOnDate(date, selected);
     }
 

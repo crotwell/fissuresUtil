@@ -16,12 +16,13 @@ import org.slf4j.LoggerFactory;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.FilterType;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
-import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.IfNetwork.Sensitivity;
 import edu.iris.Fissures.IfNetwork.Stage;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
+import edu.iris.Fissures.network.ChannelImpl;
+import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.sac.InvalidResponse;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
@@ -40,8 +41,7 @@ public class InstrumentationLoader extends Thread
             try {
                 nextWork = getFromQueue();
                 Instrumentation inst =
-                nextWork.net.retrieve_instrumentation(nextWork.seis.getRequestFilter().channel_id,
-                                                      nextWork.seis.getBeginTime());
+                nextWork.net.getSource(nextWork.seis.getChannelId().network_id).getInstrumentation((ChannelImpl)nextWork.net.getChannel(nextWork.seis.getRequestFilter().channel_id));
                 nextWork.seis.addAuxillaryData(StdAuxillaryDataNames.RESPONSE,
                                   inst.the_response);
                 logger.debug("added response to dss for "+
@@ -115,8 +115,8 @@ public class InstrumentationLoader extends Thread
 
     NumTrysComparator numTrysComparator = new NumTrysComparator();
 
-    public void getInstrumentation(DataSetSeismogram seis, NetworkAccess net) {
-        addToQueue(new WorkUnit(seis, net));
+    public void getInstrumentation(DataSetSeismogram seis, ChannelChooser channelChooser) {
+        addToQueue(new WorkUnit(seis, channelChooser));
     }
 
     public static boolean isValidSensitivity(QuantityImpl sens) {
@@ -156,12 +156,12 @@ public class InstrumentationLoader extends Thread
 
     /** just hold a work unit for putting in the list */
     class WorkUnit {
-        WorkUnit(DataSetSeismogram seis, NetworkAccess net) {
+        WorkUnit(DataSetSeismogram seis, ChannelChooser net2) {
             this.seis = seis;
-            this.net = net;
+            this.net = net2;
         }
         DataSetSeismogram seis;
-        NetworkAccess net;
+        ChannelChooser net;
         int numTries = 0;
     }
 
