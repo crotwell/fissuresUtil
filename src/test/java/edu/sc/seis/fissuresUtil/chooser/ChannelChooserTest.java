@@ -37,44 +37,44 @@ public class ChannelChooserTest extends TestCase {
         vertOnlyStation = vertNet.retrieve_stations()[0];
     }
 
-    public void testSingleStationVerticalChannelSelection() {
+    public void testSingleStationVerticalChannelSelection() throws ChannelChooserException {
         cc.orientationList.setSelectedIndex(ChannelChooser.VERTICAL_ONLY);
         cc.select(vertOnlyStation);
         assertEquals(1, cc.getSelectedChannels().length);
     }
 
-    public void testDualStationVerticalChannelSelection() {
+    public void testDualStationVerticalChannelSelection() throws ChannelChooserException {
         cc.orientationList.setSelectedIndex(ChannelChooser.VERTICAL_ONLY);
         cc.select(threeCompStation);
         cc.select(vertOnlyStation);
         assertEquals(2, cc.getSelectedChannels().length);
     }
 
-    public void testHorizontalChannelSelectionWithData() {
+    public void testHorizontalChannelSelectionWithData() throws ChannelChooserException {
         cc.orientationList.setSelectedIndex(ChannelChooser.HORIZONTAL_ONLY);
         cc.select(threeCompStation);
         assertEquals(2, cc.getSelectedChannels().length);
     }
 
-    public void testHorizontalChannelSelectionWithNoData() {
+    public void testHorizontalChannelSelectionWithNoData() throws ChannelChooserException {
         cc.orientationList.setSelectedIndex(ChannelChooser.HORIZONTAL_ONLY);
         cc.select(vertOnlyStation);
         assertEquals(0, cc.getSelectedChannels().length);
     }
 
-    public void testThreeComponentSelection() {
+    public void testThreeComponentSelection() throws ChannelChooserException {
         cc.select(threeCompStation);
         cc.orientationList.setSelectedIndex(ChannelChooser.THREE_COMPONENT);
         assertEquals(3, cc.getSelectedChannels().length);
     }
 
-    public void testThreeComponentSelectionWithNoData() {
+    public void testThreeComponentSelectionWithNoData() throws ChannelChooserException {
         cc.select(vertOnlyStation);
         cc.orientationList.setSelectedIndex(ChannelChooser.THREE_COMPONENT);
         assertEquals(0, cc.getSelectedChannels().length);
     }
 
-    public void testBestSelection() {
+    public void testBestSelection() throws ChannelChooserException {
         cc.select(vertOnlyStation);
         cc.orientationList.setSelectedIndex(ChannelChooser.BEST_CHANNELS);
         assertEquals(1, cc.getSelectedChannels().length);

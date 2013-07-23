@@ -6,24 +6,32 @@
 
 package edu.sc.seis.fissuresUtil.chooser;
 
-import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.network.NetworkAttrImpl;
 
 public class NetworkDataEvent
 {
     Object source;
-    NetworkAccess network;
-
-    public NetworkDataEvent(Object source, NetworkAccess network){
+    NetworkFromSource netSource;
+    
+    public NetworkDataEvent(Object source, NetworkFromSource networkSource) {
         this.source = source;
-        this.network = network;
+        this.netSource = networkSource;
     }
 
     public Object getSource(){
         return source;
     }
 
-    public NetworkAccess getNetwork(){
-        return network;
+    public NetworkAttrImpl getNetwork(){
+        return netSource.getNetAttr();
+    }
+
+    public ChannelChooserSource getNetworkSource() {
+        return netSource.getSource();
+    }
+    
+    public NetworkFromSource getNetworkFromSource() {
+        return netSource;
     }
 }
 
