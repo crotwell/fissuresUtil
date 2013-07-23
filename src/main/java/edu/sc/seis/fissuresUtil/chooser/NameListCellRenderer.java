@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.NetworkAccess;
+import edu.iris.Fissures.IfNetwork.NetworkAttr;
 import edu.iris.Fissures.IfNetwork.Site;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -38,6 +39,10 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
         this.codeIsFirst = codeIsFirst;
     }
 
+    public void stopChecking() {
+        
+    }
+    
     private String getDisplayString(String name, String code) {
         String out = "";
         if(useNames) {
@@ -81,17 +86,23 @@ public class NameListCellRenderer extends DefaultListCellRenderer {
                                                   boolean isSelected,
                                                   boolean cellHasFocus) {
         String name = "XXXX";
-        if(value instanceof NetworkAccess) {
+        if (value instanceof NetworkFromSource || value instanceof NetworkAccess) {
+            NetworkAttr netAttr;
+            if (value instanceof NetworkFromSource) {
+                netAttr = ((NetworkFromSource)value).netAttr;
+            } else {
+                netAttr = ((NetworkAccess)value).get_attributes();
+            }
             try {
-                String netCode = ((NetworkAccess)value).get_attributes()
+                String netCode = netAttr
                         .get_code();
                 if(netCode.startsWith("X") || netCode.startsWith("Y")
                         || netCode.startsWith("Z")) {
-                    edu.iris.Fissures.Time start = ((NetworkAccess)value).get_attributes()
+                    edu.iris.Fissures.Time start = netAttr
                             .get_id().begin_time;
                     netCode += start.date_time.substring(2, 4);
                 }
-                name = getDisplayString(((NetworkAccess)value).get_attributes().getName(),
+                name = getDisplayString(netAttr.getName(),
                                         netCode);
             } catch(Throwable e) {
                 GlobalExceptionHandler.handle("in renderer for network " + name,

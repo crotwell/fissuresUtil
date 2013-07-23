@@ -6,15 +6,15 @@ package edu.sc.seis.fissuresUtil.chooser;
  * @author Created by Charlie Groves
  */
 
-import edu.iris.Fissures.IfNetwork.Channel;
+import edu.iris.Fissures.network.ChannelImpl;
 
 public class ChannelSelectionEvent{
-    public ChannelSelectionEvent(Channel[] channels){
+    public ChannelSelectionEvent(ChannelImpl[] channels){
         this.channels = channels;
     }
 
-    public Channel[] getSelectedChannels(){ return channels; }
+    public ChannelImpl[] getSelectedChannels(){ return channels; }
 
-    private Channel[] channels;
+    private ChannelImpl[] channels;
 }
 
