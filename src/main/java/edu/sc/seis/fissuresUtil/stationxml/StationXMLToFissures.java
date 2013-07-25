@@ -209,19 +209,27 @@ public class StationXMLToFissures {
         ClockImpl clock = new ClockImpl(0, "unknown", "unknown", "unknown", "unknown");
         SensorImpl sensor = new SensorImpl(0, "unknown", "unknown", "unknown", 0, 0);
         if (xmlChan.getSensor() != null) {
+            String model = makeNoNull(xmlChan.getSensor().getModel());
+            if (model.length()==0) {
+                model = makeNoNull(xmlChan.getSensor().getType());
+            }
             sensor = new SensorImpl(0,
                                     makeNoNull(xmlChan.getSensor().getManufacturer()),
                                     makeNoNull(xmlChan.getSensor().getSerialNumber()),
-                                    makeNoNull(xmlChan.getSensor().getModel()),
+                                    model,
                                     0,
                                     0);
         }
         DataAcqSysImpl dataLogger = new DataAcqSysImpl(0, "unknown", "unknown", "unknown", RecordingStyle.UNKNOWN);
         if (xmlChan.getDataLogger() != null) {
+            String model = makeNoNull(xmlChan.getDataLogger().getModel());
+            if (model.length()==0) {
+                model = makeNoNull(xmlChan.getDataLogger().getType());
+            }
             dataLogger = new DataAcqSysImpl(0,
                                             makeNoNull(xmlChan.getDataLogger().getManufacturer()),
                                             makeNoNull(xmlChan.getDataLogger().getSerialNumber()),
-                                            makeNoNull(xmlChan.getDataLogger().getModel()),
+                                            model,
                                             RecordingStyle.UNKNOWN);
         }
         TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate()), convertTime(xmlChan.getEndDate()));
@@ -389,9 +397,29 @@ public class StationXMLToFissures {
     public static TransferType getTransferType(ResponseStage response)
             throws StationXMLException {
         if (response.getResponseItem() instanceof PolesZeros) {
-            return TransferType.ANALOG;
+            PolesZeros pz = (PolesZeros)response.getResponseItem();
+            if (pz.getPzTransferType().equals(StationXMLTagNames.POLEZERO_LAPLACE_RAD_PER_SEC)) {
+                return TransferType.LAPLACE;
+            } else if (pz.getPzTransferType().equals(StationXMLTagNames.POLEZERO_LAPLACE_HERTZ)) {
+                return TransferType.ANALOG;
+            } else if (pz.getPzTransferType().equals(StationXMLTagNames.POLEZERO_DIGITAL)) {
+                return TransferType.DIGITAL;
+            } else {
+                throw new StationXMLException("Unknown PoleZero transfer type: "+
+                        ((PolesZeros)response.getResponseItem()).getPzTransferType());
+            }
         } else if (response.getResponseItem() instanceof Coefficients) {
+            Coefficients coeff = (Coefficients)response.getResponseItem();
+            if (coeff.getCfTransferType().equals(StationXMLTagNames.COEFFICIENT_ANALOG_RAD_PER_SEC)) {
+                return TransferType.LAPLACE;
+            } else if (coeff.getCfTransferType().equals(StationXMLTagNames.COEFFICIENT_ANALOG_HERTZ)) {
             return TransferType.ANALOG;
+            } else if (coeff.getCfTransferType().equals(StationXMLTagNames.COEFFICIENT_DIGITAL)) {
+                return TransferType.DIGITAL;
+            } else {
+                throw new StationXMLException("Unknown Coefficients transfer type: "+
+                        coeff.getCfTransferType());
+            }
         } else if (response.getResponseItem() instanceof FIR) {
             return TransferType.DIGITAL;
         } else if (response.getResponseItem() == null) {
