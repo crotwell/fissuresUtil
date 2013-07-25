@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 
 public abstract class AbstractUnitRangeBorder extends Border implements
@@ -47,16 +48,16 @@ public abstract class AbstractUnitRangeBorder extends Border implements
             super(division, ticksPerDivision);
             if(division < .01) {
                 // exponential notation
-                df = new DecimalFormat("#.###E00");
+                df = new ThreadSafeDecimalFormat("#.###E00");
             } else
                 if(division < 10 && division != 0) {
-                    df = new DecimalFormat("0.00###");
+                    df = new ThreadSafeDecimalFormat("0.00###");
                 } else
                     if(division < 100000) {
-                        df = new DecimalFormat("#.####");
+                        df = new ThreadSafeDecimalFormat("#.####");
                     } else {
                         // exponential notation
-                        df = new DecimalFormat("#.###E00");
+                        df = new ThreadSafeDecimalFormat("#.###E00");
                     }
         }
 
@@ -72,7 +73,7 @@ public abstract class AbstractUnitRangeBorder extends Border implements
             return "UnitRange " + getDivSize() + " " + ticksPerDiv;
         }
 
-        private DecimalFormat df;
+        private ThreadSafeDecimalFormat df;
     }
 
     public Color getTitleColor() {

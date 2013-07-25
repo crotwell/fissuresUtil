@@ -1,9 +1,10 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.text.DecimalFormat;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 
 /**
  * @author groves Created on Mar 30, 2005
@@ -15,7 +16,7 @@ public class ChoiceDecimalFormat extends NumberFormat {
      * than it the corresponding format from formats is used. if the number is
      * greater than the last value in limits, the last format is used.
      */
-    public ChoiceDecimalFormat(double[] limits, DecimalFormat[] formats) {
+    public ChoiceDecimalFormat(double[] limits, ThreadSafeDecimalFormat[] formats) {
         if(limits.length != formats.length) { throw new IllegalArgumentException("Must be an equal number of limits and formats"); }
         this.limits = limits;
         this.formats = formats;
@@ -53,8 +54,8 @@ public class ChoiceDecimalFormat extends NumberFormat {
      */
     public static ChoiceDecimalFormat createTomStyleA() {
         return new ChoiceDecimalFormat(new double[] {100, 100},
-                                       new DecimalFormat[] {new DecimalFormat("0.0"),
-                                                            new DecimalFormat("0")});
+                                       new ThreadSafeDecimalFormat[] {new ThreadSafeDecimalFormat("0.0"),
+                                                            new ThreadSafeDecimalFormat("0")});
     }
 
     /**
@@ -63,11 +64,11 @@ public class ChoiceDecimalFormat extends NumberFormat {
      */
     public static ChoiceDecimalFormat createTomStyleB() {
         return new ChoiceDecimalFormat(new double[] {10, 10},
-                                       new DecimalFormat[] {new DecimalFormat("0.0"),
-                                                            new DecimalFormat("0")});
+                                       new ThreadSafeDecimalFormat[] {new ThreadSafeDecimalFormat("0.0"),
+                                                            new ThreadSafeDecimalFormat("0")});
     }
 
     private double[] limits;
 
-    private DecimalFormat[] formats;
+    private ThreadSafeDecimalFormat[] formats;
 }

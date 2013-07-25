@@ -5,7 +5,6 @@
  */
 package edu.sc.seis.fissuresUtil.display;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import org.slf4j.Logger;
@@ -16,6 +15,7 @@ import edu.iris.Fissures.IfNetwork.Response;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.model.UnitRangeImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
 
@@ -240,7 +240,7 @@ public class UnitDisplayUtil {
         return "...";
     }
 
-    static final DecimalFormat quantityFormat = new DecimalFormat("#,###,##0.0##; -#,###,##0.0##");
+    static final ThreadSafeDecimalFormat quantityFormat = new ThreadSafeDecimalFormat("#,###,##0.0##; -#,###,##0.0##");
 
     static Logger logger = LoggerFactory.getLogger(UnitDisplayUtil.class);
 }

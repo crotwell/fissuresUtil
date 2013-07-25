@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.iris.Fissures.seismogramDC.SeismogramAttrImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.mseed.FissuresConvert;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileHandler;
 import edu.sc.seis.fissuresUtil.rt130.RT130FileHandlerFlag;
@@ -287,7 +287,7 @@ public class RT130ReportGenerator {
         return true;
     }
 
-    private static DecimalFormat decFormat = new DecimalFormat("000.00%");
+    private static ThreadSafeDecimalFormat decFormat = new ThreadSafeDecimalFormat("000.00%");
 
     private static boolean showProgress = false;
 

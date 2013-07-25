@@ -13,6 +13,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 
 public class SeismogramSpeedCheck extends SimpleSeismogramClient {
 
@@ -34,7 +35,7 @@ public class SeismogramSpeedCheck extends SimpleSeismogramClient {
         // oneDay};
         RequestFilter[][] reqs = new RequestFilter[requestSizes.length][];
         for(int i = 0; i < reqs.length; i++) {
-            requestSizes[i].setFormat(new DecimalFormat("0"));
+            requestSizes[i].setFormat(new ThreadSafeDecimalFormat("0"));
             MicroSecondDate start = yesterday.subtract((TimeInterval)oneDay.multiplyBy(i));
             reqs[i] = new RequestFilter[] {new RequestFilter(toQuery.chan,
                                                              start.getFissuresTime(),

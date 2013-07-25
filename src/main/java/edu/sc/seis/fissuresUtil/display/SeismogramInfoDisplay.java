@@ -1,7 +1,6 @@
 package edu.sc.seis.fissuresUtil.display;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TimeZone;
@@ -24,6 +23,7 @@ import edu.iris.Fissures.network.SiteIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.bag.Statistics;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 import edu.sc.seis.fissuresUtil.time.MicroSecondTimeRange;
@@ -145,5 +145,5 @@ public class SeismogramInfoDisplay extends TextInfoDisplay {
 
     protected LinkedList format;
 
-    DecimalFormat twoDecimal = new DecimalFormat("0.00");
+    ThreadSafeDecimalFormat twoDecimal = new ThreadSafeDecimalFormat("0.00");
 }// SeismogramInfoDisplay

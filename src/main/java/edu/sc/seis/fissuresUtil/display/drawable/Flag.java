@@ -7,7 +7,6 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,6 +33,7 @@ import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.display.DisplayUtils;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 import edu.sc.seis.fissuresUtil.display.TextTable;
@@ -240,7 +240,7 @@ public class Flag implements Drawable {
         return table;
     }
 
-    static DecimalFormat twoDecimal = new DecimalFormat("0.00");
+    static ThreadSafeDecimalFormat twoDecimal = new ThreadSafeDecimalFormat("0.00");
 
     private static List<Arrival> getArrivals(TauPUtil taup,
                                          DataSetSeismogram dss,
