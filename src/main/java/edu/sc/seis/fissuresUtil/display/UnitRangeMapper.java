@@ -37,14 +37,12 @@ public class UnitRangeMapper implements ScaleMapper{
             }
             double absValue = Math.abs(value);
             // use regular notation
-            DecimalFormat df;
             if (absValue < 10 && absValue != 0 ) {
                 // exponential notation
-                df = new DecimalFormat("0.00###");
+                return new DecimalFormat("0.00###").format(value);
             } else {
-                df = new DecimalFormat("#.####");
+                return new DecimalFormat("#.####").format(value);
             }
-            return df.format(value);
         } else {
             return "";
         }

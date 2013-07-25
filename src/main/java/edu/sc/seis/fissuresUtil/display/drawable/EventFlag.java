@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +18,7 @@ import edu.iris.Fissures.model.TimeInterval;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.sc.seis.TauP.Arrival;
 import edu.sc.seis.fissuresUtil.cache.EventUtil;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.display.PlottableDisplay;
 import edu.sc.seis.fissuresUtil.display.SeismogramDisplay;
 
@@ -221,7 +221,7 @@ public class EventFlag {
         return eventTitle;
     }
 
-    private static DecimalFormat FORMATTER = new DecimalFormat("0.00");
+    private static ThreadSafeDecimalFormat FORMATTER = new ThreadSafeDecimalFormat("0.00");
 
     public int[][] getEventCoverage() {
         MicroSecondDate earliestTime = null;

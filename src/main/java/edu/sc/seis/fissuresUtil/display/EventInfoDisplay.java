@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -27,6 +26,7 @@ import edu.sc.seis.TauP.SphericalCoords;
 import edu.sc.seis.TauP.TauModelException;
 import edu.sc.seis.TauP.VelocityModel;
 import edu.sc.seis.fissuresUtil.bag.TauPUtil;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.chooser.ThreadSafeSimpleDateFormat;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
@@ -331,7 +331,7 @@ public class EventInfoDisplay extends TextInfoDisplay{
     static ParseRegions feRegions = ParseRegions.getInstance();
 
     TauPUtil taup;
-    DecimalFormat twoDecimal = new DecimalFormat("0.00");
+    ThreadSafeDecimalFormat twoDecimal = new ThreadSafeDecimalFormat("0.00");
     ThreadSafeSimpleDateFormat dateFormat = new ThreadSafeSimpleDateFormat("MMM dd, yyyy HH:mm:ss.S z", TimeZone.getTimeZone("GMT"));
 
     static Logger logger = LoggerFactory.getLogger(EventInfoDisplay.class);

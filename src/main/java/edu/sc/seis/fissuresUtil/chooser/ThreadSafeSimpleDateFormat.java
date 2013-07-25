@@ -1,12 +1,15 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
 
-public class ThreadSafeSimpleDateFormat {
+public class ThreadSafeSimpleDateFormat extends DateFormat {
 
     public ThreadSafeSimpleDateFormat(String format) {
         this(format, TimeZone.getTimeZone("GMT"));
@@ -29,10 +32,6 @@ public class ThreadSafeSimpleDateFormat {
         return threadLocal.get();
     }
     
-    public String format(Date e) {
-        return get().format(e);
-    }
-    
     public Date parse(String s) throws ParseException {
         return get().parse(s);
     }
@@ -44,4 +43,14 @@ public class ThreadSafeSimpleDateFormat {
     protected String format;
     
     protected TimeZone zone;
+
+    @Override
+    public StringBuffer format(Date d, StringBuffer sb, FieldPosition p) {
+        return get().format(d, sb, p);
+    }
+
+    @Override
+    public Date parse(String s, ParsePosition p) {
+        return get().parse(s, p);
+    }
 }

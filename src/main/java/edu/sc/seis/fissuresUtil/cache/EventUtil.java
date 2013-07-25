@@ -4,7 +4,6 @@
 package edu.sc.seis.fissuresUtil.cache;
 
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +19,7 @@ import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.event.OriginImpl;
 import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.UnitImpl;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.display.ParseRegions;
 import edu.sc.seis.fissuresUtil.display.UnitDisplayUtil;
 
@@ -229,7 +229,7 @@ public class EventUtil {
         return buf.toString();
     }
 
-    private static DecimalFormat depthFormatter = new DecimalFormat("###0.00");
+    private static ThreadSafeDecimalFormat depthFormatter = new ThreadSafeDecimalFormat("###0.00");
 
     public static final String LOC = "LOC", TIME = "TIME", MAG = "MAG",
             DEPTH = "DEPTH", DEPTH_UNIT = "DEPTH_UNIT", LAT = "LAT",
