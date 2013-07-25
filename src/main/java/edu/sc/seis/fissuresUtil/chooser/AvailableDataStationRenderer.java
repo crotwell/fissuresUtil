@@ -25,7 +25,6 @@ import edu.iris.Fissures.TimeRange;
 import edu.iris.Fissures.IfEvent.Origin;
 import edu.iris.Fissures.IfNetwork.Channel;
 import edu.iris.Fissures.IfNetwork.ChannelId;
-import edu.iris.Fissures.IfNetwork.NetworkAccess;
 import edu.iris.Fissures.IfNetwork.NetworkId;
 import edu.iris.Fissures.IfNetwork.Station;
 import edu.iris.Fissures.IfSeismogramDC.RequestFilter;
@@ -36,7 +35,6 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.StationIdUtil;
 import edu.iris.Fissures.network.StationImpl;
 import edu.sc.seis.fissuresUtil.cache.AbstractJob;
-import edu.sc.seis.fissuresUtil.cache.DataCenterRouter;
 import edu.sc.seis.fissuresUtil.cache.JobTracker;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
@@ -263,6 +261,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
             super(na.getNetAttr().get_code() + " Available Data");
             this.net = na;
             JobTracker.getTracker().add(this);
+            logger.info("constructor NetworkChecker "+net.getNetAttr().get_id().network_code);
         }
 
         public void stop() {
@@ -308,7 +307,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         }
 
         void checkNet() throws ChannelChooserException {
-            logger.debug("checking " + net.getNetAttr().get_code());
+            logger.info("checking " + net.getNetAttr().get_code());
             TimeRange range;
             setStatus("Creating available data request");
             if (origin == null) {
@@ -320,17 +319,22 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 MicroSecondDate oTime = new MicroSecondDate(origin.getOriginTime());
                 range = new TimeRange(oTime.getFissuresTime(), oTime.add(TEN_MINUTES).getFissuresTime());
             }
+            String[] siteCodes = new String[] {"00", "  "};
             String[] chanCodes = channelChooser.getSelectedChanCodes();
-            RequestFilter[] request = new RequestFilter[chanCodes.length];
-            for (int i = 0; i < request.length; i++) {
-                while (chanCodes[i].length() < 3) {
-                    chanCodes[i] += "?";
+            RequestFilter[] request = new RequestFilter[chanCodes.length*siteCodes.length];
+            for (int c = 0; c < chanCodes.length; c++) {
+                while (chanCodes[c].length() < 3) {
+                    chanCodes[c] += "?";
                 }
-                request[i] = new RequestFilter(new ChannelId(net.getNetAttr().get_id(),
-                                                             "*",
-                                                             "*",
-                                                             chanCodes[i],
-                                                             range.start_time), range.start_time, range.end_time);
+                for (int l = 0; l < siteCodes.length; l++) {
+                    request[c*chanCodes.length+l] = new RequestFilter(new ChannelId(net.getNetAttr().get_id(),
+                                                                   "*",
+                                                                   siteCodes[l],
+                                                                   chanCodes[c],
+                                                                   range.start_time), 
+                                                     range.start_time,
+                                                     range.end_time);
+                }
             }
             List<StationImpl> stations = net.getSource().getStations(net.getNetAttr());
             LinkedList allStations = new LinkedList();
@@ -352,7 +356,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 GlobalExceptionHandler.handle(t);
                 return;
             }
-            logger.debug(available.size() + " items returned for " + net.getNetAttr().get_code());
+            logger.info(available.size() + " items returned for " + net.getNetAttr().get_code());
             setStatus(available.size() + " items returned");
             if (available.size() == 0) {
                 logger.warn("there is no available data " + net.getNetAttr().get_code());
