@@ -1,6 +1,5 @@
 package edu.sc.seis.fissuresUtil.display;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -23,6 +22,7 @@ import edu.sc.seis.fissuresUtil.cache.EventLoadedListener;
 import edu.sc.seis.fissuresUtil.cache.EventLoader;
 import edu.sc.seis.fissuresUtil.cache.ProxyEventAccessOperations;
 import edu.sc.seis.fissuresUtil.cache.WorkerThreadPool;
+import edu.sc.seis.fissuresUtil.chooser.ThreadSafeDecimalFormat;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
 
 /**
@@ -300,7 +300,7 @@ public class EventTableModel extends AbstractTableModel implements
 
     protected HashMap rowNumber = new HashMap();
 
-    protected NumberFormat depthFormat = new DecimalFormat("0.0");
+    protected NumberFormat depthFormat = new ThreadSafeDecimalFormat("0.0");
 
     protected static final int LATITUDE = 4;
 
