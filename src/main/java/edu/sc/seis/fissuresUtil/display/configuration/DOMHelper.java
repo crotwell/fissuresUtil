@@ -176,4 +176,8 @@ public class DOMHelper {
     }
 
     private static final String DEFAULT = "DEFAULT";
+
+    public static boolean extractBoolean(Element el, String elementName) {
+        return Boolean.parseBoolean(extractText(el, elementName));
+    }
 }
