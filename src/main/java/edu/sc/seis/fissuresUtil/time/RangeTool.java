@@ -26,6 +26,17 @@ public class RangeTool {
                                         LocalSeismogramImpl two) {
         LocalSeismogramImpl first;
         LocalSeismogramImpl second;
+        String oneS = "one ";
+        String twoS = "two ";
+        try {
+            oneS += one.begin_time.date_time;
+            twoS += two.begin_time.date_time;
+            MicroSecondDate oneB = one.getBeginTime();
+            MicroSecondDate twoB = two.getBeginTime();
+            
+        } catch(edu.iris.Fissures.model.UnsupportedFormat ee) {
+            throw new RuntimeException(oneS+" "+twoS, ee);
+        }
         if (one.getBeginTime().before(two.getBeginTime())) {
             first = one;
             second = two;
