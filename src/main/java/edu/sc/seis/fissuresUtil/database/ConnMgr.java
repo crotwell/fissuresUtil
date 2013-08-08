@@ -357,7 +357,7 @@ public class ConnMgr {
         logger.info("Trying connection");
         Connection conn = ConnMgr.createConnection();
         logger.info("Connection ok, database version: "+conn.getMetaData().getDatabaseProductVersion());
-        
+        conn.close();
     }
 
     private static final String DEFAULT_LOC = "edu/sc/seis/fissuresUtil/database/props/";
