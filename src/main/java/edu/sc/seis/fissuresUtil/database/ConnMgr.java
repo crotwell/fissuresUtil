@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.log4j.BasicConfigurator;
+
 import edu.sc.seis.fissuresUtil.simple.Initializer;
 
 public class ConnMgr {
@@ -341,6 +343,21 @@ public class ConnMgr {
     public static void installDbProperties(Properties sysProperties,
                                            String[] args) {
         installDbProperties(sysProperties, readDbProperties(args));
+    }
+    
+    public static void main(String[] args) throws SQLException {
+        BasicConfigurator.configure();
+        String url = args[0];
+        logger.info("setting URL: "+url);
+        ConnMgr.setURL(url);
+        logger.info("Type: "+ConnMgr.getDB_TYPE());
+        logger.info("Driver: "+ConnMgr.getDriver());
+        logger.info("User: "+ConnMgr.getUser());
+        logger.info("Password: "+ConnMgr.getPass());
+        logger.info("Trying connection");
+        Connection conn = ConnMgr.createConnection();
+        logger.info("Connection ok, database version: "+conn.getMetaData().getDatabaseProductVersion());
+        
     }
 
     private static final String DEFAULT_LOC = "edu/sc/seis/fissuresUtil/database/props/";
