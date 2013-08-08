@@ -9,15 +9,19 @@ public class ConnMgrTest {
 
     @Test
     public void parseOracleURL() {
-        ConnMgr.setURL("jdbc:oracle:oci:ears_test/ears_test@dbserv1.iris.washington.edu:1521:ears");
+        try {
+        ConnMgr.setURL("jdbc:oracle:oci:ears_test/ears_testpw@dbserv1.iris.washington.edu:1521:ears");
+        } catch (RuntimeException e) {}
         assertEquals("user", "ears_test", ConnMgr.getUser());
-        assertEquals("passwd", "ears_test", ConnMgr.getPass());
+        assertEquals("passwd", "ears_testpw", ConnMgr.getPass());
     }
     
     @Test
     public void parseOracleURL2() {
-        ConnMgr.setURL("jdbc:oracle:oci:ears_test/ears_test@//dbserv1.iris.washington.edu:1521:ears");
+        try {
+        ConnMgr.setURL("jdbc:oracle:oci:ears_test/ears_testpw@//dbserv1.iris.washington.edu:1521:ears");
+        } catch (RuntimeException e) {}
         assertEquals("user", "ears_test", ConnMgr.getUser());
-        assertEquals("passwd", "ears_test", ConnMgr.getPass());
+        assertEquals("passwd", "ears_testpw", ConnMgr.getPass());
     }
 }
