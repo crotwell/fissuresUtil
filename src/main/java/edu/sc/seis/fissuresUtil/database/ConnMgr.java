@@ -120,6 +120,9 @@ public class ConnMgr {
         if (url == null || url.length() == 0) {
             throw new RuntimeException("URL is empty.");
         }
+        if (!firstConnection) {
+            throw new RuntimeException("Attemp to set database url a second time: "+url);
+        }
         try {
         ConnMgr.url = url;
         if (url.startsWith("jdbc:hsql")) {
@@ -345,11 +348,8 @@ public class ConnMgr {
         installDbProperties(sysProperties, readDbProperties(args));
     }
     
-    public static void main(String[] args) throws SQLException {
-        BasicConfigurator.configure();
-        String url = args[0];
-        logger.info("setting URL: "+url);
-        ConnMgr.setURL(url);
+    public static boolean checkDatabaseConn()  throws SQLException {
+        logger.info("URL: "+ConnMgr.getURL());
         logger.info("Type: "+ConnMgr.getDB_TYPE());
         logger.info("Driver: "+ConnMgr.getDriver());
         logger.info("User: "+ConnMgr.getUser());
@@ -358,6 +358,15 @@ public class ConnMgr {
         Connection conn = ConnMgr.createConnection();
         logger.info("Connection ok, database version: "+conn.getMetaData().getDatabaseProductVersion());
         conn.close();
+        return true;
+    }
+    
+    public static void main(String[] args) throws SQLException {
+        BasicConfigurator.configure();
+        String url = args[0];
+        logger.info("setting URL: "+url);
+        ConnMgr.setURL(url);
+        checkDatabaseConn();
     }
 
     private static final String DEFAULT_LOC = "edu/sc/seis/fissuresUtil/database/props/";
