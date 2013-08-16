@@ -231,6 +231,15 @@ public class UnitDisplayUtil {
     }
 
     public static String formatQuantityImpl(Quantity quantity,
+                                            NumberFormat format,
+                                            UnitImpl preferredUnit) {
+        if (((UnitImpl)quantity.the_units).isConvertableTo(preferredUnit)) {
+            quantity = ((QuantityImpl)quantity).convertTo(preferredUnit);
+        }
+        return formatQuantityImpl(quantity, format);
+    }
+    
+    public static String formatQuantityImpl(Quantity quantity,
                                             NumberFormat format) {
         if(quantity != null) {
             return format.format(quantity.value)
