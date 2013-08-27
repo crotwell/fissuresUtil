@@ -455,6 +455,9 @@ public class StationXMLToFissures {
     }
 
     public static UnitImpl convertUnit(String unitString, String unitDescription) throws StationXMLException {
+        if (unitDescription == null) {
+            unitDescription = "";
+        }
         if (unitString.equalsIgnoreCase("M") && ! unitDescription.trim().equalsIgnoreCase("minute")) {
             return UnitImpl.METER;
         } else if (unitString.equalsIgnoreCase("M") && unitDescription.trim().equalsIgnoreCase("minute")) {
