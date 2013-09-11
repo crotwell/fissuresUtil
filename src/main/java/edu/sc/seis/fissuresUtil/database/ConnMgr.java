@@ -218,7 +218,7 @@ public class ConnMgr {
     static void checkDriver() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
             String driver = getDriver();
             if(firstTime) {
-                logger.debug("Using " + driver + " on " + getURL());
+                logger.debug("Using " + driver + " on " + getURL()+" for user "+getUser());
                 lastDriverForConnection = driver;
                 firstTime = false;
             }
