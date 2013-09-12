@@ -79,14 +79,16 @@ public abstract class AbstractHibernateDB {
         getUnitCache().addAll(result);
     }
 
-    public static void deploySchema() {
+    public static void deploySchema() throws Throwable {
         SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
         update.setHaltOnError(true);
         update.execute(false, true);
-        List exceptions = update.getExceptions();
-        for (Object o : exceptions) {
-            Throwable t = (Throwable)o;
+        List<Throwable> exceptions = update.getExceptions();
+        for (Throwable t : exceptions) {
             logger.error("problem in deploySchema: ", t);
+        }
+        if (exceptions.size() >0) {
+            throw exceptions.get(0);
         }
     }
 
