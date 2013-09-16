@@ -120,11 +120,11 @@ public class InstrumentationLoader extends Thread
     }
 
     public static boolean isValidSensitivity(QuantityImpl sens) {
-        return sens.getValue() != -1;
+        return sens != null && sens.getValue() != -1;
     }
     
     public static boolean isValid(Sensitivity sens) {
-        return sens.frequency >= 0 && sens.sensitivity_factor != -1;
+        return sens != null && sens.frequency >= 0 && sens.sensitivity_factor != -1;
     }
 
     public static boolean isValid(Instrumentation inst) {
