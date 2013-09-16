@@ -353,7 +353,7 @@ public class ConnMgr {
         logger.info("Type: "+ConnMgr.getDB_TYPE());
         logger.info("Driver: "+ConnMgr.getDriver());
         logger.info("User: "+ConnMgr.getUser());
-        logger.info("Password: "+ConnMgr.getPass());
+        //logger.info("Password: "+ConnMgr.getPass());
         logger.info("Trying connection");
         Connection conn = ConnMgr.createConnection();
         logger.info("Connection ok, database version: "+conn.getMetaData().getDatabaseProductVersion());
