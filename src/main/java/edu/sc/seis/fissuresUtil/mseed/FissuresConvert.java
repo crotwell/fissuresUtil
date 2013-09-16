@@ -646,7 +646,7 @@ public class FissuresConvert {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.setTime(date);
         Btime btime = new Btime();
-        btime.tenthMilli = (int)(cal.get(Calendar.MILLISECOND) * 10 + (Math.round(date.getMicroSeconds() / 100.0)));
+        btime.tenthMilli = cal.get(Calendar.MILLISECOND) * 10 + (int)((Math.round(date.getMicroSeconds() / 100.0)));
         btime.year = cal.get(Calendar.YEAR);
         btime.jday = cal.get(Calendar.DAY_OF_YEAR);
         btime.hour = cal.get(Calendar.HOUR_OF_DAY);
