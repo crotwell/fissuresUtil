@@ -462,6 +462,8 @@ public class StationXMLToFissures {
             return UnitImpl.METER;
         } else if (unitString.equalsIgnoreCase("M") && unitDescription.trim().equalsIgnoreCase("minute")) {
             return UnitImpl.MINUTE;
+        } else if (unitString.equalsIgnoreCase("NM")) {
+            return UnitImpl.NANOMETER;
         } else if (unitString.equalsIgnoreCase("M/S")) {
             return UnitImpl.METER_PER_SECOND;
         } else if (unitString.equalsIgnoreCase("NM/S") || unitString.equalsIgnoreCase("NM/SEC")) {
