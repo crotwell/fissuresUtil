@@ -87,7 +87,8 @@ public abstract class AbstractHibernateDB {
     public static void deploySchema(boolean failOnException) throws Exception {
         SchemaUpdate update = new SchemaUpdate(HibernateUtil.getConfiguration());
         update.setHaltOnError(true);
-        update.setOutputFile("ears.schema.update.commands");
+        // to print actual schema update commands, uncomment next line
+        //update.setOutputFile("hibernate.schema.update.commands");
         update.execute(false, true);
         List<Throwable> exceptions = update.getExceptions();
         for (Throwable t : exceptions) {
