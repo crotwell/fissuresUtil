@@ -40,6 +40,11 @@ public class ThreadSafeSimpleDateFormat extends DateFormat {
         return format;
     }
     
+    @Override
+    public void setTimeZone(TimeZone tz) {
+        throw new RuntimeException("Should not set time zone after creation as this uses many DateFormat objects in a ThreadLocal");
+    }
+    
     protected String format;
     
     protected TimeZone zone;
