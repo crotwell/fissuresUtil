@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
@@ -170,8 +171,13 @@ public abstract class AbstractHibernateDB {
         //logger.debug("TRANSACTION Rollback on " + s);
         sessionTL.set(null);
         unitCacheTL.set(null);
-        s.getTransaction().rollback();
-        s.close();
+        try {
+            s.getTransaction().rollback();
+        } catch (HibernateException e) {
+            // oh well...
+        } finally {
+            s.close();
+        }
     }
 
     public static void internUnit(Location loc) {
