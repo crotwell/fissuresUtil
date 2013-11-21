@@ -1,23 +1,35 @@
 package edu.sc.seis.fissuresUtil.chooser;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 
 
 public class ThreadSafeDecimalFormat extends NumberFormat {
-    
+
     public ThreadSafeDecimalFormat(String pattern) {
+        this(pattern, null);
+    }
+    
+    public ThreadSafeDecimalFormat(String pattern, DecimalFormatSymbols symbols) {
         this.pattern = pattern;
+        this.symbols = symbols;
     }
     
     final String pattern;
     
+    final DecimalFormatSymbols symbols;
+    
     private final ThreadLocal<DecimalFormat> threadLocal = new ThreadLocal<DecimalFormat>() {  
         @Override  
-        protected DecimalFormat initialValue() {  
-            return (new DecimalFormat(pattern));  
+        protected DecimalFormat initialValue() {
+            if (symbols == null) {
+                return new DecimalFormat(pattern);  
+            } else {
+                return new DecimalFormat(pattern, symbols);
+            }
         }  
     };
 
