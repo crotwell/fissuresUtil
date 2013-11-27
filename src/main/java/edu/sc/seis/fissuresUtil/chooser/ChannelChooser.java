@@ -206,7 +206,7 @@ public class ChannelChooser extends JPanel {
         networkList.setCellRenderer(r);
     }
 
-    public Map getNetDCToNetMap() {
+    public Map<ChannelChooserSource, List<NetworkAttrImpl>> getNetDCToNetMap() {
         return netDCToNetMap;
     }
 
@@ -364,9 +364,9 @@ public class ChannelChooser extends JPanel {
                         NetworkFromSource[] nets = {net};
                         StationLoader t = new StationLoader(ChannelChooser.this,
                                                             nets);
-                        Iterator it = stationAcceptors.iterator();
+                        Iterator<StationAcceptor> it = stationAcceptors.iterator();
                         while(it.hasNext()) {
-                            t.addStationAcceptor((StationAcceptor)it.next());
+                            t.addStationAcceptor(it.next());
                         }
                         setStationLoader(t);
                         t.start();
@@ -591,13 +591,13 @@ public class ChannelChooser extends JPanel {
     }
 
     public Station[] getStations() {
-        LinkedList out = new LinkedList();
+        LinkedList<StationImpl> out = new LinkedList<StationImpl>();
         Object[] objArray = stationNames.toArray();
         // logger.debug("Object array length: " + objArray.length);
         // logger.debug("stationNames size: " + stationNames.getSize());
         for(int i = 0; i < objArray.length; i++) {
             String name = ((Station)objArray[i]).getName();
-            LinkedList staList = (LinkedList)stationMap.get(name);
+            List<StationImpl> staList = stationMap.get(name);
             if(staList == null) {
                 logger.warn("no stations for name=" + name);
             } else {
@@ -802,10 +802,10 @@ public class ChannelChooser extends JPanel {
      * @throws ChannelChooserException 
      */
     public ChannelImpl[] getSelectedChannels(MicroSecondDate when) throws ChannelChooserException {
-        List<ChannelImpl> outChannels = new LinkedList();
+        List<ChannelImpl> outChannels = new LinkedList<ChannelImpl>();
         StationImpl[] selectedStations = getSelectedStations(when);
         logger.debug(selectedStations.length + " stations before pruning");
-        List<StationImpl> outStations = new LinkedList();
+        List<StationImpl> outStations = new LinkedList<StationImpl>();
         for(int i = 0; i < selectedStations.length - 1; i++) {
             boolean foundDup = false;
             for(int j = i + 1; j < selectedStations.length; j++) {
@@ -1086,7 +1086,7 @@ public class ChannelChooser extends JPanel {
 
     protected JProgressBar progressBar = new JProgressBar(0, 100);
 
-    protected LinkedList stationAcceptors = new LinkedList();
+    protected List<StationAcceptor> stationAcceptors = new LinkedList<StationAcceptor>();
 
     protected DefaultListModel networks = new DefaultListModel();
 
@@ -1345,10 +1345,10 @@ public class ChannelChooser extends JPanel {
         void removeChannels(Station station) {
             String stationPrefix = NetworkIdUtil.toString(station.get_id().network_id)
                     + "." + station.get_id().station_code;
-            Iterator it = channelMap.keySet().iterator();
+            Iterator<String> it = channelMap.keySet().iterator();
             String key;
             while(it.hasNext()) {
-                key = (String)it.next();
+                key = it.next();
                 if(key.startsWith(stationPrefix)) {
                     it.remove();
                 }
@@ -1357,7 +1357,7 @@ public class ChannelChooser extends JPanel {
     }
 
     private void fireChannelSelectionEvent(ChannelSelectionEvent e) {
-        Iterator it = channelSelectionListeners.iterator();
+        Iterator<ChannelSelectionListener> it = channelSelectionListeners.iterator();
         while(it.hasNext()) {
             ((ChannelSelectionListener)it.next()).channelSelectionChanged(e);
         }
@@ -1373,7 +1373,7 @@ public class ChannelChooser extends JPanel {
 
     private AvailableDataStationRenderer stationRenderer;
 
-    private List channelSelectionListeners = new ArrayList();
+    private List<ChannelSelectionListener> channelSelectionListeners = new ArrayList<ChannelSelectionListener>();
 
     private static Logger logger = LoggerFactory.getLogger(ChannelChooser.class.getName());
 } // ChannelChooser
