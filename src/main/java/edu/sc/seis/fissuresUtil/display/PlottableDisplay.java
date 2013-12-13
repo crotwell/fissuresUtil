@@ -378,6 +378,8 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
                         wholeShape.append(currentShape, false);
                         currentShape = new GeneralPath(GeneralPath.WIND_EVEN_ODD,
                                                        SHAPESIZE + 1);
+                        currentShape.moveTo(plot[a].x_coor[i],
+                                            plot[a].y_coor[i]);
                     }
                     if(plot[a].x_coor[i - 1] == plot[a].x_coor[i] - 1) {
                         currentShape.moveTo(plot[a].x_coor[i],
