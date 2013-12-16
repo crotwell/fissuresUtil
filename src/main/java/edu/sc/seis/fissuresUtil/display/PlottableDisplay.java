@@ -309,7 +309,7 @@ public class PlottableDisplay extends JComponent implements Graphics2DRenderer {
         int mean = getMean();
         // get new graphics to avoid messing up original
         Graphics2D g2 = (Graphics2D)g.create();
-        g2.setClip(LABEL_X_SHIFT, 0, rowWidth, rowOffset * (rows + 1));
+        g2.setClip(LABEL_X_SHIFT, titleHeight-rowOffset, rowWidth, rowOffset * (rows + 1));
         int xShift = LABEL_X_SHIFT;
         int yShift = titleHeight;
         AffineTransform originalTransform = AffineTransform.getTranslateInstance(xShift,
