@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.iris.Fissures.Orientation;
 import edu.iris.Fissures.IfNetwork.ChannelNotFound;
 import edu.iris.Fissures.IfNetwork.FilterType;
 import edu.iris.Fissures.IfNetwork.Instrumentation;
@@ -24,6 +25,7 @@ import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
 import edu.sc.seis.fissuresUtil.chooser.ChannelChooser;
 import edu.sc.seis.fissuresUtil.exceptionHandler.GlobalExceptionHandler;
+import edu.sc.seis.fissuresUtil.mockFissures.IfNetwork.MockChannel;
 import edu.sc.seis.fissuresUtil.sac.InvalidResponse;
 import edu.sc.seis.fissuresUtil.xml.DataSetSeismogram;
 import edu.sc.seis.fissuresUtil.xml.StdAuxillaryDataNames;
@@ -40,8 +42,13 @@ public class InstrumentationLoader extends Thread
             WorkUnit nextWork = null;
             try {
                 nextWork = getFromQueue();
-                Instrumentation inst =
-                nextWork.net.getSource(nextWork.seis.getChannelId().network_id).getInstrumentation((ChannelImpl)nextWork.net.getChannel(nextWork.seis.getRequestFilter().channel_id));
+                ChannelImpl chan = (ChannelImpl)nextWork.net.getChannel(nextWork.seis.getRequestFilter().channel_id);
+                if (chan == null) {
+                    // this is probably bad, but more sources will only need the channel id to load the instrumentation
+                    chan = MockChannel.createChannelWithId(nextWork.seis.getRequestFilter().channel_id);
+                }
+                Instrumentation inst = 
+                nextWork.net.getSource(nextWork.seis.getChannelId().network_id).getInstrumentation(chan);
                 nextWork.seis.addAuxillaryData(StdAuxillaryDataNames.RESPONSE,
                                   inst.the_response);
                 logger.debug("added response to dss for "+
