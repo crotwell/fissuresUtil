@@ -1,7 +1,12 @@
 package edu.sc.seis.fissuresUtil.mseed;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Test;
 
 import junit.framework.TestCase;
 import edu.iris.Fissures.FissuresException;
@@ -15,9 +20,11 @@ import edu.iris.dmc.seedcodec.CodecException;
 import edu.sc.seis.fissuresUtil.display.SimplePlotUtil;
 import edu.sc.seis.fissuresUtil.hibernate.PlottableChunk;
 import edu.sc.seis.fissuresUtil.mockFissures.IfSeismogramDC.MockSeismogram;
+import edu.sc.seis.fissuresUtil.time.ReduceTool;
 import edu.sc.seis.seisFile.mseed.Btime;
 import edu.sc.seis.seisFile.mseed.DataRecord;
 import edu.sc.seis.seisFile.mseed.SeedFormatException;
+import edu.sc.seis.seisFile.mseed.SeedRecord;
 
 public class TestFissuresConvert extends TestCase {
 
@@ -104,4 +111,60 @@ public class TestFissuresConvert extends TestCase {
         MicroSecondDate d = iso.getDate().add(new TimeInterval(startStruct.tenthMilli, UnitImpl.TENTHMILLISECOND));
         assertEquals(d, d1);
     }
+    
+    public void testCovertBtime2007() {
+        Btime startStruct = new Btime(2007, 227, 23, 59, 59, 1000);
+        MicroSecondDate d1 = FissuresConvert.getMicroSecondTime(startStruct);
+        ISOTime iso = new ISOTime(startStruct.year,
+                                  startStruct.jday,
+                                  startStruct.hour,
+                                  startStruct.min,
+                                  startStruct.sec);
+        MicroSecondDate d = iso.getDate().add(new TimeInterval(startStruct.tenthMilli, UnitImpl.TENTHMILLISECOND));
+        assertEquals(d, d1);
+        Btime roundTrip = FissuresConvert.getBtime(d1);
+        assertEquals("year", startStruct.year, roundTrip.year);
+        assertEquals("jday", startStruct.jday, roundTrip.jday);
+        assertEquals("hour", startStruct.hour, roundTrip.hour);
+        assertEquals("min", startStruct.min, roundTrip.min);
+        assertEquals("sec", startStruct.sec, roundTrip.sec);
+        assertEquals("tenthMilli", startStruct.tenthMilli, roundTrip.tenthMilli);
+    }
+    
+    @Test
+    public void testBadLeapSecMSeed() throws SeedFormatException, IOException, FissuresException {
+        String[] mseedFilenames = new String[] {
+                                                "fdsnws-dataselect_2013-08-02T18_55_55.mseed"
+          //                    "KZ.BRVK..BHZ_2007_227_23.mseed",
+         //                     "KZ.BRVK..BHZ_2007_228_00.mseed"
+        };
+        List<DataRecord> drList = new ArrayList<DataRecord>();
+        for (int i = 0; i < mseedFilenames.length; i++) {
+        DataInputStream in = new DataInputStream(this.getClass()
+                                                 .getClassLoader()
+                                                 .getResourceAsStream("edu/sc/seis/fissuresUtil/mseed/"+mseedFilenames[i]));
+        try {
+            while(true) {
+            DataRecord dr = (DataRecord)SeedRecord.read(in);
+            System.out.println(dr.getHeader().getStartTime()+" "+dr.getHeader().getStartBtime().tenthMilli);
+            drList.add(dr);
+            }
+        } catch(EOFException e) {}
+        
+        }
+        List<LocalSeismogramImpl> seisList = FissuresConvert.toFissures(drList);
+        for (LocalSeismogramImpl seis : seisList) {
+            System.out.println(seis.getBeginTime()+" "+seis.getEndTime());
+        }
+        LocalSeismogramImpl[] merged = ReduceTool.merge(seisList.toArray(new LocalSeismogramImpl[0]));
+        for (int i = 0; i < merged.length; i++) {
+            System.out.println("merge "+merged[i].getBeginTime()+" "+merged[i].getEndTime());
+        }
+    }
+
+    @Test
+    public void testFromIris() throws Exception {
+        
+    }
+
 }
