@@ -21,7 +21,7 @@ import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
  * @author Charlie Groves
  */
 public class ChannelChooserTest extends TestCase {
-
+/*
     public ChannelChooserTest() throws NetworkNotFound {
         MockNetworkDC mockDC = new MockNetworkDC();
         VestingNetworkDC[] dcs = new VestingNetworkDC[] {new VestingNetworkDC(FissuresNamingService.MOCK_DNS, NamedNetDC.VECTOR, new FissuresNamingService())};
@@ -84,7 +84,7 @@ public class ChannelChooserTest extends TestCase {
         cc.deselect(threeCompStation);
         cc.deselect(vertOnlyStation);
     }
-
+*/
     private ChannelChooser cc;
 
     private Station threeCompStation;
