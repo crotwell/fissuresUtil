@@ -84,6 +84,20 @@ public class MockChannel {
                              s,
                              o);
     }
+    
+    public static ChannelImpl createChannelWithId(ChannelId chanId) {
+        Orientation o;
+        if (chanId.channel_code.endsWith("Z")) {
+            o = VERTICAL;
+        } else if (chanId.channel_code.endsWith("N")) {
+            o = NORTH;
+        } else if (chanId.channel_code.endsWith("E")) {
+            o = EAST;
+        } else {
+            o = VERTICAL;
+        }
+        return createChannel(chanId, "", MockSite.createSite(MockStation.createStation(), chanId.site_code), o);
+    }
 
     private static ChannelImpl createChannel(ChannelId id,
                                          String info,
