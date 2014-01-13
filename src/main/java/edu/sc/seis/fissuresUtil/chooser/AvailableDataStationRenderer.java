@@ -197,7 +197,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
         RequestFilter[] request = new RequestFilter[0];
         for (int i = 0; i < chan.length; i++) {
             if (chan[i].get_code().equals("BHZ") || chan[i].get_code().equals("LHZ")
-                    || chan[i].get_code().equals("SHZ")) {
+                    || chan[i].get_code().equals("SHZ") || chan[i].get_code().equals("HHZ")) {
                 RequestFilter[] tmp = new RequestFilter[request.length + 1];
                 System.arraycopy(request, 0, tmp, 0, request.length);
                 tmp[tmp.length - 1] = new RequestFilter(chan[i].get_id(), range.start_time, range.end_time);
