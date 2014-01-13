@@ -1218,8 +1218,7 @@ public class ChannelChooser extends JPanel {
                                 } // end of else
                                 networkAdd(new NetworkFromSource(netAttr, netDC));
                                 totalNetworks++;
-                            } else {
-                                logger.warn("a networkaccess returned from NetworkFinder.retrieve_by_code is null, skipping.");
+                                break;
                             } // end of else
                         }// end of inner for subCounter = 0;
                     } catch(ChannelChooserException e) {
