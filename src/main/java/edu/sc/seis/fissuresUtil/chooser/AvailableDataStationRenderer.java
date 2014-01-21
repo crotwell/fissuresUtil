@@ -327,7 +327,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                     chanCodes[c] += "?";
                 }
                 for (int l = 0; l < siteCodes.length; l++) {
-                    request[c*chanCodes.length+l] = new RequestFilter(new ChannelId(net.getNetAttr().get_id(),
+                    request[c*siteCodes.length+l] = new RequestFilter(new ChannelId(net.getNetAttr().get_id(),
                                                                    "*",
                                                                    siteCodes[l],
                                                                    chanCodes[c],
