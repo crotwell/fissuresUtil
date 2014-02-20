@@ -194,8 +194,7 @@ public class StationXMLToFissures {
             && channel.getResponse().getInstrumentSensitivity().getOutputUnits() != null) {
             try {
                 sensitivity = new QuantityImpl(channel.getResponse().getInstrumentSensitivity().getSensitivityValue(),
-                                               UnitImpl.divide(convertUnit(channel.getResponse().getInstrumentSensitivity().getInputUnits()),
-                                                               convertUnit(channel.getResponse().getInstrumentSensitivity().getOutputUnits())));
+                                               convertUnit(channel.getResponse().getInstrumentSensitivity().getInputUnits()));
             } catch(StationXMLException e) {
                 logger.warn("Unable to extract unit: " + ChannelIdUtil.toStringFormatDates(chan.getId()), e);
             }
