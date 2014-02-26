@@ -100,6 +100,9 @@ public abstract class DataSetSeismogram implements LocalDataCenterCallBack,
     }
 
     public EventAccessOperations getEvent() {
+        if (getDataSet() == null) {
+            return null;
+        }
         return getDataSet().getEvent();
     }
 
