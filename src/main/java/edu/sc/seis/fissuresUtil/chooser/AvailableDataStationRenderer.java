@@ -337,6 +337,7 @@ public class AvailableDataStationRenderer extends NameListCellRenderer {
                 }
             }
             List<StationImpl> stations = net.getSource().getStations(net.getNetAttr());
+            channelChooser.addStations(stations);
             LinkedList allStations = new LinkedList();
             for (StationImpl stationImpl : stations) {
                 allStations.add(stationImpl);
