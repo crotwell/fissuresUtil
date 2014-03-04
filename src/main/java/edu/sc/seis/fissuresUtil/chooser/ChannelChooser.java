@@ -518,12 +518,10 @@ public class ChannelChooser extends JPanel {
             if(staList == null) {
                 staList = new ArrayList<StationImpl>();
                 stationMap.put(sta.getName(), staList);
-            } // end of if ()
-            staList.add(sta);
-            if(!stationMap.containsKey(sta.getName())) {
                 stationNames.addElement(sta);
                 addedStation = true;
             } // end of if ()
+            staList.add(sta);
         }
         if(addedStation) {
             stationList.sort();
@@ -688,9 +686,9 @@ public class ChannelChooser extends JPanel {
 
     public StationImpl[] getSelectedStations() {
         List<StationImpl> out = new LinkedList<StationImpl>();
-        Object[] selected = stationList.getSelectedValues();
-        for(int i = 0; i < selected.length; i++) {
-            List<StationImpl> staList = stationMap.get(((Station)selected[i]).getName());
+        List<StationImpl> selected = stationList.getSelectedValuesList();
+        for (StationImpl selSta : selected) {
+            List<StationImpl> staList = stationMap.get(selSta.getName());
             out.addAll(staList);
         } // end of for ()
         return (StationImpl[])out.toArray(new StationImpl[0]);
@@ -1090,7 +1088,7 @@ public class ChannelChooser extends JPanel {
 
     protected DefaultListModel networks = new DefaultListModel();
 
-    protected DefaultListModel stationNames = new DefaultListModel();
+    protected DefaultListModel<StationImpl> stationNames = new DefaultListModel<StationImpl>();
 
     protected HashMap<String, List<StationImpl>> stationMap = new HashMap<String, List<StationImpl>>();
 
