@@ -514,16 +514,16 @@ public class ChannelChooser extends JPanel {
     protected void addStations(List<StationImpl> stations) {
         boolean addedStation = false;
         for (StationImpl sta : stations) {
-            if(!stationMap.containsKey(sta.getName())) {
-                stationNames.addElement(sta);
-                addedStation = true;
-            } // end of if ()
             List<StationImpl> staList = stationMap.get(sta.getName());
             if(staList == null) {
                 staList = new ArrayList<StationImpl>();
                 stationMap.put(sta.getName(), staList);
             } // end of if ()
             staList.add(sta);
+            if(!stationMap.containsKey(sta.getName())) {
+                stationNames.addElement(sta);
+                addedStation = true;
+            } // end of if ()
         }
         if(addedStation) {
             stationList.sort();
