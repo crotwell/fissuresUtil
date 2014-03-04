@@ -149,7 +149,7 @@ return retryDC;
         }
     }
 
-    protected static int defaultTimeoutSeconds = 60;
+    protected static int defaultTimeoutSeconds = 20;
     
     protected static int sleepSeconds = 1;
 
