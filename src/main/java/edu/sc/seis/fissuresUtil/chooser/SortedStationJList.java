@@ -10,11 +10,12 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import edu.iris.Fissures.IfNetwork.Station;
+import edu.iris.Fissures.network.StationImpl;
 
 /**
  * @author groves Created on Nov 15, 2004
  */
-public class SortedStationJList extends JList {
+public class SortedStationJList extends JList<StationImpl> {
 
     public SortedStationJList(DefaultListModel listModel) {
         this(listModel, new NameListCellRenderer(true));
@@ -49,11 +50,11 @@ public class SortedStationJList extends JList {
 
     private NameListCellRenderer namer;
 
-    private Comparator comparator = new Comparator() {
+    private Comparator<StationImpl> comparator = new Comparator<StationImpl>() {
 
         private Comparator stringator = Collator.getInstance();
 
-        public int compare(Object o1, Object o2) {
+        public int compare(StationImpl o1, StationImpl o2) {
             return stringator.compare(getString(o1), getString(o2));
         }
 
