@@ -5,8 +5,11 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -208,11 +211,11 @@ public abstract class Border extends JComponent {
             while(it.hasNext()) {
                 TitleProvider tp = (TitleProvider)it.next();
                 g2d.setFont(tp.getTitleFont());
+                Color titleColor = color;
                 if(tp.getTitleColor() != null) {
-                    g2d.setColor(tp.getTitleColor());
-                } else {
-                    g2d.setColor(color);
+                    titleColor = tp.getTitleColor();
                 }
+                g2d.setColor(titleColor);
                 FontMetrics fm = g2d.getFontMetrics();
                 Rectangle2D titleBounds;
                 if(tp instanceof SelfDrawableTitleProvider) {
@@ -222,6 +225,9 @@ public abstract class Border extends JComponent {
                 }
                 cumulativeTitleHeight += titleBounds.getHeight();
                 if(direction == VERTICAL) {
+                    
+                    BufferedImage textImage = createVerticalTitle(tp.getTitle(), fm, titleColor);
+                    
                     double y = (int)(getSize().height / 2 + titleBounds.getWidth() / 2);
                     double x;
                     if(side == LEFT)
@@ -229,11 +235,19 @@ public abstract class Border extends JComponent {
                     else
                         x = getWidth() - cumulativeTitleHeight
                                 + (int)titleBounds.getHeight() - 5;
-                    g2d.translate(x, y);
-                    g2d.rotate(-Math.PI / 2);
-                    drawTitle(g2d, tp, 0, 0);
-                    g2d.rotate(Math.PI / 2);
-                    g2d.translate(-x, -y);
+
+                    AffineTransform oldAt = g2d.getTransform();
+                   // AffineTransform at = new AffineTransform();
+                   // at.setToRotation(Math.toRadians(90), 10, 10);
+                   // g2d.setTransform(at);
+
+                        g2d.translate(x, y);
+                        g2d.rotate(-Math.PI / 2);
+                    //drawTitle(g2d, tp, 0, 0);
+                        g2d.drawImage(textImage, 0, 0, Border.this);
+                    g2d.setTransform(oldAt);
+                //    g2d.rotate(-Math.PI / 2);
+                //    g2d.translate(-x, -y);
                 } else {
                     int x = 5;
                     if(titleCentered) {
@@ -320,7 +334,26 @@ public abstract class Border extends JComponent {
                 g2d.translate(-(int)translation[0], -(int)translation[1]);
             }
         }
-
+/** work around for bug on Mac where rotating text also rotates each character. 
+ * http://stackoverflow.com/questions/14767826/rotating-text-in-java2d-on-mac
+ * */
+        private BufferedImage createVerticalTitle(String title, FontMetrics fm, Color titleColor) {
+            int textWidth = fm.stringWidth(title);
+            int textHeight = fm.getHeight();
+            
+            BufferedImage img = new BufferedImage(textWidth, textHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D ig = img.createGraphics();
+            ig.setFont(fm.getFont());
+            ig.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            ig.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            if (titleColor != null) {
+                ig.setColor(titleColor);
+            }
+            ig.drawString(title, 0, fm.getAscent());
+            ig.dispose();
+            return img;
+        }
+        
         private void drawTitle(Graphics2D g2d, TitleProvider tp, int i, int j) {
             if(tp instanceof SelfDrawableTitleProvider) {
                 ((SelfDrawableTitleProvider)tp).draw(i, j, g2d);
