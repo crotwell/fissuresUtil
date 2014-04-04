@@ -57,11 +57,11 @@ public class FTimeUserType implements CompositeUserType {
     public Object nullSafeGet(ResultSet rs, String[] names, SessionImplementor session, Object owner)
     throws HibernateException, SQLException { 
 
-        Timestamp first = (Timestamp) StandardBasicTypes.TIMESTAMP.nullSafeGet(rs, names[0]);
+        Timestamp first = (Timestamp) StandardBasicTypes.TIMESTAMP.nullSafeGet(rs, names[0], session);
         if ( first==null ) {System.out.println("WARNING: timestamp in FTimeUserType is null!");return null ;}
-        int second = ((Integer)StandardBasicTypes.INTEGER.nullSafeGet(rs, names[1])).intValue();
+        int second = ((Integer)StandardBasicTypes.INTEGER.nullSafeGet(rs, names[1], session)).intValue();
         first.setNanos(second);
-        int third = ((Integer)StandardBasicTypes.INTEGER.nullSafeGet(rs, names[2])).intValue();
+        int third = ((Integer)StandardBasicTypes.INTEGER.nullSafeGet(rs, names[2], session)).intValue();
         MicroSecondDate out = new MicroSecondDate(first, third);
         return  out.getFissuresTime();
     }
@@ -69,13 +69,13 @@ public class FTimeUserType implements CompositeUserType {
     public void nullSafeSet(PreparedStatement st, Object value, int index, SessionImplementor session)
     throws HibernateException, SQLException {
         if (value == null) {System.out.println("WARNING: value in FTimeUserType.nullSafeSet is null!");
-        StandardBasicTypes.TIMESTAMP.nullSafeSet(st, null, index);
-        StandardBasicTypes.INTEGER.nullSafeSet(st, null, index+1);
-        StandardBasicTypes.INTEGER.nullSafeSet(st, null, index+2);
+        StandardBasicTypes.TIMESTAMP.nullSafeSet(st, null, index, session);
+        StandardBasicTypes.INTEGER.nullSafeSet(st, null, index+1, session);
+        StandardBasicTypes.INTEGER.nullSafeSet(st, null, index+2, session);
         } else {
-            StandardBasicTypes.TIMESTAMP.nullSafeSet(st, new MicroSecondDate((Time)value).getTimestamp(), index);
-            StandardBasicTypes.INTEGER.nullSafeSet(st, new Integer(new MicroSecondDate((Time)value).getTimestamp().getNanos()), index+1);
-            StandardBasicTypes.INTEGER.nullSafeSet(st, new Integer(((Time)value).leap_seconds_version), index+2);
+            StandardBasicTypes.TIMESTAMP.nullSafeSet(st, new MicroSecondDate((Time)value).getTimestamp(), index, session);
+            StandardBasicTypes.INTEGER.nullSafeSet(st, new Integer(new MicroSecondDate((Time)value).getTimestamp().getNanos()), index+1, session);
+            StandardBasicTypes.INTEGER.nullSafeSet(st, new Integer(((Time)value).leap_seconds_version), index+2, session);
         }
     }
 
