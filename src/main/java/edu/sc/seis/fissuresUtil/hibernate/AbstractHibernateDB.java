@@ -1,5 +1,6 @@
 package edu.sc.seis.fissuresUtil.hibernate;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -114,8 +115,8 @@ public abstract class AbstractHibernateDB {
         cacheSession.beginTransaction();
         //logger.debug("TRANSACTION Begin on " + cacheSession);
         if (DEBUG_SESSION_CREATION) {
-            knownSessions.add(new SessionStackTrace(cacheSession, 
-                                                    Thread.currentThread().getStackTrace()));
+            knownSessions.add(new WeakReference<SessionStackTrace>(new SessionStackTrace(cacheSession, 
+                                                    Thread.currentThread().getStackTrace())));
         }
         return cacheSession;
     }
@@ -240,7 +241,7 @@ public abstract class AbstractHibernateDB {
 
     private static ThreadLocal<Session> sessionTL = new ThreadLocal<Session>();
     
-    private static List<SessionStackTrace> knownSessions = Collections.synchronizedList(new LinkedList<SessionStackTrace>());
+    private static List<WeakReference<SessionStackTrace>> knownSessions = Collections.synchronizedList(new LinkedList<WeakReference<SessionStackTrace>>());
 
     private static TimeInterval MAX_SESSION_LIFE = new TimeInterval(300, UnitImpl.SECOND);
     
@@ -271,10 +272,10 @@ public abstract class AbstractHibernateDB {
             t.schedule(new TimerTask() {
                 public void run() {
                     synchronized(knownSessions) {
-                        Iterator<SessionStackTrace> iterator = knownSessions.iterator();
+                        Iterator<WeakReference<SessionStackTrace>> iterator = knownSessions.iterator();
                         while (iterator.hasNext()) {
-                            SessionStackTrace item = iterator.next();
-                            if ( ! item.session.isOpen() ) {
+                            SessionStackTrace item = iterator.next().get();
+                            if (item == null || ! item.session.isOpen() ) {
                                 iterator.remove();
                             } else if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
                                 TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
