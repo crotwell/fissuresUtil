@@ -30,6 +30,7 @@ import edu.iris.Fissures.model.MicroSecondDate;
 import edu.iris.Fissures.model.QuantityImpl;
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
+import edu.iris.Fissures.model.TimeUtils;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.network.ChannelIdUtil;
 import edu.iris.Fissures.network.ChannelImpl;
@@ -41,6 +42,7 @@ import edu.iris.Fissures.network.NetworkIdUtil;
 import edu.iris.Fissures.network.SensorImpl;
 import edu.iris.Fissures.network.SiteImpl;
 import edu.iris.Fissures.network.StationImpl;
+import edu.sc.seis.fissuresUtil.chooser.ClockUtil;
 import edu.sc.seis.seisFile.fdsnws.stationxml.BaseFilterType;
 import edu.sc.seis.seisFile.fdsnws.stationxml.Channel;
 import edu.sc.seis.seisFile.fdsnws.stationxml.Coefficients;
@@ -67,11 +69,19 @@ public class StationXMLToFissures {
         if (name.length() > 80) {
             name = name.substring(0, 80);
         }
-        return new NetworkAttrImpl(new NetworkId(net.getCode(), convertTime(net.getStartDate())),
+        String endDate = net.getEndDate();
+        if (endDate == null) {
+            endDate = "24990101T00:00:00.000";
+        }
+        String startDate = net.getStartDate();
+        if (startDate == null) {
+            startDate = "10010101T00:00:00.000";
+        }
+        return new NetworkAttrImpl(new NetworkId(net.getCode(), convertTime(startDate)),
                                    name,
                                    net.getDescription(),
                                    UNKNOWN,
-                                   new TimeRange(convertTime(net.getStartDate()), convertTime(net.getEndDate())));
+                                   new TimeRange(convertTime(startDate), convertTime(endDate)));
     }
 
     public static StationImpl convert(Station xml, NetworkAttrImpl netAttr) throws StationXMLException {
