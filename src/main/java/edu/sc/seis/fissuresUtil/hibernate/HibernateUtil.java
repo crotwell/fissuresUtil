@@ -87,6 +87,9 @@ public class HibernateUtil {
         } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.POSTGRES)) {
             logger.info("using postgres dialect");
             dialect = org.hibernate.dialect.PostgreSQLDialect.class.getName();
+        } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.EDB)) {
+            logger.info("using postgresql as edb dialect");
+            dialect = org.hibernate.dialect.PostgresPlusDialect.class.getName();
         } else if(ConnMgr.getDB_TYPE().equals(ConnMgr.MYSQL)) {
             logger.info("using mysql dialect");
             dialect = org.hibernate.dialect.MySQLDialect.class.getName();
@@ -135,6 +138,8 @@ public class HibernateUtil {
             return org.hibernate.dialect.HSQLDialect.class.getName();
         } else if (url.startsWith("jdbc:postgresql")) {
             return org.hibernate.dialect.PostgreSQLDialect.class.getName();
+        } else if (url.startsWith("jdbc:edb")) {
+            return org.hibernate.dialect.PostgresPlusDialect.class.getName();
         } else if (url.startsWith("jdbc:mysql")) {
             return org.hibernate.dialect.MySQL5Dialect.class.getName();
         } else if (url.startsWith("jdbc:oracle")) {
