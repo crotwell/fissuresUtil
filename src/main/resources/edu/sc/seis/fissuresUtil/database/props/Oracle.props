@@ -1,5 +1,5 @@
 driver=oracle.jdbc.driver.OracleDriver
 URL=jdbc:postgresql:fistest
-user=crotwell
+user=xxxxxxxxx
 password=
 
