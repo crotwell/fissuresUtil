@@ -75,6 +75,8 @@ public class ConnMgr {
             load(cl, loc + MCKOI_PROPS, existing);
         else if(DB_NAME == POSTGRES)
             load(cl, loc + POSTGRES_PROPS, existing);
+        else if(DB_NAME == EDB)
+            load(cl, loc + EDB_PROPS, existing);
         else if(DB_NAME == MYSQL)
             load(cl, loc + MYSQL_PROPS, existing);
         else if(DB_NAME == ORACLE)
@@ -129,6 +131,8 @@ public class ConnMgr {
             setDB(HSQL);
         } else if (url.startsWith("jdbc:postgresql")) {
             setDB(POSTGRES);
+        } else if (url.startsWith("jdbc:edb")) {
+            setDB(EDB);
         } else if (url.startsWith("jdbc:mysql")) {
             setDB(MYSQL);
             String[] splitURL = url.split("\\?");
@@ -390,10 +394,14 @@ public class ConnMgr {
     public static final String ORACLE = "ORACLE";
     
     public static final String ORACLE_PROPS = "Oracle.props";
-    
+
     public static final String POSTGRES = "POSTGRES";
 
     public static final String POSTGRES_PROPS = "Postgres.props";
+    
+    public static final String EDB = "EDB";
+
+    public static final String EDB_PROPS = "Edb.props";
 
     public static final String DB_SERVER_PORT = "server.port";
 
