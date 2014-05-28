@@ -69,23 +69,17 @@ public class StationXMLToFissures {
         if (name.length() > 80) {
             name = name.substring(0, 80);
         }
-        String endDate = net.getEndDate();
-        if (endDate == null) {
-            endDate = "24990101T00:00:00.000";
-        }
-        String startDate = net.getStartDate();
-        if (startDate == null) {
-            startDate = "10010101T00:00:00.000";
-        }
-        return new NetworkAttrImpl(new NetworkId(net.getCode(), convertTime(startDate)),
+        Time startDate = convertTime(net.getStartDate(), WAY_PAST);
+        return new NetworkAttrImpl(new NetworkId(net.getCode(), startDate),
                                    name,
                                    net.getDescription(),
                                    UNKNOWN,
-                                   new TimeRange(convertTime(startDate), convertTime(endDate)));
+                                   new TimeRange(startDate, convertTime(net.getEndDate(), WAY_FUTURE)));
     }
 
     public static StationImpl convert(Station xml, NetworkAttrImpl netAttr) throws StationXMLException {
-        TimeRange effectiveTime = new TimeRange(new Time(xml.getStartDate(), -1), new Time(xml.getEndDate(), -1));
+        Time startDate = convertTime(xml.getStartDate(), WAY_PAST);
+        TimeRange effectiveTime = new TimeRange(startDate, convertTime(xml.getEndDate(), WAY_FUTURE));
         String name = xml.getSite().getName();
         if (name == null) {
             name = (xml.getSite().getTown() != null ? xml.getSite().getTown() + " " : "")
@@ -175,13 +169,13 @@ public class StationXMLToFissures {
         } else {
             samp = new SamplingImpl(1, new TimeInterval(1 / channel.getSampleRate().getValue(), UnitImpl.SECOND));
         }
-        TimeRange chanTimeRange = new TimeRange(convertTime(channel.getStartDate()),
-                                                convertTime(channel.getEndDate()));
+        TimeRange chanTimeRange = new TimeRange(convertTime(channel.getStartDate(), WAY_PAST),
+                                                convertTime(channel.getEndDate(), WAY_FUTURE));
         ChannelImpl chan = new ChannelImpl(new ChannelId(station.getId().network_id,
                                                          station.get_code(),
                                                          channel.getLocCode(),
                                                          channel.getCode(),
-                                                         convertTime(channel.getStartDate())),
+                                                         chanTimeRange.start_time),
                                            UNKNOWN,
                                            new Orientation(channel.getAzimuth().getValue(), channel.getDip().getValue()),
                                            samp,
@@ -189,7 +183,7 @@ public class StationXMLToFissures {
                                            new SiteImpl(new SiteId(station.getId().network_id,
                                                                    station.get_code(),
                                                                    channel.getLocCode(),
-                                                                   convertTime(channel.getEndDate())),
+                                                                   chanTimeRange.end_time),
                                                         new Location(channel.getLatitude().getValue(),
                                                                      channel.getLon().getValue(),
                                                                      convertFloatType(channel.getElevation()),
@@ -541,6 +535,14 @@ public class StationXMLToFissures {
         return new MicroSecondDate(xml).getFissuresTime();
     }
 
+    public static Time convertTime(String xml, String defaultTime) {
+        String s = xml;
+        if (xml == null) {
+            s = defaultTime;
+        }
+        return new MicroSecondDate(s).getFissuresTime();
+    }
+
     public static String makeNoNull(String s) {
         if (s == null) {
             return "";
@@ -568,6 +570,10 @@ public class StationXMLToFissures {
     public static final String UNKNOWN = "";
 
     public static final TimeInterval ONE_SECOND = new TimeInterval(1, UnitImpl.SECOND);
+    
+    public static final String WAY_FUTURE = "24990101T00:00:00.000";
+    
+    public static final String WAY_PAST = "10010101T00:00:00.000";
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StationXMLToFissures.class);
 }
