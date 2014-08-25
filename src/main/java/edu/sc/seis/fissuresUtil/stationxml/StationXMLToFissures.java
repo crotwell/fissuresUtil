@@ -278,6 +278,10 @@ public class StationXMLToFissures {
                 if (response.getResponseItem() == null) {
                     // no responseItem, so units have not changed, find previous
                     // stage and reuse units
+                    if (stages.size() == 0) {
+                        // uh oh, no units on first stage
+                        throw new StationXMLException("No units on stage 0, cannot convert response");
+                    }
                     inputUnits = (UnitImpl)stages.get(stages.size() - 1).output_units;
                     outputUnits = inputUnits;
                     if (response.getDecimation() != null) {
