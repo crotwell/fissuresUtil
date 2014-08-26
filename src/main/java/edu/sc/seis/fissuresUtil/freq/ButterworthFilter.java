@@ -22,12 +22,14 @@ package edu.sc.seis.fissuresUtil.freq;
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
+ * @deprecated see http://www.iris.edu/pub/programs/OregonDSP/ for a replacement
  */
 
 
 
 
-
+@Deprecated
 public class ButterworthFilter implements FrequencyDomainProcess {
 
 	public double highFreqCorner;

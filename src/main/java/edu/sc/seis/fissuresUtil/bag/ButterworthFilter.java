@@ -2,16 +2,19 @@
  * ButterworthFilter.java
  *
  * @author Created by Omnicore CodeGuide
+ * @deprecated see http://www.iris.edu/pub/programs/OregonDSP/ for a replacement
  */
 
 package edu.sc.seis.fissuresUtil.bag;
 
 import edu.iris.Fissures.FissuresException;
+
 import edu.iris.Fissures.IfTimeSeries.TimeSeriesDataSel;
 import edu.iris.Fissures.model.UnitImpl;
 import edu.iris.Fissures.seismogramDC.LocalSeismogramImpl;
 import edu.sc.seis.fissuresUtil.freq.Cmplx;
 
+@Deprecated
 public class ButterworthFilter
     extends edu.sc.seis.fissuresUtil.freq.ButterworthFilter
     implements LocalSeismogramFunction {
