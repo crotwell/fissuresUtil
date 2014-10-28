@@ -298,12 +298,19 @@ public class StationXMLToFissures {
                         norm = new Normalization[] {convertNormalization((PolesZeros)response.getResponseItem())};
                     }
                 }
+                Gain g;
+                // stage gain might be missing, we will assume a unity gain in this case.
+                if (response.getStageSensitivity() != null) {
+                    g = new Gain(response.getStageSensitivity().getSensitivityValue(),
+                                 response.getStageSensitivity().getFrequency());
+                } else {
+                    g = new Gain(1, sense.frequency); // null, so assume gain 1 at overall sensitivity freq
+                }
                 stages.add(new Stage(getTransferType(response),
                                      inputUnits,
                                      outputUnits,
                                      norm,
-                                     new Gain(response.getStageSensitivity().getSensitivityValue(),
-                                              response.getStageSensitivity().getFrequency()), dec, filt));
+                                     g, dec, filt));
             }
         }
         return new Response(sense, stages.toArray(new Stage[0]));
