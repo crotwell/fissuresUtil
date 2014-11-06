@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -445,6 +446,68 @@ public class SimplePlotUtil {
             }
         }
         return chunks;
+    }
+
+    public static List<PlottableChunk> convertToCommonPixelScale(List<PlottableChunk> chunks,
+                                                             MicroSecondTimeRange requestRange,
+                                                             int pixelsPerDay) {
+        int requestPixels = getPixels(pixelsPerDay, requestRange);
+        List<PlottableChunk> outChunks = new ArrayList<PlottableChunk>();
+        Iterator<PlottableChunk> it = chunks.iterator();
+        while (it.hasNext()) {
+            PlottableChunk pc = it.next();
+            if (pc.getEndTime().before(requestRange.getBeginTime())) {
+                // whole chunk before request
+                continue;
+            }
+            MicroSecondDate rowBeginTime = pc.getBeginTime();
+            int offsetIntoRequestPixels = getPixel(requestPixels, requestRange, rowBeginTime);
+            int numPixels = pc.getNumPixels();
+            int firstPixelForRequest = 0;
+            if (offsetIntoRequestPixels < 0) {
+                // This db row has data starting before the request, start
+                // at
+                // pertinent point
+                firstPixelForRequest = -1 * offsetIntoRequestPixels;
+            }
+            int lastPixelForRequest = numPixels;
+            if (offsetIntoRequestPixels + numPixels > requestPixels) {
+                // This row has more data than was requested in it, only get
+                // enough to fill the request
+                lastPixelForRequest = requestPixels - offsetIntoRequestPixels;
+            }
+            if (firstPixelForRequest > lastPixelForRequest) {
+                throw new NegativeArraySizeException("first pixel > last pixel: f="+firstPixelForRequest+"  l="+lastPixelForRequest);
+            }
+            int pixelsUsed = lastPixelForRequest - firstPixelForRequest;
+            int[] x = new int[pixelsUsed * 2];
+            int[] y = new int[pixelsUsed * 2];
+            int[] ploty = pc.getYData();
+            System.arraycopy(ploty, firstPixelForRequest*2, y, 0, pixelsUsed*2);
+            for (int i = 0; i < pixelsUsed * 2; i++) {
+                x[i] = firstPixelForRequest + offsetIntoRequestPixels + i / 2;
+            }
+            Plottable p = new Plottable(x, y);
+            PlottableChunk shiftPC = new PlottableChunk(p,
+                                                        PlottableChunk.getPixel(rowBeginTime, pixelsPerDay)
+                                                                + firstPixelForRequest,
+                                                        PlottableChunk.getJDay(rowBeginTime),
+                                                        PlottableChunk.getYear(rowBeginTime),
+                                                        pixelsPerDay,
+                                                        pc.getNetworkCode(),
+                                                        pc.getStationCode(),
+                                                        pc.getSiteCode(),
+                                                        pc.getChannelCode());
+            outChunks.add(shiftPC);
+        }
+        return outChunks;
+    }
+
+    public static int getPixels(int pixelsPerDay, MicroSecondTimeRange tr) {
+        TimeInterval inter = tr.getInterval();
+        inter = (TimeInterval)inter.convertTo(UnitImpl.DAY);
+        double samples = pixelsPerDay * inter.getValue();
+        return (int)Math.floor(samples);
     }
     
 } // SimplePlotUtil
