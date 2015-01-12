@@ -24,8 +24,8 @@ public class Rotate  {
         // want y north, x east, or at least x + 90 deg == y
         double angle = (xOrient.azimuth - yOrient.azimuth) % 360;
         if (angle < 0) {angle += 360;}
-        if (Math.abs(angle - 90) < NINTY_DEGREE_TOLERANCE 
-                || Math.abs(angle - 270) < NINTY_DEGREE_TOLERANCE) {
+        if (Math.abs(angle - 90) < toleranceDegrees 
+                || Math.abs(angle - 270) < toleranceDegrees) {
             return true;
         }
         return false;
