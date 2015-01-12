@@ -156,4 +156,12 @@ public class RotateTest extends TestCase {
         assertEquals(" transverse ", 100, ans[0][0], 0.001f);
         assertEquals(" radial ", -100, ans[1][0], 0.001f);
     }
+    
+    public void testAreRotatable() {
+        Orientation xOrient = new Orientation(88.3f, 0);
+        Orientation yOrient = new Orientation(0, 0);
+        float toleranceDegrees = 5f;
+        
+        assertTrue("test 0, 0 and 88.3,0", rotate.areRotatable( xOrient,  yOrient,  toleranceDegrees));
+    }
 }
