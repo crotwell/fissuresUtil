@@ -531,7 +531,7 @@ public class StationXMLToFissures {
                 || unitString.equalsIgnoreCase("CYCLES")
                 || unitString.equalsIgnoreCase("GAPS")) {
             return UnitImpl.COUNT;
-        } else if (unitString.equalsIgnoreCase("1") || unitString.equalsIgnoreCase("M/M")) {
+        } else if (unitString.equalsIgnoreCase("1") || unitString.equalsIgnoreCase("M/M") || unitString.equalsIgnoreCase("NULL")) {
             return UnitImpl.divide(UnitImpl.METER, UnitImpl.METER);
         } else {
             try {
