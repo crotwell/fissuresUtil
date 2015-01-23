@@ -422,26 +422,30 @@ public class SimplePlotUtil {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimplePlotUtil.class);
 
     public static List<PlottableChunk> makePlottables(LocalSeismogram[] seis, int pixelsPerDay)
-            throws CodecException, IOException {
+            throws IOException {
         List<PlottableChunk> chunks = new ArrayList<PlottableChunk>();
         for (int i = 0; i < seis.length; i++) {
             LocalSeismogramImpl curSeis = (LocalSeismogramImpl)seis[i];
             if (curSeis.getNumPoints() > 0 && canMakeAtLeastOnePixel(seis[i], pixelsPerDay)) {
-                Plottable plott = makePlottable(curSeis, pixelsPerDay);
-                if (plott.x_coor.length > 0) {
-                    MicroSecondDate plotStartTime = getBeginningOfDay(curSeis.getBeginTime());
-                    PlottableChunk chunk = new PlottableChunk(plott,
-                                                              getDayPixelRange(seis[i],
-                                                                                              pixelsPerDay,
-                                                                                              plotStartTime)
-                                                                      .getMin(),
-                                                              plotStartTime,
-                                                              pixelsPerDay,
-                                                              curSeis.channel_id.network_id.network_code,
-                                                              curSeis.channel_id.station_code,
-                                                              curSeis.channel_id.site_code,
-                                                              curSeis.channel_id.channel_code);
-                    chunks.add(chunk);
+                try {
+                    Plottable plott = makePlottable(curSeis, pixelsPerDay);
+                    if (plott.x_coor.length > 0) {
+                        MicroSecondDate plotStartTime = getBeginningOfDay(curSeis.getBeginTime());
+                        PlottableChunk chunk = new PlottableChunk(plott,
+                                                                  getDayPixelRange(seis[i],
+                                                                                                  pixelsPerDay,
+                                                                                                  plotStartTime)
+                                                                          .getMin(),
+                                                                  plotStartTime,
+                                                                  pixelsPerDay,
+                                                                  curSeis.channel_id.network_id.network_code,
+                                                                  curSeis.channel_id.station_code,
+                                                                  curSeis.channel_id.site_code,
+                                                                  curSeis.channel_id.channel_code);
+                        chunks.add(chunk);
+                    }
+                } catch(CodecException e) {
+                    logger.warn("unable to make plottable for "+curSeis+", skipping.", e);
                 }
             }
         }
