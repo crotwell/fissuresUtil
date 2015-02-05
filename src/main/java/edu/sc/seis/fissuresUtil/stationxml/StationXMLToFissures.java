@@ -511,6 +511,8 @@ public class StationXMLToFissures {
             return UnitImpl.AMPERE;
         } else if (unitString.equalsIgnoreCase("T")) {
             return UnitImpl.TESLA;
+        } else if (unitString.equalsIgnoreCase("NT")) {
+            return UnitImpl.multiply(0.000000001, UnitImpl.TESLA, "NANOTESLA");
         } else if (unitString.equalsIgnoreCase("V")
                 || unitString.equalsIgnoreCase("VOLTS")
                 || unitString.equalsIgnoreCase("VOLT_UNIT")) {
