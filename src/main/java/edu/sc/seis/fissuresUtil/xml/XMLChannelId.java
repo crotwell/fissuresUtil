@@ -64,7 +64,8 @@ public class XMLChannelId {
         NetworkId network_id = XMLNetworkId.getNetworkId(network_id_node);
         String station_code = XMLUtil.getText(XMLUtil.getElement(base,
                                                                  "station_code"));
-        String site_code = XMLUtil.getText(XMLUtil.getElement(base, "site_code"));
+        String site_code = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.fixLocCode(
+                XMLUtil.getText(XMLUtil.getElement(base, "site_code")));
         String channel_code = XMLUtil.getText(XMLUtil.getElement(base,
                                                                  "channel_code"));
         Element begin_time_node = XMLUtil.getElement(base, "begin_time");
@@ -83,7 +84,7 @@ public class XMLChannelId {
         XMLUtil.gotoNextStartElement(parser, "station_code");
         String station_code = parser.getElementText();
         XMLUtil.gotoNextStartElement(parser, "site_code");
-        String site_code = parser.getElementText();
+        String site_code = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.fixLocCode(parser.getElementText());
         XMLUtil.gotoNextStartElement(parser, "channel_code");
         String channel_code = parser.getElementText();
         XMLUtil.gotoNextStartElement(parser, "begin_time");

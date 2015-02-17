@@ -120,7 +120,7 @@ public class PSNToFissures{
     }
 
     public static ChannelId getChannelId(PSNEventRecord evRec){
-        return getChannelId(evRec, "  ");
+        return getChannelId(evRec, edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE);
     }
 
     public static ChannelId getChannelId(PSNEventRecord evRec, String siteCode){

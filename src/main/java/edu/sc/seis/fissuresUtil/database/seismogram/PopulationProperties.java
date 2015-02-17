@@ -84,15 +84,15 @@ public class PopulationProperties {
         chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.get_code().toLowerCase(), chan.get_code());
         // sac processor will split a 5 char kcmpnm into site and channel code
         if (props.containsKey(CHANNEL_REMAP+chan.getSite().get_code()+chan.get_code())) {
-            chan.get_id().site_code = "  ";
-            chan.getSite().get_id().site_code = "  ";
+            chan.get_id().site_code = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;
+            chan.getSite().get_id().site_code = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;
             chan.get_id().channel_code=props.getProperty(CHANNEL_REMAP+chan.getSite().get_code()+chan.get_code(), chan.get_code());
         }
         // check lower case
         String key = CHANNEL_REMAP+chan.getSite().get_code().toLowerCase()+chan.get_code().toLowerCase();
         if (props.containsKey(key)) {
-            chan.get_id().site_code = "  ";
-            chan.getSite().get_id().site_code = "  ";
+            chan.get_id().site_code = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;
+            chan.getSite().get_id().site_code = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;
             chan.get_id().channel_code=props.getProperty(key);
         }
         Channel out;
