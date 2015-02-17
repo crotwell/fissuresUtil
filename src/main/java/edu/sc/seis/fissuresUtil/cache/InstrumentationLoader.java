@@ -135,11 +135,11 @@ public class InstrumentationLoader extends Thread
     }
 
     public static boolean isValid(Instrumentation inst) {
-        return isValid(inst.the_response);
+        return inst != null && isValid(inst.the_response);
     }
     
     public static boolean isValid(Response resp) {
-        return resp.stages.length != 0 && isValid(resp.the_sensitivity);
+        return resp != null && resp.stages.length != 0 && isValid(resp.the_sensitivity);
     }
     
     public static void checkResponse(Response resp) throws InvalidResponse {
