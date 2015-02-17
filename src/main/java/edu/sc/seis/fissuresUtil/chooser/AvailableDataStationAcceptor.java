@@ -52,14 +52,14 @@ public class AvailableDataStationAcceptor implements StationAcceptor {
                                        range.end_time);
         request[2] = new RequestFilter(new ChannelId(stationId.network_id,
                                                      stationId.station_code,
-                                                     "  ",
+                                                     edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE,
                                                      "LHZ",
                                                      range.start_time),
                                        range.start_time,
                                        range.end_time);
         request[3] = new RequestFilter(new ChannelId(stationId.network_id,
                                                      stationId.station_code,
-                                                     "  ",
+                                                     edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE,
                                                      "LHZ",
                                                      range.start_time),
                                        range.start_time,

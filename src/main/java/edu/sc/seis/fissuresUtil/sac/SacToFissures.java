@@ -186,7 +186,7 @@ public class SacToFissures {
             chanCode = header.getKcmpnm().trim().toUpperCase();
             if(chanCode.length() == 5) {
                 // site code is first 2 chars of kcmpnm
-                siteCode = chanCode.substring(0, 2);
+                siteCode = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.fixLocCode(chanCode.substring(0, 2));
                 chanCode = chanCode.substring(2, 5);
             }
         }
