@@ -18,7 +18,7 @@ public class BestChannelUtil {
 
     public BestChannelUtil() {}
     
-    public static final String[] DEFAULT_SITE_CODE_HEURISTIC = { "00", "  ", "01", "02", "10" };
+    public static final String[] DEFAULT_SITE_CODE_HEURISTIC = { "00", "  ", "", "01", "02", "10" };
 
     public static final String[] DEFAULT_GAIN_CODE_HEURISTIC = { "H", "L" };
 
