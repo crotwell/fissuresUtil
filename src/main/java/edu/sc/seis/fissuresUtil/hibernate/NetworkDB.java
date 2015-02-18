@@ -121,11 +121,12 @@ public class NetworkDB extends AbstractHibernateDB {
             getSession().evict(indb.getSite().getStation());
             getSession().evict(indb.getSite().getStation().getNetworkAttr());
             getSession().saveOrUpdate(chan);
-            return chan.getDbid();
+            dbid = chan.getDbid();
         } catch(NotFound nf) {
             dbid = (Integer)getSession().save(chan);
-            return dbid.intValue();
         }
+        logger.debug("Put channel as "+dbid+" "+ChannelIdUtil.toStringFormatDates(chan.get_id())+"  sta dbid="+((StationImpl)chan.getSite().getStation()).getDbid());
+        return dbid.intValue();
     }
 
     public int put(ChannelGroup cg) {
@@ -204,6 +205,7 @@ public class NetworkDB extends AbstractHibernateDB {
                            new MicroSecondDate(staId.begin_time).getTimestamp());
         query.setMaxResults(1);
         List<StationImpl> l = query.list();
+        logger.debug("getStationById("+staId.network_id.network_code+"."+staId.station_code+"."+staId.begin_time.date_time+"  return size: "+l.size());
         if(l.size() != 0) {
             return l.get(0);
         }
@@ -314,7 +316,9 @@ public class NetworkDB extends AbstractHibernateDB {
     public List<ChannelImpl> getChannelsForStation(StationImpl station) {
         Query query = getSession().createQuery(getChannelForStation);
         query.setEntity("station", station);
-        return query.list();
+        List<ChannelImpl> out = query.list();
+        logger.debug("getChannelsForStation("+station.getDbid()+" found "+out.size()+"  query="+query);
+        return out;
     }
 
     public List<ChannelGroup> getChannelGroupsForStation(StationImpl station) {
@@ -374,7 +378,9 @@ public class NetworkDB extends AbstractHibernateDB {
         Query query = getSession().createQuery(queryString);
         query.setString("netCode", net);
         query.setString("stationCode", sta);
-        query.setString("siteCode", site);
+        String sc = site.trim();
+        if (sc.equals("--")) {sc = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;}
+        query.setString("siteCode", sc);
         query.setString("channelCode", chan);
         query.setTimestamp("when", when.getTimestamp());
         query.setMaxResults(1);
