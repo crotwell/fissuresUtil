@@ -493,7 +493,7 @@ public class StationXMLToFissures {
             return UnitImpl.PASCAL;
         } else if (unitString.equalsIgnoreCase("HPA")) {
             return UnitImpl.HECTOPASCAL;
-        } else if (unitString.equalsIgnoreCase("KPA")) {
+        } else if (unitString.equalsIgnoreCase("KPA") || unitString.equalsIgnoreCase("KILOPASCALS")) {
             return UnitImpl.KILOPASCAL;
         } else if (unitString.equalsIgnoreCase("H/M**2*S")) {
             return UnitImpl.multiply(UnitImpl.SQUARE_METER, UnitImpl.SECOND).inverse("hail intensity in hits per meter squared second");
@@ -507,7 +507,7 @@ public class StationXMLToFissures {
             return UnitImpl.SECOND;
         } else if (unitString.equalsIgnoreCase("USEC")) {
             return UnitImpl.MICROSECOND;
-        } else if (unitString.equalsIgnoreCase("A")) {
+        } else if (unitString.equalsIgnoreCase("A") || unitString.equalsIgnoreCase("AMPERES")) {
             return UnitImpl.AMPERE;
         } else if (unitString.equalsIgnoreCase("T")) {
             return UnitImpl.TESLA;
@@ -517,6 +517,8 @@ public class StationXMLToFissures {
                 || unitString.equalsIgnoreCase("VOLTS")
                 || unitString.equalsIgnoreCase("VOLT_UNIT")) {
             return UnitImpl.VOLT;
+        } else if (unitString.equalsIgnoreCase("MILLIVOLTS")) {
+            return UnitImpl.multiply(.001, UnitImpl.VOLT, "MILLIVOLT");
         } else if (unitString.equalsIgnoreCase("V/M")) {
             return UnitImpl.VOLT_PER_METER;
         } else if (unitString.equalsIgnoreCase("W/M2")) {
@@ -525,6 +527,8 @@ public class StationXMLToFissures {
             return UnitImpl.RADIAN;
         } else if (unitString.equalsIgnoreCase("RAD/S")) {
             return UnitImpl.RADIAN_PER_SECOND;
+        } else if (unitString.equalsIgnoreCase("MM/HOUR")) {
+            return UnitImpl.divide(UnitImpl.MILLIMETER, UnitImpl.HOUR);
         } else if (unitString.equalsIgnoreCase("D") || unitString.equalsIgnoreCase("DEGREES")) {
             return UnitImpl.DEGREE;
         } else if (unitString.equalsIgnoreCase("COUNTS") || unitString.equalsIgnoreCase("COUNT_UNIT")) {
