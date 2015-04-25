@@ -525,6 +525,8 @@ public class StationXMLToFissures {
             return UnitImpl.WATT;
         } else if (unitString.equalsIgnoreCase("RAD") || unitString.equalsIgnoreCase("TILT")) {
             return UnitImpl.RADIAN;
+        } else if (unitString.equalsIgnoreCase("MICRORADIANS")) {
+            return UnitImpl.multiply(.000001, UnitImpl.RADIAN, "MICRORADIAN");
         } else if (unitString.equalsIgnoreCase("RAD/S")) {
             return UnitImpl.RADIAN_PER_SECOND;
         } else if (unitString.equalsIgnoreCase("MM/HOUR")) {
