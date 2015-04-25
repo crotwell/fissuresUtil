@@ -472,6 +472,8 @@ public class StationXMLToFissures {
         if (unitDescription == null) {
             unitDescription = "";
         }
+        unitString = unitString.trim();
+        unitDescription = unitDescription.trim();
         if (unitString.equalsIgnoreCase("M") && ! unitDescription.trim().equalsIgnoreCase("minute")) {
             return UnitImpl.METER;
         } else if (unitString.equalsIgnoreCase("M") && unitDescription.trim().equalsIgnoreCase("minute")) {
