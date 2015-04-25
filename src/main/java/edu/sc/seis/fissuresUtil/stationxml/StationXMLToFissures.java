@@ -491,9 +491,9 @@ public class StationXMLToFissures {
                 || unitString.equalsIgnoreCase("M/(S**2)")
                 || unitString.equalsIgnoreCase("M/S**2/ACCELERATION")) {
             return UnitImpl.METER_PER_SECOND_PER_SECOND;
-        } else if (unitString.equalsIgnoreCase("PA")) {
+        } else if (unitString.equalsIgnoreCase("PA") || unitString.equalsIgnoreCase("PASSCAL") || unitString.equalsIgnoreCase("PASSCALS")) {
             return UnitImpl.PASCAL;
-        } else if (unitString.equalsIgnoreCase("HPA")) {
+        } else if (unitString.equalsIgnoreCase("HPA")  || unitString.equalsIgnoreCase("HECTOPASCALS")) {
             return UnitImpl.HECTOPASCAL;
         } else if (unitString.equalsIgnoreCase("KPA") || unitString.equalsIgnoreCase("KILOPASCALS")) {
             return UnitImpl.KILOPASCAL;
@@ -503,7 +503,7 @@ public class StationXMLToFissures {
             return new UnitImpl(UnitBase.COUNT, -2, "PERCENT", 1, 1);
         } else if (unitString.equalsIgnoreCase("MBAR")) {
             return UnitImpl.MILLIBAR;
-        } else if (unitString.equalsIgnoreCase("C") || unitString.equalsIgnoreCase("CELSIUS")) {
+        } else if (unitString.equalsIgnoreCase("C") || unitString.equalsIgnoreCase("TC") || unitString.equalsIgnoreCase("CELSIUS")) {
             return UnitImpl.CELSIUS;
         } else if (unitString.equalsIgnoreCase("S") || unitString.equalsIgnoreCase("SEC")) {
             return UnitImpl.SECOND;
@@ -523,9 +523,12 @@ public class StationXMLToFissures {
             return UnitImpl.multiply(.001, UnitImpl.VOLT, "MILLIVOLT");
         } else if (unitString.equalsIgnoreCase("V/M")) {
             return UnitImpl.VOLT_PER_METER;
-        } else if (unitString.equalsIgnoreCase("W/M2")) {
-            return UnitImpl.WATT;
-        } else if (unitString.equalsIgnoreCase("RAD") || unitString.equalsIgnoreCase("TILT")) {
+        } else if (unitString.equalsIgnoreCase("W/M2") || unitString.equalsIgnoreCase("WATTS/M^2") ) {
+            return UnitImpl.divide(UnitImpl.WATT, UnitImpl.SQUARE_METER);
+        } else if (unitString.equalsIgnoreCase("RAD") || 
+                unitString.equalsIgnoreCase("RADIAN") || 
+                unitString.equalsIgnoreCase("RADIANS") || 
+                unitString.equalsIgnoreCase("TILT")) {
             return UnitImpl.RADIAN;
         } else if (unitString.equalsIgnoreCase("MICRORADIANS")) {
             return UnitImpl.multiply(.000001, UnitImpl.RADIAN, "MICRORADIAN");
@@ -539,6 +542,8 @@ public class StationXMLToFissures {
             return UnitImpl.COUNT;
         } else if (unitString.equalsIgnoreCase("REBOOTS")
                 || unitString.equalsIgnoreCase("CYCLES")
+                || unitString.equalsIgnoreCase("ERROR")
+                || unitString.equalsIgnoreCase("BYTES")
                 || unitString.equalsIgnoreCase("GAPS")) {
             return UnitImpl.COUNT;
         } else if (unitString.equalsIgnoreCase("B") && unitDescription.trim().equalsIgnoreCase("boolean")) {
@@ -547,6 +552,8 @@ public class StationXMLToFissures {
             return UnitImpl.divide(UnitImpl.METER, UnitImpl.METER);
         } else if (unitString.equalsIgnoreCase("M**3/M**3")) {
             return UnitImpl.CUBIC_METER_PER_CUBIC_METER;
+        } else if (unitString.equalsIgnoreCase("BITS/SEC")) {
+            return UnitImpl.divide(UnitImpl.COUNT, UnitImpl.SECOND);
         } else if (unitString.equalsIgnoreCase("C/S")) {
             return UnitImpl.divide(UnitImpl.COULOMB, UnitImpl.SECOND);
         } else {
