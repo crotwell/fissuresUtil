@@ -547,6 +547,8 @@ public class StationXMLToFissures {
             return UnitImpl.divide(UnitImpl.METER, UnitImpl.METER);
         } else if (unitString.equalsIgnoreCase("M**3/M**3")) {
             return UnitImpl.CUBIC_METER_PER_CUBIC_METER;
+        } else if (unitString.equalsIgnoreCase("C/S")) {
+            return UnitImpl.divide(UnitImpl.COULOMB, UnitImpl.SECOND);
         } else {
             try {
                 return UnitImpl.getUnitFromString(unitString);
