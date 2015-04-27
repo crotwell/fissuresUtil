@@ -50,7 +50,7 @@ public class MockEventAccessOperations {
      *         the 31st of that month and evenly spaced over the entire globe
      */
     public static CacheEvent[] createEventTimeRange() {
-        Time t = new Time("20010101T000000.000Z", 0);
+        Time t = new Time("20010101T000000.000Z");
         MicroSecondTimeRange tr = new MicroSecondTimeRange(new MicroSecondDate(t),
                                                            new TimeInterval(30,
                                                                             UnitImpl.DAY));

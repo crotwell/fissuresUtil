@@ -111,7 +111,7 @@ public class SimplePlotUtilTest extends TestCase {
         return results;
     }
 
-    private static Time START_TIME = new Time("20000101T000000.000Z", 0);
+    private static Time START_TIME = new Time("20000101T000000.000Z");
 
     private static MicroSecondDate START_DATE = new MicroSecondDate(START_TIME);
 

@@ -223,8 +223,7 @@ public class SacToFissures {
                                              new TimeInterval(header.getDelta(),
                                                               UnitImpl.SECOND));
         TimeRange effective = new TimeRange(chanId.network_id.begin_time,
-                                            new Time(edu.iris.Fissures.TIME_UNKNOWN.value,
-                                                     0));
+                                            new Time(edu.iris.Fissures.TIME_UNKNOWN.value));
         NetworkAttr netAttr = new NetworkAttrImpl(chanId.network_id,
                                                   chanId.network_id.network_code,
                                                   "",

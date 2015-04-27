@@ -107,7 +107,7 @@ public class ClockUtil {
         MicroSecondDate localTime = new MicroSecondDate();
         edu.iris.Fissures.Time serverTime = new edu.iris.Fissures.Time();
         if(timeStr != null) {
-            serverTime = new edu.iris.Fissures.Time(timeStr, -1);
+            serverTime = new edu.iris.Fissures.Time(timeStr);
         }
         return new TimeInterval(localTime, new MicroSecondDate(serverTime));
     }

@@ -482,12 +482,11 @@ public class URLDataSetSeismogram extends DataSetSeismogram {
         // set channel id correctly if extra info stored in Aux data
         Object netBegin = getAuxillaryData(NETWORK_BEGIN);
         if(netBegin != null && netBegin instanceof String) {
-            seis.channel_id.network_id.begin_time = new Time((String)netBegin,
-                                                             -1);
+            seis.channel_id.network_id.begin_time = new Time((String)netBegin);
         }
         Object chanBegin = getAuxillaryData(CHANNEL_BEGIN);
         if(chanBegin != null && chanBegin instanceof String) {
-            seis.channel_id.begin_time = new Time((String)chanBegin, -1);
+            seis.channel_id.begin_time = new Time((String)chanBegin);
         }
         /*
          * for now, let's avoid setting the y_unit on the seismogram directly.

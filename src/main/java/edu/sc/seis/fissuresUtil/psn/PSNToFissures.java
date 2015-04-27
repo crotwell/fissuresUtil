@@ -164,7 +164,7 @@ public class PSNToFissures{
         Orientation orient = new Orientation((float)header.getCompAz(), (float)(header.getCompIncident() - 90));
         SamplingImpl samp = new SamplingImpl(1, new TimeInterval((1/header.getSampleRate()), UnitImpl.SECOND));
         TimeRange effective = new TimeRange(channelId.network_id.begin_time,
-                                            new Time(edu.iris.Fissures.TIME_UNKNOWN.value, 0));
+                                            new Time(edu.iris.Fissures.TIME_UNKNOWN.value));
         NetworkAttr netAttr = new NetworkAttrImpl(channelId.network_id,
                                                   channelId.network_id.network_code,
                                                   "",

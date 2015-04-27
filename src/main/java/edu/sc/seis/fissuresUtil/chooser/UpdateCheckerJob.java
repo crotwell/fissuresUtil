@@ -156,7 +156,7 @@ public class UpdateCheckerJob extends AbstractJob {
             MicroSecondDate now = ClockUtil.now();
             String nextCheckDate = getPrefs().get(prefsName, now.subtract(SIX_HOUR)
                                                   .getFissuresTime().date_time);
-            return new MicroSecondDate(new Time(nextCheckDate, -1));
+            return new MicroSecondDate(new Time(nextCheckDate));
         } else {
             return ClockUtil.now().subtract(SIX_HOUR);
         }

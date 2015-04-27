@@ -137,8 +137,7 @@ public class Flag implements Drawable {
         String name = el.getAttribute("name");
         logger.debug("Flag name: " + name);
         logger.debug("Flag time from element: " + el.getAttribute("time"));
-        MicroSecondDate time = new MicroSecondDate(new Time(el.getAttribute("time"),
-                                                            0));
+        MicroSecondDate time = new MicroSecondDate(new Time(el.getAttribute("time")));
         logger.debug("Flag time: " + time.getFissuresTime().date_time);
         return new Flag(time, name);
     }

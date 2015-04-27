@@ -35,9 +35,9 @@ public class PopulationProperties {
             netAttr = (NetworkAttrImpl)nets.get(netString);
         } else {
             TimeRange netEffectiveTime = new TimeRange(new Time(props.getProperty(NET + netString + BEGIN,
-                                                                                  TimeUtils.timeUnknown.date_time), -1),
+                                                                                  TimeUtils.timeUnknown.date_time)),
                                                        new Time(props.getProperty(NET + netString + END,
-                                                                                  TimeUtils.timeUnknown.date_time), -1));
+                                                                                  TimeUtils.timeUnknown.date_time)));
             NetworkId netid = new NetworkId(netString.substring(0, 2).toUpperCase(), netEffectiveTime.start_time);
             netAttr = new NetworkAttrImpl(netid,
                                           props.getProperty(NET + netid.network_code + NAME, netString),
@@ -61,11 +61,9 @@ public class PopulationProperties {
         } else {
             String staPrefix = NET + stationString;
             TimeRange staEffectiveTime = new TimeRange(new Time(props.getProperty(staPrefix + BEGIN,
-                                                                                  TimeUtils.timeUnknown.date_time),
-                                                                -1),
+                                                                                  TimeUtils.timeUnknown.date_time)),
                                                        new Time(props.getProperty(staPrefix + END,
-                                                                                  TimeUtils.timeUnknown.date_time),
-                                                                -1));
+                                                                                  TimeUtils.timeUnknown.date_time)));
             StationId stationId = new StationId(netAttr.get_id(),
                                                 chan.getSite().getStation().get_code(),
                                                 staEffectiveTime.start_time);

@@ -20,8 +20,7 @@ public class CutTest extends TestCase {
 
     LocalSeismogramImpl seis;
 
-    edu.iris.Fissures.Time time = new edu.iris.Fissures.Time("20001231T235959.000Z",
-                                                             -1);
+    edu.iris.Fissures.Time time = new edu.iris.Fissures.Time("20001231T235959.000Z");
 
     int[] data;
     static {

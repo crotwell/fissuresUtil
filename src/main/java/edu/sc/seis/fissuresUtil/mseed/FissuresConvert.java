@@ -445,11 +445,11 @@ public class FissuresConvert {
         String isoTime = getISOTime(header.getStartBtime());
         // the network id isn't correct, but network start is not stored
         // in miniseed
-        ChannelId channelId = new ChannelId(new NetworkId(header.getNetworkCode().trim(), new Time(isoTime, -1)),
+        ChannelId channelId = new ChannelId(new NetworkId(header.getNetworkCode().trim(), new Time(isoTime)),
                                             header.getStationIdentifier().trim(),
                                             edu.sc.seis.seisFile.fdsnws.stationxml.Channel.fixLocCode(header.getLocationIdentifier()), 
                                             header.getChannelIdentifier().trim(),
-                                            new Time(isoTime, -1));
+                                            new Time(isoTime));
         String seisId = channelId.network_id.network_code + ":" + channelId.station_code + ":" + channelId.site_code
                 + ":" + channelId.channel_code + ":" + getISOTime(header.getStartBtime());
         Property[] props = new Property[1];
@@ -458,7 +458,7 @@ public class FissuresConvert {
         TimeSeriesDataSel bits = convertData(seed);
         return new LocalSeismogramImpl(seisId,
                                        props,
-                                       new Time(isoTime, -1),
+                                       new Time(isoTime),
                                        header.getNumSamples(),
                                        sampling,
                                        UnitImpl.COUNT,
