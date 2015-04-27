@@ -80,7 +80,7 @@ public class Checker {
 
     private static Logger logger = LoggerFactory.getLogger(Checker.class);
 
-    private WorkerThreadPool pool = new WorkerThreadPool("Connection Checker Pool", 20);
+    private WorkerThreadPool pool = new WorkerThreadPool("Connection Checker Pool", 3);
 
     private ThreadGroup checkerThreadGroup = new ThreadGroup("Connection Checker");
 }// Checker class
