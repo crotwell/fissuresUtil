@@ -339,6 +339,7 @@ public abstract class Border extends JComponent {
  * */
         private BufferedImage createVerticalTitle(String title, FontMetrics fm, Color titleColor) {
             int textWidth = fm.stringWidth(title);
+            if (textWidth == 0) {textWidth = 10;} // can't make zero width image
             int textHeight = fm.getHeight();
             
             BufferedImage img = new BufferedImage(textWidth, textHeight, BufferedImage.TYPE_INT_ARGB);
