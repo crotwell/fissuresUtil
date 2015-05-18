@@ -1,0 +1,1 @@
+Java code for displaying seismograms and maps, storing data, reliably talking to servers, and doing simple data transformations using items retrieved with the FISSURES framework. It does not actually provide an implemenation for any services, but those wishing to implement new clients or new services will find many useful things already done here.
