@@ -161,10 +161,8 @@ public class Play {
         q.setMaxDepth(1000);
         q.setMaxMag(10);
         q.setMinDepth(0);
-        q.setTime(new MicroSecondTimeRange(new MicroSecondDate(new Time("2006-07-01T000000Z",
-                                                                        -1)),
-                                           new MicroSecondDate(new Time("2008-10-01T000000Z",
-                                                                        -1))));
+        q.setTime(new MicroSecondTimeRange(new MicroSecondDate(new Time("2006-07-01T000000Z")),
+                                           new MicroSecondDate(new Time("2008-10-01T000000Z"))));
         q.setMinMag(0);
         EventDB eventDB = new EventDB();
         List<CacheEvent> events = eventDB.query(q);

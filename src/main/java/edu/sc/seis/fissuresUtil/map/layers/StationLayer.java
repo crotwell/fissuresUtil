@@ -172,7 +172,6 @@ public class StationLayer extends MouseAdapterLayer implements
 	public void stationAvailabiltyChanged(AvailableStationDataEvent e) {
 		Station station = e.getStation();
 		boolean isUp = e.stationIsUp();
-
 		synchronized (omgraphics) {
 			Iterator it = omgraphics.iterator();
 			boolean found = false;
@@ -190,6 +189,7 @@ public class StationLayer extends MouseAdapterLayer implements
 								.indexOf(current));
 					}
 					found = true;
+					break;
 				}
 			}
 			if (!found) {

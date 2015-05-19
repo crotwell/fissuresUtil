@@ -54,8 +54,7 @@ public class MockSeismogram {
     public static LocalSeismogramImpl createTestData(String name,
                                                       TimeSeriesDataSel bits,
                                                       int bitsLength) {
-        edu.iris.Fissures.Time time = new edu.iris.Fissures.Time("19991231T235959.000Z",
-                                                                 -1);
+        edu.iris.Fissures.Time time = new edu.iris.Fissures.Time("19991231T235959.000Z");
         TimeInterval timeInterval = new TimeInterval(1, UnitImpl.SECOND);
         SamplingImpl sampling = new SamplingImpl(20, timeInterval);
         return createTestData(name,
@@ -151,8 +150,7 @@ public class MockSeismogram {
         }
         return createTestData("Sine Wave",
                               dataBits,
-                              new edu.iris.Fissures.Time("19911015T163000.000Z",
-                                                         -1));
+                              new edu.iris.Fissures.Time("19911015T163000.000Z"));
     }
 
     public static LocalSeismogramImpl createSineWave() {

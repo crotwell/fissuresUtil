@@ -9,6 +9,7 @@ import edu.sc.seis.TauP.TauModelException;
  * @author crotwell
  *
  */
+@Deprecated
 public class CompoundPhaseStoN extends SimplePhaseStoN {
 
     public CompoundPhaseStoN(String shortPhase, String longPhase) throws TauModelException {
