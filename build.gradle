@@ -1,6 +1,6 @@
 
 group = 'edu.sc.seis'
-version = '1.1.8'
+version = '1.1.9'
 
 configurations {
     all*.exclude group: 'xml-apis',  module: 'xml-apis'
