@@ -142,7 +142,7 @@ public class PlottableChunk {
     }
 
     public static Calendar makeCal() {
-        return Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        return Calendar.getInstance(utcTimeZone);
     }
 
     public static Calendar makeCalWithDate(int jday, int year) {
@@ -206,6 +206,8 @@ public class PlottableChunk {
     private static final int MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
 
     public static final TimeInterval ONE_DAY = new TimeInterval(1, UnitImpl.DAY);
+    
+    public static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
 
     public Plottable getData() {
         synchronized(this) {
@@ -346,7 +348,7 @@ public class PlottableChunk {
     
     protected void setBeginTimestamp(Timestamp begin) {
         MicroSecondDate msd = new MicroSecondDate(begin);
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar cal = Calendar.getInstance(utcTimeZone);
         cal.setTime(msd);
         year = cal.get(Calendar.YEAR);
         jday = cal.get(Calendar.DAY_OF_YEAR);
