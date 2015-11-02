@@ -16,6 +16,7 @@ import edu.iris.Fissures.IfNetwork.StationId;
 import edu.iris.Fissures.model.AllVTFactory;
 import edu.sc.seis.fissuresUtil.namingService.FissuresNamingService;
 
+@Deprecated
 public abstract class Initializer {
 
     public static void init(String[] args) {
@@ -50,7 +51,7 @@ public abstract class Initializer {
                 logger.info("orb initialized, class="
                         + orb.getClass().getName());
                 registerValuetypes(orb);
-                fisName = createNamingService(orb, props);
+              //  fisName = createNamingService(orb, props);
             }
         }
     }
@@ -132,9 +133,10 @@ public abstract class Initializer {
     }
 
     public static FissuresNamingService getNS() {
-        if(fisName == null)
-            init(EMPTY_ARGS);
-        return fisName;
+        throw new RuntimeException("Fissures is Dead. Long live Fissures!");
+//        if(fisName == null)
+//            init(EMPTY_ARGS);
+//        return fisName;
     }
 
     public static Properties getProps() {
