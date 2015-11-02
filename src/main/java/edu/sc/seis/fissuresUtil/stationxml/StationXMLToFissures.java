@@ -216,6 +216,9 @@ public class StationXMLToFissures {
             if (model.length()==0) {
                 model = makeNoNull(xmlChan.getSensor().getType());
             }
+            if (model.length()==0) {
+                model = makeNoNull(xmlChan.getSensor().getDescription());
+            }
             sensor = new SensorImpl(0,
                                     makeNoNull(xmlChan.getSensor().getManufacturer()),
                                     makeNoNull(xmlChan.getSensor().getSerialNumber()),
