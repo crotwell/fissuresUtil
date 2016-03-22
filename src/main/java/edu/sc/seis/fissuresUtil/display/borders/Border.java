@@ -208,6 +208,7 @@ public abstract class Border extends JComponent {
         public void draw(UnitRangeImpl range, Graphics2D g2d) {
             Iterator it = titles.iterator();
             int cumulativeTitleHeight = 0;
+            int cumulativeTitleWidth = 0;
             while(it.hasNext()) {
                 TitleProvider tp = (TitleProvider)it.next();
                 g2d.setFont(tp.getTitleFont());
@@ -224,6 +225,7 @@ public abstract class Border extends JComponent {
                     titleBounds = fm.getStringBounds(tp.getTitle(), g2d);
                 }
                 cumulativeTitleHeight += titleBounds.getHeight();
+                cumulativeTitleWidth += titleBounds.getWidth();
                 if(direction == VERTICAL) {
                     
                     BufferedImage textImage = createVerticalTitle(tp.getTitle(), fm, titleColor);
@@ -231,10 +233,10 @@ public abstract class Border extends JComponent {
                     double y = (int)(getSize().height / 2 + titleBounds.getWidth() / 2);
                     double x;
                     if(side == LEFT)
-                        x = cumulativeTitleHeight - 5;
+                        x = cumulativeTitleHeight -titleBounds.getHeight();//
                     else
-                        x = getWidth() - cumulativeTitleHeight
-                                + (int)titleBounds.getHeight() - 5;
+                        x = getWidth() - 2*cumulativeTitleHeight
+                                + (int)titleBounds.getHeight() ;
 
                     AffineTransform oldAt = g2d.getTransform();
                    // AffineTransform at = new AffineTransform();
