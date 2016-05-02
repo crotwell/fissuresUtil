@@ -502,11 +502,12 @@ public class StationXMLToFissures {
             return UnitImpl.KILOPASCAL;
         } else if (unitString.equalsIgnoreCase("H/M**2*S")) {
             return UnitImpl.multiply(UnitImpl.SQUARE_METER, UnitImpl.SECOND).inverse("hail intensity in hits per meter squared second");
-        } else if (unitString.equalsIgnoreCase("PERCENT") || unitString.equalsIgnoreCase("P")) {
+        } else if (unitString.equalsIgnoreCase("PERCENT") || unitString.equalsIgnoreCase("P") || unitString.equalsIgnoreCase("%")) {
             return new UnitImpl(UnitBase.COUNT, -2, "PERCENT", 1, 1);
         } else if (unitString.equalsIgnoreCase("MBAR")) {
             return UnitImpl.MILLIBAR;
-        } else if (unitString.equalsIgnoreCase("C") || unitString.equalsIgnoreCase("TC") || unitString.equalsIgnoreCase("CELSIUS")) {
+        } else if (unitString.equalsIgnoreCase("C") || unitString.equalsIgnoreCase("TC") || unitString.equalsIgnoreCase("CELSIUS")
+                || unitString.equalsIgnoreCase("DEGC")) {
             return UnitImpl.CELSIUS;
         } else if (unitString.equalsIgnoreCase("S") || unitString.equalsIgnoreCase("SEC")) {
             return UnitImpl.SECOND;
