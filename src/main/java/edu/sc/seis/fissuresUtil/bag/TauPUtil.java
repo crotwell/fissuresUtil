@@ -33,8 +33,14 @@ public class TauPUtil {
     public synchronized List<Arrival> calcTravelTimes(Location stationLoc, Origin origin, String[] phaseNames) throws TauModelException {
         QuantityImpl depth = (QuantityImpl)origin.getLocation().depth;
         depth = depth.convertTo(UnitImpl.KILOMETER);
+        double depthVal = depth.getValue();
+        if (depthVal < 0) {
+            // TauP can't handle negative depths
+            logger.info("depth negative not allowed, setting to zero");
+            depthVal = 0;
+        }
         DistAz distAz = new DistAz(stationLoc, origin.getLocation());
-        return calcTravelTimes(distAz.getDelta(), depth.getValue(), phaseNames);
+        return calcTravelTimes(distAz.getDelta(), depthVal, phaseNames);
     }
 
     public synchronized List<Arrival> calcTravelTimes(double distDeg, double depthKm, String[] phaseNames) throws TauModelException {
@@ -70,5 +76,7 @@ public class TauPUtil {
     static Map<String, TauPUtil> taupUtilMap = new HashMap<String, TauPUtil>();
 
     TauP_Time taup_time;
+    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TauPUtil.class);
 }
 
