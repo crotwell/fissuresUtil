@@ -379,7 +379,7 @@ public class NetworkDB extends AbstractHibernateDB {
         query.setString("netCode", net);
         query.setString("stationCode", sta);
         String sc = site.trim();
-        if (sc.equals("--")) {sc = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;}
+        if (sc.equals("--") || sc.equals("") || sc.equals("  ")) {sc = edu.sc.seis.seisFile.fdsnws.stationxml.Channel.EMPTY_LOC_CODE;}
         query.setString("siteCode", sc);
         query.setString("channelCode", chan);
         query.setTimestamp("when", when.getTimestamp());
