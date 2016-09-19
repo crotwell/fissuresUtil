@@ -542,6 +542,8 @@ public class StationXMLToFissures {
             return UnitImpl.divide(UnitImpl.MILLIMETER, UnitImpl.HOUR);
         } else if (unitString.equalsIgnoreCase("D") || unitString.equalsIgnoreCase("DEGREES")) {
             return UnitImpl.DEGREE;
+        } else if (unitString.equalsIgnoreCase("DEGC")) {
+            return UnitImpl.CELSIUS;
         } else if (unitString.equalsIgnoreCase("COUNTS") || unitString.equalsIgnoreCase("COUNT_UNIT")) {
             return UnitImpl.COUNT;
         } else if (unitString.equalsIgnoreCase("REBOOTS")
