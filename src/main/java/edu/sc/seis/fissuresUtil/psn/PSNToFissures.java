@@ -8,6 +8,7 @@ package edu.sc.seis.fissuresUtil.psn;
 
 import java.sql.Timestamp;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import edu.iris.Fissures.FissuresException;
 import edu.iris.Fissures.FlinnEngdahlType;
@@ -107,7 +108,9 @@ public class PSNToFissures{
     }
 
     public static MicroSecondDate microSecondDateFromPSN(PSNDateTime time){
-        GregorianCalendar gc = new GregorianCalendar((int)time.getYear(),
+        
+        GregorianCalendar gc = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        gc.set((int)time.getYear(),
                                                          (int)time.getMonth() - 1,
                                                          (int)time.getDay(),
                                                          (int)time.getHour(),
