@@ -1,3 +1,9 @@
+plugins {
+  id "edu.sc.seis.version-class" version "1.1.1"
+  id "java-library"
+}
+apply plugin: 'eclipse'
+apply plugin: 'project-report'
 
 group = 'edu.sc.seis'
 version = '1.1.11-SNAPSHOT'
@@ -7,10 +13,19 @@ configurations {
     all*.exclude group: 'xerces',  module: 'xmlParserAPIs'
 }
 
+repositories {
+    mavenLocal()
+    maven { url "http://www.seis.sc.edu/software/maven2" }
+    mavenCentral()
+    maven { url "http://spring-rich-c.sourceforge.net/maven2repository" }
+    maven { url "http://oss.sonatype.org/content/groups/public" }
+    maven { url "https://repository.jboss.org/nexus/content/repositories/public" }
+}
+
 dependencies {
-    compile project(':fissuresImpl')
-    compile project(':seisFile')
-    compile project(':TauP')
+    compile "edu.sc.seis:fissuresImpl:1.1.22"
+    compile "edu.sc.seis:seisFile:1.8.1"
+    compile "edu.sc.seis:TauP:2.4.5"
     compile "com.oregondsp.signalprocessing:oregondsp:2011"
     compile "org.hibernate:hibernate-ehcache:3.6.9.Final"
     compile "org.hibernate:hibernate-core:3.6.9.Final"
@@ -38,12 +53,16 @@ dependencies {
 }
 
 def binDistFiles = copySpec {
-    from('build/output') {
+    from(configurations.default) {
+        into('lib')
+    }
+    from(configurations.default.allArtifacts.files) {
+        into('lib')
+    }
+    from('build/scripts') {
         fileMode=0755
         include('bin/**')
-    }
-    from('build/output') {
-        include('lib/**')
+        include('bat/**')
     }
 }
 
@@ -108,7 +127,8 @@ def getDExtras() {
                 'jacorb.log.default.verbosity':'2' ]
 }
 
-task makeScript(dependsOn: copyToLib) << { task ->
+task makeScript() {
+  doLast {
     def dExtras = getDExtras()
     ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
     ScriptBuilder.create('seis', 'edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient', task.project, dExtras:dExtras)
@@ -117,5 +137,5 @@ task makeScript(dependsOn: copyToLib) << { task ->
     ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', task.project, dExtras:dExtras)
     ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', task.project, dExtras:dExtras)
     ScriptBuilder.create('mseedtest', 'edu.sc.seis.fissuresUtil.mseed.MSeedFileRead', task.project, dExtras:dExtras)
+  }
 }
-
