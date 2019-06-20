@@ -99,14 +99,14 @@ task explodeBin(type: Sync, dependsOn: ['makeScript' ]) {
     with binDistFiles
     into file("$buildDir/explode")
 }
-task explodeDist(type: Sync, dependsOn: ['makeScript', 'javadoc', 'wrapper', 'createBuildScript']) {
+task explodeDist(type: Sync, dependsOn: ['makeScript', 'javadoc']) {
     group = 'dist'
     with distFiles
     into file("$buildDir/explode")
 }
 
 
-task tarDist(type: Tar, dependsOn: ['makeScript', 'javadoc', 'wrapper', 'createBuildScript']) {
+task tarDist(type: Tar, dependsOn: ['makeScript', 'javadoc']) {
     def dirName = project.name+'-'+version
     compression = Compression.GZIP
     into(dirName) {
