@@ -14,7 +14,7 @@ package edu.sc.seis.fissuresUtil.namingService;
  * @deprecated Please use the FissuresNamingService class instead, there is no
  * need for interface/impl with this class.
  */
-
+@Deprecated
 public class FissuresNamingServiceImpl extends FissuresNamingService {
     /**
      * Creates a new <code>FissuresNamingServiceImpl</code> instance.
@@ -35,6 +35,7 @@ public class FissuresNamingServiceImpl extends FissuresNamingService {
      * @exception InvalidName if an error occurs
      * @deprecated Please use FissuresNamineService instead
      */
+    @Deprecated
     public FissuresNamingServiceImpl(org.omg.CORBA_2_3.ORB orb) {
         super(orb);
     }

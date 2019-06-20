@@ -14,5 +14,6 @@ public class MockParameterRef {
      * @deprecated - use create methods instead of sharing fields in case
      *             someone changes the internals
      */
+    @Deprecated
     public static final ParameterRef[] params = createParams();
 }
