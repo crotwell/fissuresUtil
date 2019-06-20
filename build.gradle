@@ -130,12 +130,12 @@ def getDExtras() {
 task makeScript() {
   doLast {
     def dExtras = getDExtras()
-    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', task.project, dExtras:dExtras)
-    ScriptBuilder.create('seis', 'edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient', task.project, dExtras:dExtras)
-    ScriptBuilder.create('event', 'edu.sc.seis.fissuresUtil.simple.SimpleEventClient', task.project, dExtras:dExtras)
-    ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', task.project, dExtras:dExtras)
-    ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', task.project, dExtras:dExtras)
-    ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', task.project, dExtras:dExtras)
-    ScriptBuilder.create('mseedtest', 'edu.sc.seis.fissuresUtil.mseed.MSeedFileRead', task.project, dExtras:dExtras)
+    ScriptBuilder.create('threadSeis', 'edu.sc.seis.fissuresUtil.simple.ThreadedSeismogramClient', project, dExtras:dExtras)
+    ScriptBuilder.create('seis', 'edu.sc.seis.fissuresUtil.simple.SimpleSeismogramClient', project, dExtras:dExtras)
+    ScriptBuilder.create('event', 'edu.sc.seis.fissuresUtil.simple.SimpleEventClient', project, dExtras:dExtras)
+    ScriptBuilder.create('nsbrowser', 'edu.sc.seis.fissuresUtil.namingService.Browser', project, dExtras:dExtras)
+    ScriptBuilder.create('unbindone', 'edu.sc.seis.fissuresUtil.namingService.UnbindOne', project, dExtras:dExtras)
+    ScriptBuilder.create('nscopy', 'edu.sc.seis.fissuresUtil.namingService.NameServiceCopy', project, dExtras:dExtras)
+    ScriptBuilder.create('mseedtest', 'edu.sc.seis.fissuresUtil.mseed.MSeedFileRead', project, dExtras:dExtras)
   }
 }
