@@ -100,4 +100,12 @@ public class MockNetworkDC extends AbstractProxyNetworkDC implements NetworkDC {
         // TODO Auto-generated method stub
         return null;
     }
+
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
+    }
 }

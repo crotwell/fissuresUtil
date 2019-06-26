@@ -79,4 +79,12 @@ public class MockEventDC implements EventDC{
     public Request _create_request(Context ctx, String operation, NVList arg_list, NamedValue result, ExceptionList exclist, ContextList ctxlist) {
         return null;
     }
+
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
+    }
 }

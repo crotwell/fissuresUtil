@@ -29,11 +29,11 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
         this.ef = ef;
     }
 
-    
+
     public EventFinder getWrappedEventFinder() {
         return ef;
     }
-    
+
     public String getServerDNS() {
         if(getWrappedEventFinder() instanceof ProxyEventFinder) {
             return ((ProxyEventFinder)getWrappedEventFinder()).getServerDNS();
@@ -47,7 +47,7 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
         }
         return null;
     }
-    
+
     public String getFullName(){
         return getServerDNS() + "/" + getServerName();
     }
@@ -235,4 +235,13 @@ public class ProxyEventFinder implements EventFinder, CorbaServerWrapper {
     }
 
     protected EventFinder ef;
+
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
+    }
+
 }

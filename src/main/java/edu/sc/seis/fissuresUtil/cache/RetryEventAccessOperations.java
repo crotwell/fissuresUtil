@@ -25,12 +25,12 @@ import edu.iris.Fissures.IfParameterMgr.ParameterComponent;
  * @author oliverpa
  */
 public class RetryEventAccessOperations extends ProxyEventAccessOperations {
-	
+
 	public RetryEventAccessOperations(EventAccessOperations evo, int retry){
 		setEventAccess(evo);
 		this.retry = retry;
 	}
-	
+
 	public Event a_writeable() {
 		int i = 0;
 		SystemException t = null;
@@ -49,7 +49,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public ParameterComponent parm_svc() {
 		int i = 0;
 		SystemException t = null;
@@ -67,7 +67,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public EventAttr get_attributes() {
 		int i = 0;
 		SystemException t = null;
@@ -85,7 +85,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public Origin[] get_origins() {
 		int i = 0;
 		SystemException t = null;
@@ -103,7 +103,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public Origin get_origin(String the_origin) throws OriginNotFound {
 		int i = 0;
 		SystemException t = null;
@@ -121,7 +121,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public Origin get_preferred_origin() throws NoPreferredOrigin{
 		int i = 0;
 		SystemException t = null;
@@ -139,7 +139,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public Locator[] get_locators(String an_origin) throws OriginNotFound, NotImplemented {
 		int i = 0;
 		SystemException t = null;
@@ -157,7 +157,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public AuditElement[] get_audit_trail_for_origin(String the_origin) throws OriginNotFound, NotImplemented {
 		int i = 0;
 		SystemException t = null;
@@ -175,7 +175,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public AuditElement[] get_audit_trail() throws NotImplemented {
 		int i = 0;
 		SystemException t = null;
@@ -193,7 +193,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public EventFactory a_factory() {
 		int i = 0;
 		SystemException t = null;
@@ -211,7 +211,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public EventFinder a_finder() {
 		int i = 0;
 		SystemException t = null;
@@ -229,7 +229,7 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
 	public EventChannelFinder a_channel_finder() {
 		int i = 0;
 		SystemException t = null;
@@ -247,7 +247,15 @@ public class RetryEventAccessOperations extends ProxyEventAccessOperations {
 		}
 		throw t;
 	}
-	
+
+	// needed to compile under java11?
+	public org.omg.CORBA.InterfaceDef _get_interface() {
+		throw new RuntimeException("should never be called");
+	}
+	public org.omg.CORBA.Object _get_component() {
+		throw new RuntimeException("should never be called");
+	}
+
 	private int retry;
 	private static final Logger logger = LoggerFactory.getLogger(RetryEventAccessOperations.class);
 }

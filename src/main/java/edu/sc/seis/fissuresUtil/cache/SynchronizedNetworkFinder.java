@@ -34,4 +34,12 @@ public class SynchronizedNetworkFinder extends ProxyNetworkFinder {
             return super.retrieve_all();
         }
     }
+
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
+    }
 }

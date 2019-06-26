@@ -13,7 +13,7 @@ public class CleanDupNetworks extends ProxyNetworkFinder {
     public CleanDupNetworks(ProxyNetworkFinder nf) {
         super(nf);
     }
-    
+
     NetworkAccess[] filter(NetworkAccess[] nets) {
         LinkedList<CacheNetworkAccess> out = new LinkedList<CacheNetworkAccess>();
         for (int i = 0; i < nets.length; i++) {
@@ -30,7 +30,7 @@ public class CleanDupNetworks extends ProxyNetworkFinder {
                         isNew=false;
                     }
                     break;
-                } 
+                }
             }
             if (isNew) {
                 // comes from vested so should be ok to cast
@@ -41,7 +41,7 @@ public class CleanDupNetworks extends ProxyNetworkFinder {
     }
 
     @Override
-    public NetworkAccess[] retrieve_all() {        
+    public NetworkAccess[] retrieve_all() {
         return filter(super.retrieve_all());
     }
 
@@ -55,6 +55,14 @@ public class CleanDupNetworks extends ProxyNetworkFinder {
         // TODO Auto-generated method stub
         return filter(super.retrieve_by_name(name));
     }
-    
-    
+
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
+    }
+
+
 }

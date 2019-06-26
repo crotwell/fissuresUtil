@@ -13,7 +13,7 @@ import edu.iris.Fissures.event.OriginImpl;
 
 /**
  * CacheEvent.java Created: Mon Jan 8 16:33:52 2001
- * 
+ *
  * @author Philip Crotwell
  * @version
  */
@@ -25,7 +25,7 @@ public class CacheEvent extends ProxyEventAccessOperations {
     public CacheEvent(EventAttr attr, Origin preferred) {
         this(attr, (OriginImpl)preferred);
     }
-    
+
     /**
      * Initializes the origins array to be just the single prefferred origin.
      */
@@ -81,11 +81,11 @@ public class CacheEvent extends ProxyEventAccessOperations {
         }
         return origins;
     }
-    
+
     public Origin[] getOrigins() {
         return get_origins();
     }
-    
+
     /** for use by hibernate */
     protected void setOrigins(Origin[] origins) {
         this.origins = origins;
@@ -116,7 +116,7 @@ public class CacheEvent extends ProxyEventAccessOperations {
         }
         return preferred;
     }
-    
+
     protected void setPreferred(OriginImpl o) {
         this.preferred = o;
     }
@@ -131,13 +131,21 @@ public class CacheEvent extends ProxyEventAccessOperations {
     public boolean hasDbid(){
         return dbid > -1;
     }
-    
+
     public int getDbid() {
         return dbid;
     }
 
     public void setDbid(int id) {
         dbid = id;
+    }
+
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
     }
 
     private int dbid;

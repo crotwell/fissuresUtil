@@ -175,5 +175,13 @@ public class VestingNetworkFinder extends ProxyNetworkFinder {
         private VestingNetworkFinder vnf;
     }
 
+    // needed to compile under java11?
+    public org.omg.CORBA.InterfaceDef _get_interface() {
+      throw new RuntimeException("should never be called");
+    }
+    public org.omg.CORBA.Object _get_component() {
+      throw new RuntimeException("should never be called");
+    }
+
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(VestingNetworkFinder.class);
 }
