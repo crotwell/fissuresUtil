@@ -1,11 +1,11 @@
 package edu.sc.seis.fissuresUtil.bag;
 
-import static org.junit.Assert.assertArrayEquals;
+import junit.framework.TestCase;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.DataInputStream;
 
-import org.junit.Test;
 
 import edu.iris.Fissures.model.SamplingImpl;
 import edu.iris.Fissures.model.TimeInterval;
@@ -341,7 +341,7 @@ public class IterDeconTest {
         assertEquals("lag 2", 0f, corr[2], 0.00001f);
         assertEquals("lag 3", 0f, corr[3], 0.00001f);
     }
-    
+
 
 
     @Test
@@ -372,7 +372,7 @@ public class IterDeconTest {
         assertEquals("lag 2", 1028f/zlg, corr[2], 0.00001f);
         assertEquals("lag "+lag, 1f, corr[lag], 0.00001f);
     }
-    
+
     @Test
     public void testConvolve() throws Exception {
         int n = 1024;
@@ -389,7 +389,7 @@ public class IterDeconTest {
         assertArrayEquals(fShifted, convolve, 0.0001f);
     }
 
-    
+
     @Test
     public void testBuildSpikes() throws Exception {
         int n = 1024;
@@ -409,10 +409,10 @@ public class IterDeconTest {
                 assertEquals("buidSpikes "+i, 0, cpu[i], 0.0001f);
             }
         }
-        
+
     }
-    
-    
+
+
     @Test
     public void testIterDeconIdentity() throws Exception {
         // JUnitDoclet begin method phaseShift
@@ -431,22 +431,22 @@ public class IterDeconTest {
          * generated with sac's fg impulse command (100 datapoints, 1 at 49) The
          * receiver function of data from itself should be unity at lag 0 and
          * zero elsewhere, of course the gaussian tends to smear it out.
-         * 
+         *
          * piglet 51>../New_Decon_Process/iterdecon_tjo
-         * 
+         *
          * Program iterdeconfd - Version 1.0X, 1997-98 Chuck Ammon, Saint Louis
          * University
-         * 
+         *
          * impulse100.sac impulse100.sac output 100 10 .001 3.0 1 0 output
-         * 
+         *
          * The maximum spike delay is 64.00000
-         * 
+         *
          * File Spike amplitude Spike delay Misfit Improvement r001
          * 0.100000012E+01 0.000 0.00% 100.0000% r002 -0.126299312E-06 0.000
          * 0.00% 0.0000%
-         * 
+         *
          * Last Error Change = 0.0000%
-         * 
+         *
          * Hit the min improvement tolerance - halting. Number of bumps in final
          * result: 1 The final deconvolution reproduces 100.0% of the signal.
          */
