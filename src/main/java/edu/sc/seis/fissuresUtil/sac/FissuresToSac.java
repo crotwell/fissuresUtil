@@ -30,10 +30,10 @@ import edu.sc.seis.seisFile.sac.SacTimeSeries;
 
 /**
  * FissuresToSac.java
- * 
- * 
+ *
+ *
  * Created: Wed Apr 10 10:52:00 2002
- * 
+ *
  * @author <a href="mailto:">Philip Crotwell</a>
  * @version
  */
@@ -44,7 +44,7 @@ public class FissuresToSac {
 	 * Creates a SacTimeSeries object from a LocalSeismogram. Headers in the SAC
 	 * object are filled in as much as possible, with the notable exception of
 	 * event information and station location and channel orientation.
-	 * 
+	 *
 	 * @param seis
 	 *            the <code>LocalSeismogramImpl</code> with the data
 	 * @return a <code>SacTimeSeries</code> with data and headers filled
@@ -99,7 +99,7 @@ public class FissuresToSac {
 	 * Creates a SacTimeSeries object from a LocalSeismogram. Headers in the SAC
 	 * object are filled in as much as possible, with the notable exception of
 	 * event information.
-	 * 
+	 *
 	 * @param seis
 	 *            a <code>LocalSeismogramImpl</code> value
 	 * @param channel
@@ -117,7 +117,7 @@ public class FissuresToSac {
 	 * Creates a SacTimeSeries object from a LocalSeismogram. Headers in the SAC
 	 * object are filled in as much as possible, with the notable exception of
 	 * station location and channel orientation information.
-	 * 
+	 *
 	 * @param seis
 	 *            a <code>LocalSeismogramImpl</code> value
 	 * @param origin
@@ -134,7 +134,7 @@ public class FissuresToSac {
 	/**
 	 * Creates a SacTimeSeries object from a LocalSeismogram. Headers in the SAC
 	 * object are filled in as much as possible.
-	 * 
+	 *
 	 * @param seis
 	 *            a <code>LocalSeismogramImpl</code> value
 	 * @param channel
@@ -165,7 +165,7 @@ public class FissuresToSac {
 	/**
 	 * Adds the Channel information, including station location and channel
 	 * orientation to the sac object.
-	 * 
+	 *
 	 * @param sac
 	 *            a <code>SacTimeSeries</code> object to be modified
 	 * @param channel
@@ -187,7 +187,7 @@ public class FissuresToSac {
 
 	/**
 	 * Adds origin informtion to the sac object, including the o marker.
-	 * 
+	 *
 	 * @param sac
 	 *            a <code>SacTimeSeries</code> object to be modified
 	 * @param origin
@@ -204,11 +204,16 @@ public class FissuresToSac {
 		ISOTime isoTime = new ISOTime(header.getNzyear(), header.getNzjday(), header.getNzhour(),
 		                              header.getNzmin(), header.getNzsec() + header.getNzmsec() / 1000f);
 		MicroSecondDate beginTime = isoTime.getDate();
+		float sacB = header.getB();// should be 0
+		float sacE = header.getE();
 		MicroSecondDate originTime = new MicroSecondDate(origin.getOriginTime());
 		setKZTime(header, originTime);
-		TimeInterval sacBMarker = (TimeInterval) beginTime.subtract(originTime);
+		TimeInterval sacBMarker = (TimeInterval) beginTime.subtract(originTime).add(new TimeInterval(sacB, UnitImpl.SECOND));
 		sacBMarker = (TimeInterval) sacBMarker.convertTo(UnitImpl.SECOND);
 		header.setB( (float) sacBMarker.value);
+		TimeInterval sacEMarker = (TimeInterval) beginTime.subtract(originTime).add(new TimeInterval(sacE, UnitImpl.SECOND));
+		sacEMarker = (TimeInterval) sacEMarker.convertTo(UnitImpl.SECOND);
+		header.setE( (float) sacEMarker.value);
 		header.setO( 0);
 		header.setIztype( SacConstants.IO);
 		if (origin.getMagnitudes().length > 0) {
@@ -286,7 +291,7 @@ public class FissuresToSac {
 		constant *= scaleUnit.getValue();
 		return new SacPoleZero(poles, zeros, constant);
 	}
-	
+
 	private static double calc_A0(Complex[] poles, Complex[] zeros, double ref_freq) {
 		int i;
 		Complex numer = ONE;
