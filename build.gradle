@@ -7,7 +7,7 @@ apply plugin: 'eclipse'
 apply plugin: 'project-report'
 
 group = 'edu.sc.seis'
-version = '1.1.12'
+version = '1.1.13'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -21,9 +21,6 @@ publishing {
     publications {
         myLibrary(MavenPublication) {
             from components.java
-
-            artifact sourcesJar
-            artifact javadocJar
         }
     }
 
@@ -34,6 +31,7 @@ publishing {
         }
     }
 }
+
 configurations {
     all*.exclude group: 'xml-apis',  module: 'xml-apis'
     all*.exclude group: 'xerces',  module: 'xmlParserAPIs'
@@ -50,7 +48,7 @@ repositories {
 
 dependencies {
     compile "edu.sc.seis:fissuresImpl:1.1.22"
-    compile "edu.sc.seis:seisFile:1.8.1"
+    compile "edu.sc.seis:seisFile:1.8.3"
     compile "edu.sc.seis:TauP:2.4.5"
     compile "com.oregondsp.signalprocessing:oregondsp:2011"
     compile "org.hibernate:hibernate-ehcache:3.6.9.Final"
