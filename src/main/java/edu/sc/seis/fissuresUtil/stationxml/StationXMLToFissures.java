@@ -238,7 +238,7 @@ public class StationXMLToFissures {
                                             model,
                                             RecordingStyle.UNKNOWN);
         }
-        TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate()), convertTime(xmlChan.getEndDate()));
+        TimeRange chanTimeRange = new TimeRange(convertTime(xmlChan.getStartDate(), WAY_PAST), convertTime(xmlChan.getEndDate(), WAY_FUTURE));
         if (xmlChan.getResponse().getResponseStageList().size() != 0) {
         InstrumentationImpl out = new InstrumentationImpl(convert(xmlChan.getResponse().getResponseStageList(),
                                                                   xmlChan.getResponse().getInstrumentSensitivity()),
