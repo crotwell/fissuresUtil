@@ -24,6 +24,10 @@ class PrintIfNotCalledOff extends TimerTask {
         }
     }
     
+    public static void shutdown() {
+    	timer.cancel();
+    }
+    
     static Timer timer = new Timer("PrintIfNotCalledOff", true);
 
     String msg;

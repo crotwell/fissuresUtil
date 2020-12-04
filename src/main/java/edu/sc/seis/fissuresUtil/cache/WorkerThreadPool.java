@@ -65,6 +65,7 @@ public class WorkerThreadPool {
 
     private synchronized Runnable getFromQueue() throws InterruptedException {
         while(queue.isEmpty()) {
+            if (threadShouldExit) { return null; }
             wait();
         }
         idle.remove(Thread.currentThread());
@@ -84,7 +85,19 @@ public class WorkerThreadPool {
     public synchronized boolean isEmployed() {
         return getNumWaiting() != 0 || getNumIdle() < poolSize;
     }
+    
+    public void shutdown() {
+    	threadShouldExit = true;
+    	for (BackgroundWorker bw: idle) {
+    		bw.threadShouldExit = true;
+    	}
+    	synchronized(this) {
+    		notifyAll();
+    	}
+    }
 
+    boolean threadShouldExit = false;
+    
     private int totalNumCreated = 0;
 
     private int poolSize;
@@ -110,9 +123,10 @@ public class WorkerThreadPool {
         }
 
         public void run() {
-            while(true) {
+            while(! threadShouldExit) {
                 try {
-                    getFromQueue().run();
+                    Runnable r = getFromQueue();
+                    if (r != null) { r.run(); }
                 } catch(Throwable e) {
                     GlobalExceptionHandler.handle(e);
                 } finally {
@@ -120,6 +134,8 @@ public class WorkerThreadPool {
                 }
             }
         }
+        
+        public boolean threadShouldExit = false;
     }
 
 }

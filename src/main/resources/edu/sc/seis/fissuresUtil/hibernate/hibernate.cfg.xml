@@ -23,8 +23,10 @@
         <property name="current_session_context_class">thread</property>
 
         <!-- Disable the second-level cache  -->
+        <property name="cache.use_second_level_cache">false</property>
+        <!-- 
         <property name="cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property>
-
+-->
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">false</property>
 

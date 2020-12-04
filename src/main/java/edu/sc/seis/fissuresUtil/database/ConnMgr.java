@@ -262,6 +262,12 @@ public class ConnMgr {
         }
         return conn;
     }
+    
+    public static void shutdown() throws SQLException {
+        Connection conn = ConnMgr.createConnection();
+        conn.createStatement().execute("shutdown");
+        conn.close();
+    }
 
     private static boolean firstConnection = true;
 

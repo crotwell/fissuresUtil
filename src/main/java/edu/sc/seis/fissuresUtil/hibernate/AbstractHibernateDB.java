@@ -30,6 +30,16 @@ public abstract class AbstractHibernateDB {
 
     public static boolean DEBUG_SESSION_CREATION = true;
     
+    static boolean threadShouldExit = false;
+    static Timer zombieTimer = null;
+    
+    public static void shutdown() {
+    	threadShouldExit = true;
+    	if (zombieTimer != null) { zombieTimer.cancel(); zombieTimer = null; }
+    	printZombieSessions();
+    	PrintIfNotCalledOff.shutdown();
+    }
+    
     public static int DEBUG_SESSION_CREATION_SECONDS = 300;
     
     public AbstractHibernateDB() {
@@ -247,6 +257,24 @@ public abstract class AbstractHibernateDB {
     
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractHibernateDB.class);
 
+    static void printZombieSessions() {
+    	synchronized(knownSessions) {
+            Iterator<WeakReference<SessionStackTrace>> iterator = knownSessions.iterator();
+            while (iterator.hasNext()) {
+                SessionStackTrace item = iterator.next().get();
+                if (item == null || ! item.session.isOpen() ) {
+                    iterator.remove();
+                } else if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
+                    TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
+                    logger.debug("Session still open after "+aliveTime+" seconds. create time="+item.createTime);
+                    for (int i = 0; i < item.stackTrace.length; i++) {
+                        logger.debug(item.stackTrace[i].toString());
+                    }
+                }
+            }
+        }
+    }
+    
     static {
         GlobalExceptionHandler.add(new DefaultExtractor() {
 
@@ -268,24 +296,10 @@ public abstract class AbstractHibernateDB {
 
         if (DEBUG_SESSION_CREATION) {
             logger.info("zombie session checker started");
-            Timer t = new Timer("zombie session checker", true);
-            t.schedule(new TimerTask() {
+            zombieTimer = new Timer("zombie session checker", true);
+            zombieTimer.schedule(new TimerTask() {
                 public void run() {
-                    synchronized(knownSessions) {
-                        Iterator<WeakReference<SessionStackTrace>> iterator = knownSessions.iterator();
-                        while (iterator.hasNext()) {
-                            SessionStackTrace item = iterator.next().get();
-                            if (item == null || ! item.session.isOpen() ) {
-                                iterator.remove();
-                            } else if(ClockUtil.now().subtract(MAX_SESSION_LIFE).after(item.createTime)) {
-                                TimeInterval aliveTime = (TimeInterval)ClockUtil.now().subtract(item.createTime).convertTo(UnitImpl.SECOND);
-                                logger.debug("Session still open after "+aliveTime+" seconds. create time="+item.createTime);
-                                for (int i = 0; i < item.stackTrace.length; i++) {
-                                    logger.debug(item.stackTrace[i].toString());
-                                }
-                            }
-                        }
-                    }
+                    printZombieSessions();
                 }
             }, DEBUG_SESSION_CREATION_SECONDS*1000, DEBUG_SESSION_CREATION_SECONDS*1000);
         }

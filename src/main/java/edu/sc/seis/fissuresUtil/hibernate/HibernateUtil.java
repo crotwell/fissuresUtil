@@ -69,14 +69,28 @@ public class HibernateUtil {
         setUpFromConnMgr(props);
     }
     
+    static CacheManager singletonManager = null;
+    
     static void setUpEHCache(URL ehcacheConfig) {
         if (ehcacheConfig == null) {throw new IllegalArgumentException("ehcacheConfig cannot be null");}
         // configure EhCache
         try {
-            CacheManager singletonManager = CacheManager.create(ehcacheConfig.openStream());
+            singletonManager = CacheManager.create(ehcacheConfig.openStream());
         } catch(IOException e) {
             throw new RuntimeException("Trouble finding EhCache config from "+ehcacheConfig.toString(), e);
         }
+    }
+    
+    public static void shutdown() {
+    	AbstractHibernateDB.shutdown();
+    	if (sessionFactory != null) {
+    		sessionFactory.close();
+    		sessionFactory = null;
+    	}
+    	if (singletonManager != null) {
+    		singletonManager.shutdown();
+    		singletonManager = null;
+    	}
     }
     
     public static void setUpFromConnMgr(Properties props) {
