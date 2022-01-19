@@ -171,13 +171,19 @@ public class StationXMLToFissures {
         }
         TimeRange chanTimeRange = new TimeRange(convertTime(channel.getStartDate(), WAY_PAST),
                                                 convertTime(channel.getEndDate(), WAY_FUTURE));
+        Orientation orientation;
+        if (channel.getAzimuth() != null && channel.getDip() != null) {
+            orientation = new Orientation(channel.getAzimuth().getValue(), channel.getDip().getValue());
+        } else {
+            orientation = new Orientation(0,0);
+        }
         ChannelImpl chan = new ChannelImpl(new ChannelId(station.getId().network_id,
                                                          station.get_code(),
                                                          channel.getLocCode(),
                                                          channel.getCode(),
                                                          chanTimeRange.start_time),
                                            UNKNOWN,
-                                           new Orientation(channel.getAzimuth().getValue(), channel.getDip().getValue()),
+                                           orientation,
                                            samp,
                                            chanTimeRange,
                                            new SiteImpl(new SiteId(station.getId().network_id,
