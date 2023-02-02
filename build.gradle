@@ -48,12 +48,13 @@ repositories {
 
 dependencies {
     compile "edu.sc.seis:fissuresImpl:1.1.22"
-    compile "edu.sc.seis:seisFile:1.8.6"
+    compile "edu.sc.seis:seisFile:1.8.7-SNAPSHOT"
     compile "edu.sc.seis:TauP:2.4.5"
     compile "com.oregondsp.signalprocessing:oregondsp:2011"
-    compile "org.hibernate:hibernate-ehcache:4.3.11.Final"
-    compile "org.hibernate:hibernate-core:4.3.11.Final"
-    runtime "org.hibernate:hibernate-c3p0:4.3.11.Final"
+    compile "org.hibernate:hibernate-ehcache:3.6.9.Final"
+    compile "org.hibernate:hibernate-core:3.6.9.Final"
+    runtime "org.hibernate:hibernate-c3p0:3.6.9.Final"
+    compile "javassist:javassist:3.12.1.GA" // ideally should be a hibernate dep
     compile "com.isti:isti.util:20120201"
 //    compile "edu.sc.seis.mapData:etopo10:1.0"
     compile "org.hsqldb:hsqldb:2.5.1"
